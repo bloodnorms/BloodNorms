@@ -1,11 +1,13 @@
 // ============================================================================
 // BloodNorms | needs_human_view.dart
-// Manual Triage Queue for Stalled Crises Requiring Human Intervention
+// Modern Minimal Manual Triage Queue for Stalled Crises
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_empty_state.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class NeedsHumanView extends StatelessWidget {
   final List<Map<String, dynamic>> liveRequests;
@@ -28,33 +30,39 @@ class NeedsHumanView extends StatelessWidget {
     }).toList();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Crises Stalled or Requiring Human Intervention (>5km search ring or zero accepted)',
+            'Triage queue',
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: BrandColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 2),
+          const Text(
+            'Requests requiring intervention (>5 km ring or zero responses)',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontSize: 13,
+              color: BrandColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 16),
           if (needsHuman.isEmpty)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Text(
-                  'Queue Clear! Zero stalled requests.',
-                  style: TextStyle(color: BrandColors.textSecondary),
-                ),
-              ),
+            const AppEmptyState(
+              icon: Icons.check_circle_outline_rounded,
+              title: 'Queue is clear',
+              description: 'Zero stalled requests. All emergency cases are progressing normally.',
             )
           else
             ...needsHuman.map((r) {
@@ -65,11 +73,12 @@ class NeedsHumanView extends StatelessWidget {
               final ring = (r['current_ring_km'] as num?)?.toDouble() ?? 5.0;
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(14),
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(12),
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -81,33 +90,34 @@ class NeedsHumanView extends StatelessWidget {
                           '$hosp · Needs $bg',
                           style: const TextStyle(
                             fontFamily: BrandTypography.fontFamily,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                             fontSize: 14,
+                            color: BrandColors.textPrimary,
                           ),
                         ),
+                        const SizedBox(height: 2),
                         Text(
-                          'Search Ring: ${ring.toStringAsFixed(1)}km · Requester: $phone',
+                          'Search ring: ${ring.toStringAsFixed(1)} km · $phone',
                           style: const TextStyle(
                             fontFamily: BrandTypography.fontFamily,
                             fontSize: 12,
+                            color: BrandColors.textSecondary,
                           ),
                         ),
                       ],
                     ),
                     Row(
                       children: [
-                        ElevatedButton(
+                        AppPillButton(
+                          label: 'Widen to 15 km',
+                          variant: AppPillButtonVariant.primary,
                           onPressed: () => onWidenRequest(id, ring),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: BrandColors.red,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: const Text('Widen to 15km'),
                         ),
                         const SizedBox(width: 8),
-                        OutlinedButton(
+                        AppPillButton(
+                          label: 'Resolve',
+                          variant: AppPillButtonVariant.secondary,
                           onPressed: () => onCloseRequest(id),
-                          child: const Text('Resolve'),
                         ),
                       ],
                     ),

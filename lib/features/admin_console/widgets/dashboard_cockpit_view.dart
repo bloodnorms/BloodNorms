@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | dashboard_cockpit_view.dart
-// Executive Operations Dashboard & KPI Cards Overview
+// Modern Minimal Operations Dashboard & KPI Cards Overview
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -9,6 +9,8 @@ import '../../../shared/models/blood_bank_model.dart';
 import '../../../shared/models/camp_model.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_empty_state.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import 'cockpit_kpi_cards_row.dart';
 
 export 'cockpit_kpi_cards_row.dart';
@@ -49,11 +51,11 @@ class DashboardCockpitView extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            color: BrandColors.background,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,43 +63,43 @@ class DashboardCockpitView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.radar_rounded, color: BrandColors.red),
-                      SizedBox(width: 8),
                       Text(
-                        'Active Live Emergencies (Rajahmundry Pilot Area)',
+                        'Live emergencies',
                         style: TextStyle(
                           fontFamily: BrandTypography.fontFamily,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: BrandColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Real-time donor matching in pilot network',
+                        style: TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontSize: 13,
+                          color: BrandColors.textSecondary,
                         ),
                       ),
                     ],
                   ),
-                  TextButton(
+                  AppPillButton(
+                    label: 'Open radar',
+                    icon: Icons.radar_rounded,
+                    variant: AppPillButtonVariant.secondary,
                     onPressed: onOpenRadar,
-                    child: const Text(
-                      'Open Radar',
-                      style: TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        fontWeight: FontWeight.bold,
-                        color: BrandColors.red,
-                      ),
-                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               if (liveRequests.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text(
-                      'No active emergencies. Standing by.',
-                      style: TextStyle(color: BrandColors.textSecondary),
-                    ),
-                  ),
+                const AppEmptyState(
+                  icon: Icons.health_and_safety_outlined,
+                  title: 'No active emergencies right now',
+                  description: 'The network is standing by and monitoring all hospital requests.',
                 )
               else
                 ...liveRequests.take(3).map((r) => _buildEmergencyRow(r)),
@@ -117,80 +119,86 @@ class DashboardCockpitView extends StatelessWidget {
     final ringKm = (req['current_ring_km'] as num?)?.toDouble() ?? 1.5;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                    color: BrandColors.red,
-                    borderRadius: BorderRadius.circular(6)),
-                child: Text(
-                  bg,
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 12,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: BrandColors.surfaceSoft,
+          borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+          border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: BrandColors.statusErrorTint,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                  ),
+                  child: Text(
+                    bg,
+                    style: const TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontWeight: FontWeight.w600,
+                      color: BrandColors.statusError,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$hosp · $units Units',
-                    style: const TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: BrandColors.textPrimary,
+                const SizedBox(width: 14),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$hosp · $units Units',
+                      style: const TextStyle(
+                        fontFamily: BrandTypography.fontFamily,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: BrandColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Search Ring: ${ringKm.toStringAsFixed(1)} km · Phone: $phone',
-                    style: const TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontSize: 11,
-                      color: BrandColors.textSecondary,
+                    const SizedBox(height: 2),
+                    Text(
+                      'Search ring: ${ringKm.toStringAsFixed(1)} km · $phone',
+                      style: const TextStyle(
+                        fontFamily: BrandTypography.fontFamily,
+                        fontSize: 12,
+                        color: BrandColors.textSecondary,
+                      ),
                     ),
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                if (phone.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.phone_outlined, size: 18, color: BrandColors.statusSuccess),
+                    tooltip: 'Call requester',
+                    onPressed: () async {
+                      final uri = Uri.parse('tel:${phone.replaceAll(' ', '')}');
+                      if (await canLaunchUrl(uri)) await launchUrl(uri);
+                    },
                   ),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              if (phone.isNotEmpty)
                 IconButton(
-                  icon: const Icon(Icons.phone_rounded,
-                      size: 18, color: BrandColors.green),
-                  onPressed: () async {
-                    final uri =
-                        Uri.parse('tel:${phone.replaceAll(' ', '')}');
-                    if (await canLaunchUrl(uri)) await launchUrl(uri);
-                  },
+                  icon: const Icon(Icons.zoom_out_map_rounded, size: 18, color: BrandColors.accent),
+                  tooltip: 'Widen search (+2 km)',
+                  onPressed: () => onWidenRequest(id, ringKm),
                 ),
-              IconButton(
-                icon: const Icon(Icons.zoom_out_map_rounded,
-                    size: 18, color: BrandColors.red),
-                tooltip: 'Widen Search Ring (+2km)',
-                onPressed: () => onWidenRequest(id, ringKm),
-              ),
-              IconButton(
-                icon: const Icon(Icons.check_circle_outline_rounded,
-                    size: 18, color: BrandColors.green),
-                tooltip: 'Resolve Crisis',
-                onPressed: () => onCloseRequest(id),
-              ),
-            ],
-          ),
-        ],
+                IconButton(
+                  icon: const Icon(Icons.check_circle_outline_rounded, size: 18, color: BrandColors.statusSuccess),
+                  tooltip: 'Resolve crisis',
+                  onPressed: () => onCloseRequest(id),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

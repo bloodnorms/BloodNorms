@@ -17,6 +17,7 @@ class AppStatCard extends StatefulWidget {
   final Color? iconColor;
   final Color? iconBgColor;
   final String? subtitle;
+  final String? trendText;
   final VoidCallback? onTap;
 
   const AppStatCard({
@@ -27,6 +28,7 @@ class AppStatCard extends StatefulWidget {
     this.iconColor,
     this.iconBgColor,
     this.subtitle,
+    this.trendText,
     this.onTap,
   });
 
@@ -41,6 +43,7 @@ class _AppStatCardState extends State<AppStatCard> {
   Widget build(BuildContext context) {
     final effectiveIconColor = widget.iconColor ?? BrandColors.primaryAction;
     final effectiveIconBg = widget.iconBgColor ?? BrandColors.surfaceMuted;
+    final displaySubtitle = widget.subtitle ?? widget.trendText;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -99,10 +102,10 @@ class _AppStatCardState extends State<AppStatCard> {
                   height: 1.2,
                 ),
               ),
-              if (widget.subtitle != null) ...[
+              if (displaySubtitle != null) ...[
                 const SizedBox(height: 6),
                 Text(
-                  widget.subtitle!,
+                  displaySubtitle,
                   style: BrandTypography.label(color: BrandColors.textMuted),
                 ),
               ],
