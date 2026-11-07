@@ -1,0 +1,84 @@
+{
+  "responsiveFindings": [
+    {
+      "viewport": "desktop_1920x1080",
+      "width": 1920,
+      "height": 1080,
+      "homeScreenshot": "qa/evidence/responsive/home_desktop_1920x1080.png",
+      "adminScreenshot": "qa/evidence/responsive/admin_desktop_1920x1080.png",
+      "overflowCheck": {
+        "docScrollWidth": 1920,
+        "windowInnerWidth": 1920,
+        "hasHorizontalOverflow": false
+      }
+    },
+    {
+      "viewport": "laptop_1440x900",
+      "width": 1440,
+      "height": 900,
+      "homeScreenshot": "qa/evidence/responsive/home_laptop_1440x900.png",
+      "adminScreenshot": "qa/evidence/responsive/admin_laptop_1440x900.png",
+      "overflowCheck": {
+        "docScrollWidth": 1440,
+        "windowInnerWidth": 1440,
+        "hasHorizontalOverflow": false
+      }
+    },
+    {
+      "viewport": "tablet_landscape_1024x768",
+      "width": 1024,
+      "height": 768,
+      "homeScreenshot": "qa/evidence/responsive/home_tablet_landscape_1024x768.png",
+      "adminScreenshot": "qa/evidence/responsive/admin_tablet_landscape_1024x768.png",
+      "overflowCheck": {
+        "docScrollWidth": 1024,
+        "windowInnerWidth": 1024,
+        "hasHorizontalOverflow": false
+      }
+    },
+    {
+      "viewport": "tablet_portrait_768x1024",
+      "width": 768,
+      "height": 1024,
+      "homeScreenshot": "qa/evidence/responsive/home_tablet_portrait_768x1024.png",
+      "adminScreenshot": "qa/evidence/responsive/admin_tablet_portrait_768x1024.png",
+      "overflowCheck": {
+        "docScrollWidth": 768,
+        "windowInnerWidth": 768,
+        "hasHorizontalOverflow": false
+      }
+    },
+    {
+      "viewport": "mobile_375x667",
+      "width": 375,
+      "height": 667,
+      "homeScreenshot": "qa/evidence/responsive/home_mobile_375x667.png",
+      "adminScreenshot": "qa/evidence/responsive/admin_mobile_375x667.png",
+      "overflowCheck": {
+        "docScrollWidth": 375,
+        "windowInnerWidth": 375,
+        "hasHorizontalOverflow": false
+      }
+    }
+  ],
+  "performance": {
+    "totalLoadDurationMs": 12,
+    "timing": {
+      "fcp": 3639.8350000083447,
+      "domInteractive": 213.33500000834465,
+      "domContentLoaded": 213.4849999845028,
+      "loadEventEnd": 295.02500000596046,
+      "memory": {
+        "jsHeapSizeLimit": 4395630592,
+        "totalJSHeapSize": 97162853,
+        "usedJSHeapSize": 66517061
+      }
+    }
+  },
+  "accessibility": {
+    "interactiveButtonsCount": 8,
+    "inputControlsCount": 0,
+    "semanticsNodesTotal": 24,
+    "hasAriaLiveRegion": true
+  }
+}

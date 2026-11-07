@@ -1,0 +1,284 @@
+{
+  "total": 28,
+  "workspaces": [
+    {
+      "index": 1,
+      "id": "dashboard",
+      "label": "Dashboard Cockpit",
+      "screenshot": "qa/evidence/admin/admin_01_dashboard.png",
+      "fileSize": 189288,
+      "success": true
+    },
+    {
+      "index": 2,
+      "id": "crisis_radar",
+      "label": "Live Crisis Radar",
+      "screenshot": "qa/evidence/admin/admin_02_crisis_radar.png",
+      "fileSize": 112864,
+      "success": true
+    },
+    {
+      "index": 3,
+      "id": "needs_human",
+      "label": "Needs Human Queue",
+      "screenshot": "qa/evidence/admin/admin_03_needs_human.png",
+      "fileSize": 116478,
+      "success": true
+    },
+    {
+      "index": 4,
+      "id": "broadcast_dispatch",
+      "label": "Dispatch Broadcaster",
+      "screenshot": "qa/evidence/admin/admin_04_broadcast_dispatch.png",
+      "fileSize": 142034,
+      "success": true
+    },
+    {
+      "index": 5,
+      "id": "broadcast_audience",
+      "label": "Audience & Geofence",
+      "screenshot": "qa/evidence/admin/admin_05_broadcast_audience.png",
+      "fileSize": 110312,
+      "success": true
+    },
+    {
+      "index": 6,
+      "id": "broadcast_history",
+      "label": "Campaign History",
+      "screenshot": "qa/evidence/admin/admin_06_broadcast_history.png",
+      "fileSize": 138624,
+      "success": true
+    },
+    {
+      "index": 7,
+      "id": "voice_simulator",
+      "label": "Voice Simulator Sandbox",
+      "screenshot": "qa/evidence/admin/admin_07_voice_simulator.png",
+      "fileSize": 106465,
+      "success": true
+    },
+    {
+      "index": 8,
+      "id": "voice_prompts",
+      "label": "Prompts & Guardrails",
+      "screenshot": "qa/evidence/admin/admin_08_voice_prompts.png",
+      "fileSize": 116975,
+      "success": true
+    },
+    {
+      "index": 9,
+      "id": "voice_safety",
+      "label": "Safety Cap & Minutes",
+      "screenshot": "qa/evidence/admin/admin_09_voice_safety.png",
+      "fileSize": 103787,
+      "success": true
+    },
+    {
+      "index": 10,
+      "id": "whatsapp_bot",
+      "label": "Live Assistant Bot",
+      "screenshot": "qa/evidence/admin/admin_10_whatsapp_bot.png",
+      "fileSize": 182050,
+      "success": true
+    },
+    {
+      "index": 11,
+      "id": "whatsapp_templates",
+      "label": "Template Chat Preview",
+      "screenshot": "qa/evidence/admin/admin_11_whatsapp_templates.png",
+      "fileSize": 134510,
+      "success": true
+    },
+    {
+      "index": 12,
+      "id": "whatsapp_telecom",
+      "label": "Telecom Rate Cards",
+      "screenshot": "qa/evidence/admin/admin_12_whatsapp_telecom.png",
+      "fileSize": 109384,
+      "success": true
+    },
+    {
+      "index": 13,
+      "id": "camps_list",
+      "label": "Scheduled Drives",
+      "screenshot": "qa/evidence/admin/admin_13_camps_list.png",
+      "fileSize": 131815,
+      "success": true
+    },
+    {
+      "index": 14,
+      "id": "camps_create",
+      "label": "Schedule New Drive",
+      "screenshot": "qa/evidence/admin/admin_14_camps_create.png",
+      "fileSize": 109958,
+      "success": true
+    },
+    {
+      "index": 15,
+      "id": "banks_directory",
+      "label": "Connected Centers",
+      "screenshot": "qa/evidence/admin/admin_15_banks_directory.png",
+      "fileSize": 134965,
+      "success": true
+    },
+    {
+      "index": 16,
+      "id": "banks_stock",
+      "label": "8-Group Stock Matrix",
+      "screenshot": "qa/evidence/admin/admin_16_banks_stock.png",
+      "fileSize": 115954,
+      "success": true
+    },
+    {
+      "index": 17,
+      "id": "donors_list",
+      "label": "Donors Directory",
+      "screenshot": "qa/evidence/admin/admin_17_donors_list.png",
+      "fileSize": 128762,
+      "success": true
+    },
+    {
+      "index": 18,
+      "id": "donors_location",
+      "label": "Location & Travel Caps",
+      "screenshot": "qa/evidence/admin/admin_18_donors_location.png",
+      "fileSize": 110892,
+      "success": true
+    },
+    {
+      "index": 19,
+      "id": "hospitals_list",
+      "label": "Verified Hospitals",
+      "screenshot": "qa/evidence/admin/admin_19_hospitals_list.png",
+      "fileSize": 121786,
+      "success": true
+    },
+    {
+      "index": 20,
+      "id": "requester_shield",
+      "label": "Requester Abuse Shield",
+      "screenshot": "qa/evidence/admin/admin_20_requester_shield.png",
+      "fileSize": 98502,
+      "success": true
+    },
+    {
+      "index": 21,
+      "id": "community_partners",
+      "label": "Community Partners & NGOs",
+      "screenshot": "qa/evidence/admin/admin_21_community_partners.png",
+      "fileSize": 125508,
+      "success": true
+    },
+    {
+      "index": 22,
+      "id": "approvals_queue",
+      "label": "Four-Eyes Approvals",
+      "screenshot": "qa/evidence/admin/admin_22_approvals_queue.png",
+      "fileSize": 99158,
+      "success": true
+    },
+    {
+      "index": 23,
+      "id": "data_exports",
+      "label": "Data Exports Engine",
+      "screenshot": "qa/evidence/admin/admin_23_data_exports.png",
+      "fileSize": 105885,
+      "success": true
+    },
+    {
+      "index": 24,
+      "id": "dpdp_registry",
+      "label": "DPDP Privacy & Erasures",
+      "screenshot": "qa/evidence/admin/admin_24_dpdp_registry.png",
+      "fileSize": 101343,
+      "success": true
+    },
+    {
+      "index": 25,
+      "id": "settings_killswitch",
+      "label": "Master Platform Killswitch",
+      "screenshot": "qa/evidence/admin/admin_25_settings_killswitch.png",
+      "fileSize": 98193,
+      "success": true
+    },
+    {
+      "index": 26,
+      "id": "settings_algorithm",
+      "label": "Search Ring Parameters",
+      "screenshot": "qa/evidence/admin/admin_26_settings_algorithm.png",
+      "fileSize": 116773,
+      "success": true
+    },
+    {
+      "index": 27,
+      "id": "settings_safety",
+      "label": "Clinical Safety Desk",
+      "screenshot": "qa/evidence/admin/admin_27_settings_safety.png",
+      "fileSize": 102397,
+      "success": true
+    },
+    {
+      "index": 28,
+      "id": "settings_audit",
+      "label": "Immutable Audit Logs",
+      "screenshot": "qa/evidence/admin/admin_28_settings_audit.png",
+      "fileSize": 132748,
+      "success": true
+    }
+  ],
+  "consoleErrors": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 400 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 ()"
+    }
+  ],
+  "networkErrors": []
+}

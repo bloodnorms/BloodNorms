@@ -1,0 +1,238 @@
+[
+  {
+    "route": "#/",
+    "name": "01_home",
+    "title": "Home / Requester Landing",
+    "status": 200,
+    "durationMs": 8228,
+    "screenshot": "qa/evidence/routes/01_home.png",
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 ()"
+      }
+    ],
+    "failedRequests": []
+  },
+  {
+    "route": "#/group",
+    "name": "02_group",
+    "title": "Blood Group Selection",
+    "status": 200,
+    "durationMs": 3541,
+    "screenshot": "qa/evidence/routes/02_group.png",
+    "consoleErrors": [],
+    "failedRequests": []
+  },
+  {
+    "route": "#/units",
+    "name": "03_units",
+    "title": "Units & Urgency",
+    "status": 200,
+    "durationMs": 3521,
+    "screenshot": "qa/evidence/routes/03_units.png",
+    "consoleErrors": [],
+    "failedRequests": []
+  },
+  {
+    "route": "#/location",
+    "name": "04_location",
+    "title": "Location Picker",
+    "status": 200,
+    "durationMs": 3533,
+    "screenshot": "qa/evidence/routes/04_location.png",
+    "consoleErrors": [],
+    "failedRequests": []
+  },
+  {
+    "route": "#/banks",
+    "name": "05_banks_requester",
+    "title": "Requester Banks Matching",
+    "status": 200,
+    "durationMs": 3530,
+    "screenshot": "qa/evidence/routes/05_banks_requester.png",
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 ()"
+      }
+    ],
+    "failedRequests": []
+  },
+  {
+    "route": "#/details",
+    "name": "06_details",
+    "title": "Patient Details Form",
+    "status": 200,
+    "durationMs": 3529,
+    "screenshot": "qa/evidence/routes/06_details.png",
+    "consoleErrors": [],
+    "failedRequests": []
+  },
+  {
+    "route": "#/review",
+    "name": "07_review",
+    "title": "Review & Send Request",
+    "status": 200,
+    "durationMs": 3542,
+    "screenshot": "qa/evidence/routes/07_review.png",
+    "consoleErrors": [],
+    "failedRequests": []
+  },
+  {
+    "route": "#/live/QA_20261107_REQ_01",
+    "name": "08_live_tracking",
+    "title": "Live Request Tracking",
+    "status": 200,
+    "durationMs": 3528,
+    "screenshot": "qa/evidence/routes/08_live_tracking.png",
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      }
+    ],
+    "failedRequests": []
+  },
+  {
+    "route": "#/b",
+    "name": "09_public_banks",
+    "title": "Public Banks Directory",
+    "status": 200,
+    "durationMs": 3531,
+    "screenshot": "qa/evidence/routes/09_public_banks.png",
+    "consoleErrors": [],
+    "failedRequests": []
+  },
+  {
+    "route": "#/donor",
+    "name": "10_donor_home",
+    "title": "Donor Home & Pass",
+    "status": 200,
+    "durationMs": 3523,
+    "screenshot": "qa/evidence/routes/10_donor_home.png",
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()"
+      }
+    ],
+    "failedRequests": []
+  },
+  {
+    "route": "#/donor/onboarding",
+    "name": "11_donor_onboarding",
+    "title": "Donor Onboarding Form",
+    "status": 200,
+    "durationMs": 3533,
+    "screenshot": "qa/evidence/routes/11_donor_onboarding.png",
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 401 ()"
+      }
+    ],
+    "failedRequests": []
+  },
+  {
+    "route": "#/donor/ticket/QA_20261107_REQ_01",
+    "name": "12_donor_ticket",
+    "title": "Donor Response Ticket",
+    "status": 200,
+    "durationMs": 3525,
+    "screenshot": "qa/evidence/routes/12_donor_ticket.png",
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      }
+    ],
+    "failedRequests": []
+  },
+  {
+    "route": "#/bank",
+    "name": "13_bank_console",
+    "title": "Blood Bank Staff Console",
+    "status": 200,
+    "durationMs": 3534,
+    "screenshot": "qa/evidence/routes/13_bank_console.png",
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()"
+      }
+    ],
+    "failedRequests": []
+  },
+  {
+    "route": "#/admin",
+    "name": "14_admin_console",
+    "title": "Admin Command Center",
+    "status": 200,
+    "durationMs": 3530,
+    "screenshot": "qa/evidence/routes/14_admin_console.png",
+    "consoleErrors": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()"
+      }
+    ],
+    "failedRequests": []
+  }
+]
