@@ -1,6 +1,7 @@
 // ============================================================================
 // BloodNorms | admin_console_screen.dart
 // Executive Operations & Superhero Admin Command Center Screen
+// Thin Screen Composing Modular Widgets & Router
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -54,10 +55,16 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
   List<Map<String, dynamic>> _dataExports = [];
   Map<String, dynamic> _dailySpend = {};
 
-  // Interactive 8-Group Stock Matrix (Reactive units for quick adjustments)
+  // Interactive 8-Group Stock Matrix
   final Map<String, int> _stockMatrix = {
-    'A+': 34, 'A-': 12, 'B+': 48, 'B-': 18,
-    'O+': 62, 'O-': 8, 'AB+': 22, 'AB-': 6,
+    'A+': 34,
+    'A-': 12,
+    'B+': 48,
+    'B-': 18,
+    'O+': 62,
+    'O-': 8,
+    'AB+': 22,
+    'AB-': 6,
   };
 
   // --- REGIONAL BROADCAST WORKSPACE STATE ---
@@ -65,7 +72,8 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     text: 'Mega Voluntary Blood Camp at Rotary Diamond Hall',
   );
   final TextEditingController _broadcastMsgController = TextEditingController(
-    text: 'Dear BloodNorms Hero, a voluntary blood camp is organized this Sunday 9 AM at Rotary Diamond Hall, Main Road. Would you like to attend and donate? Reply YES to confirm.',
+    text:
+        'Dear BloodNorms Hero, a voluntary blood camp is organized this Sunday 9 AM at Rotary Diamond Hall, Main Road. Would you like to attend and donate? Reply YES to confirm.',
   );
   String? _selectedCampId;
   String _selectedTargetCity = 'Rajahmundry';
@@ -103,7 +111,8 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       final s = SupabaseService();
       final reqs = await s.getActiveRequests();
       final donors = await s.getAllDonors();
-      final banks = await s.getNearestBanks(lat: AppConstants.defaultLat, lng: AppConstants.defaultLng);
+      final banks = await s.getNearestBanks(
+          lat: AppConstants.defaultLat, lng: AppConstants.defaultLng);
       final camps = await s.getCamps();
       final kill = await s.getKillSwitch();
       final audit = await s.getRecentActivityLog();
@@ -184,10 +193,12 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       final idx = _liveRequests.indexWhere((r) => r['id'].toString() == reqId);
       if (idx != -1) {
         _liveRequests[idx]['current_ring_km'] = nextKm;
-        _liveRequests[idx]['donors_contacted'] = (_liveRequests[idx]['donors_contacted'] ?? 0) + 3;
+        _liveRequests[idx]['donors_contacted'] =
+            (_liveRequests[idx]['donors_contacted'] ?? 0) + 3;
       }
     });
-    _showToast('Expanded search ring to ${nextKm.toStringAsFixed(1)} km (+3 donors contacted)');
+    _showToast(
+        'Expanded search ring to ${nextKm.toStringAsFixed(1)} km (+3 donors contacted)');
   }
 
   Future<void> _closeRequest(String reqId) async {
@@ -210,10 +221,14 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       _auditLogs.insert(0, {
         'time': 'Just now',
         'action': 'killswitch.toggle',
-        'detail': value ? 'Emergency platform killswitch ACTIVATED' : 'Platform killswitch deactivated - normal ops restored',
+        'detail': value
+            ? 'Emergency platform killswitch ACTIVATED'
+            : 'Platform killswitch deactivated - normal ops restored',
       });
     });
-    _showToast(value ? '🚨 PLATFORM EMERGENCY KILL-SWITCH ACTIVATED' : '✅ Platform operations restored to normal');
+    _showToast(value
+        ? '🚨 PLATFORM EMERGENCY KILL-SWITCH ACTIVATED'
+        : '✅ Platform operations restored to normal');
   }
 
   void _adjustStockDirect(String group, int delta) {
@@ -242,28 +257,40 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       }
     });
     if (_banksList.isNotEmpty) {
-      SupabaseService().adjustBankStockQuick(bankId: _banksList.first.id, bloodGroup: group, deltaUnits: delta);
+      SupabaseService().adjustBankStockQuick(
+        bankId: _banksList.first.id,
+        bloodGroup: group,
+        deltaUnits: delta,
+      );
     }
-    _showToast('${delta > 0 ? "+$delta" : delta} units of $group adjusted in database');
+    _showToast(
+        '${delta > 0 ? "+$delta" : delta} units of $group adjusted in database');
   }
 
   Future<void> _toggleRequesterBlock(String phone, bool currentBlocked) async {
     final nextBlocked = !currentBlocked;
-    await SupabaseService().setRequesterBlockStatus(phone: phone, isBlocked: nextBlocked, reason: 'Admin manual audit');
+    await SupabaseService().setRequesterBlockStatus(
+      phone: phone,
+      isBlocked: nextBlocked,
+      reason: 'Admin manual audit',
+    );
     setState(() {
       final idx = _requestersList.indexWhere((r) => r['phone'] == phone);
       if (idx != -1) {
         _requestersList[idx]['is_blocked'] = nextBlocked;
       }
     });
-    _showToast(nextBlocked ? 'Blocked $phone from emergency broadcast' : 'Unblocked $phone');
+    _showToast(nextBlocked
+        ? 'Blocked $phone from emergency broadcast'
+        : 'Unblocked $phone');
   }
 
   Future<void> _toggleDonorPause(String donorId, String currentState) async {
     final nextState = currentState == 'active' ? 'paused' : 'active';
     await SupabaseService().updateDonorState(donorId, nextState);
     setState(() {
-      final idx = _donorsList.indexWhere((d) => d['id'].toString() == donorId);
+      final idx =
+          _donorsList.indexWhere((d) => d['id'].toString() == donorId);
       if (idx != -1) {
         _donorsList[idx]['state'] = nextState;
       }
@@ -283,10 +310,13 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
         _auditLogs.insert(0, {
           'time': 'Just now',
           'action': approve ? 'approval.granted' : 'approval.rejected',
-          'detail': '${approve ? "Approved" : "Rejected"} request #$id by Checker',
+          'detail':
+              '${approve ? "Approved" : "Rejected"} request #$id by Checker',
         });
       });
-      _showToast(approve ? 'Approved change request #$id' : 'Rejected change request #$id');
+      _showToast(approve
+          ? 'Approved change request #$id'
+          : 'Rejected change request #$id');
     } else {
       _showToast('Approval action failed: ${res['reason']}');
     }
@@ -334,7 +364,8 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
             'created_at': DateTime.now().toIso8601String(),
           });
         });
-        _showToast('🚀 Broadcast sent to $count donors in $_selectedTargetCity within ${_broadcastRadiusKm.toInt()} km! ($suppressed suppressed, ₹$cost INR)');
+        _showToast(
+            '🚀 Broadcast sent to $count donors in $_selectedTargetCity within ${_broadcastRadiusKm.toInt()} km! ($suppressed suppressed, ₹$cost INR)');
         _updateAudiencePreview();
       } else if (res['requires_approval'] == true) {
         final count = res['eligible_count'] ?? 0;
@@ -342,17 +373,29 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           context: context,
           builder: (ctx) => AlertDialog(
             backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             title: const Row(
               children: [
                 Icon(Icons.rule_folder_outlined, color: BrandColors.red),
                 SizedBox(width: 8),
-                Text('Four-Eyes Approval Required', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  'Four-Eyes Approval Required',
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ],
             ),
             content: Text(
               'Broadcasting to $count recipients exceeds single-admin threshold (>200 donors).\n\nRouted to Four-Eyes Approvals Desk for second-admin verification.',
-              style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 13, height: 1.4),
+              style: const TextStyle(
+                fontFamily: BrandTypography.fontFamily,
+                fontSize: 13,
+                height: 1.4,
+              ),
             ),
             actions: [
               TextButton(
@@ -360,11 +403,21 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                   Navigator.pop(ctx);
                   setState(() => _activePage = 'approvals_queue');
                 },
-                child: const Text('Go to Approvals Queue', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, color: BrandColors.red)),
+                child: const Text(
+                  'Go to Approvals Queue',
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontWeight: FontWeight.bold,
+                    color: BrandColors.red,
+                  ),
+                ),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(ctx),
-                style: ElevatedButton.styleFrom(backgroundColor: BrandColors.red, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: BrandColors.red,
+                  foregroundColor: Colors.white,
+                ),
                 child: const Text('Acknowledged'),
               ),
             ],
@@ -397,8 +450,10 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                     activePage: _activePage,
                     isSidebarCompact: _isSidebarCompact,
                     expandedCategories: _expandedCategories,
-                    onPageSelected: (page) => setState(() => _activePage = page),
-                    onToggleCompact: () => setState(() => _isSidebarCompact = !_isSidebarCompact),
+                    onPageSelected: (page) =>
+                        setState(() => _activePage = page),
+                    onToggleCompact: () => setState(
+                        () => _isSidebarCompact = !_isSidebarCompact),
                     onToggleCategory: (cat) {
                       setState(() {
                         if (_expandedCategories.contains(cat)) {
@@ -412,7 +467,11 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                   ),
                   Expanded(
                     child: _isLoading
-                        ? const Center(child: CircularProgressIndicator(color: BrandColors.red))
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: BrandColors.red,
+                            ),
+                          )
                         : _buildMainWorkspaceCanvas(),
                   ),
                 ],
@@ -425,7 +484,12 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                   iconTheme: const IconThemeData(color: Colors.white),
                   title: Text(
                     AdminHeader.getPageTitle(_activePage),
-                    style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15),
+                    style: const TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 15,
+                    ),
                   ),
                   actions: [
                     IconButton(
@@ -436,7 +500,8 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.bolt_rounded, color: BrandColors.red),
+                      icon: const Icon(Icons.bolt_rounded,
+                          color: BrandColors.red),
                       onPressed: _openQuickActions,
                     ),
                   ],
@@ -446,7 +511,8 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                     activePage: _activePage,
                     isSidebarCompact: false,
                     expandedCategories: _expandedCategories,
-                    onPageSelected: (page) => setState(() => _activePage = page),
+                    onPageSelected: (page) =>
+                        setState(() => _activePage = page),
                     onToggleCompact: () {},
                     onToggleCategory: (cat) {
                       setState(() {
@@ -461,7 +527,11 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                   ),
                 ),
                 body: _isLoading
-                    ? const Center(child: CircularProgressIndicator(color: BrandColors.red))
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: BrandColors.red,
+                        ),
+                      )
                     : _buildMainWorkspaceCanvas(),
               ),
       ),
@@ -477,41 +547,13 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           onQuickActions: _openQuickActions,
         ),
         const SizedBox(height: 20),
-        _buildActiveWorkspacePage(),
-      ],
-    );
-  }
-
-  Widget _buildActiveWorkspacePage() {
-    switch (_activePage) {
-      case 'dashboard':
-        return DashboardCockpitView(
+        AdminWorkspaceRouter(
+          activePage: _activePage,
           liveRequests: _liveRequests,
           banksList: _banksList,
           donorsList: _donorsList,
           campsList: _campsList,
           dailySpend: _dailySpend,
-          onOpenRadar: () => setState(() => _activePage = 'crisis_radar'),
-          onWidenRequest: _widenRequest,
-          onCloseRequest: _closeRequest,
-        );
-      case 'crisis_radar':
-        return CrisisRadarView(
-          liveRequests: _liveRequests,
-          onWidenRequest: _widenRequest,
-          onCloseRequest: _closeRequest,
-        );
-      case 'needs_human':
-        return NeedsHumanView(
-          liveRequests: _liveRequests,
-          onWidenRequest: _widenRequest,
-          onCloseRequest: _closeRequest,
-        );
-      case 'broadcast_dispatch':
-      case 'broadcast_audience':
-      case 'broadcast_history':
-        return RegionalBroadcastView(
-          subPage: _activePage,
           audiencePreview: _audiencePreview,
           broadcastHistory: _broadcastHistory,
           selectedTargetCity: _selectedTargetCity,
@@ -521,6 +563,19 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           broadcastTitleController: _broadcastTitleController,
           broadcastMsgController: _broadcastMsgController,
           isBroadcasting: _isBroadcasting,
+          hospitalsList: _hospitalsList,
+          requestersList: _requestersList,
+          partnersList: _partnersList,
+          approvalRequests: _approvalRequests,
+          dataExports: _dataExports,
+          dpdpRequests: _dpdpRequests,
+          killSwitchActive: _killSwitchActive,
+          safetyIncidents: _safetyIncidents,
+          auditLogs: _auditLogs,
+          stockMatrix: _stockMatrix,
+          onWidenRequest: _widenRequest,
+          onCloseRequest: _closeRequest,
+          onNavigate: (page) => setState(() => _activePage = page),
           onCityChanged: (city) {
             setState(() => _selectedTargetCity = city);
             _updateAudiencePreview();
@@ -534,29 +589,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
             setState(() => _respectDonorTravelRadius = val);
             _updateAudiencePreview();
           },
-          onDispatch: _dispatchBroadcast,
-        );
-      case 'voice_simulator':
-      case 'voice_prompts':
-      case 'voice_safety':
-        return AiVoiceStudioView(
-          subPage: _activePage,
-          onShowToast: _showToast,
-        );
-      case 'whatsapp_bot':
-      case 'whatsapp_templates':
-      case 'whatsapp_telecom':
-        return WhatsAppCenterView(
-          subPage: _activePage,
-          onShowToast: _showToast,
-        );
-      case 'camps_list':
-      case 'camps_create':
-        return BloodCampsAdminView(
-          subPage: _activePage,
-          campsList: _campsList,
-          banksList: _banksList,
-          onNavigateToCreate: () => setState(() => _activePage = 'camps_create'),
+          onDispatchBroadcast: _dispatchBroadcast,
           onCampSelectedForBroadcast: (camp) {
             setState(() {
               _selectedCampId = camp.id;
@@ -571,54 +604,14 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
               _activePage = 'camps_list';
             });
           },
-          onShowToast: _showToast,
-        );
-      case 'banks_directory':
-      case 'banks_stock':
-        return BloodBanksStockView(
-          subPage: _activePage,
-          banksList: _banksList,
-          stockMatrix: _stockMatrix,
           onAdjustStock: _adjustStockDirect,
-        );
-      case 'donors_list':
-      case 'donors_location':
-        return DonorsRegistryView(
-          subPage: _activePage,
-          donorsList: _donorsList,
           onToggleDonorPause: _toggleDonorPause,
-          onShowToast: _showToast,
-        );
-      case 'hospitals_list':
-      case 'requester_shield':
-      case 'community_partners':
-        return DirectoryRegistryView(
-          subPage: _activePage,
-          hospitalsList: _hospitalsList,
-          requestersList: _requestersList,
-          partnersList: _partnersList,
           onToggleRequesterBlock: _toggleRequesterBlock,
-        );
-      case 'approvals_queue':
-      case 'data_exports':
-      case 'dpdp_registry':
-      case 'settings_killswitch':
-      case 'settings_algorithm':
-      case 'settings_safety':
-      case 'settings_audit':
-      default:
-        return GovernanceViews(
-          subPage: _activePage,
-          approvalRequests: _approvalRequests,
-          dataExports: _dataExports,
-          dpdpRequests: _dpdpRequests,
-          killSwitchActive: _killSwitchActive,
-          safetyIncidents: _safetyIncidents,
-          auditLogs: _auditLogs,
           onDecideApproval: _decideApproval,
           onToggleKillSwitch: _toggleKillSwitch,
           onShowToast: _showToast,
-        );
-    }
+        ),
+      ],
+    );
   }
 }
