@@ -4,4 +4,5 @@
 // ============================================================================
 
 export 'screens/bank_console_screen.dart';
+export 'services/index.dart';
 export 'widgets/index.dart';

@@ -34,6 +34,17 @@ export '../models/donor_card_model.dart';
 export '../models/notification_model.dart';
 export '../models/request_alert_model.dart';
 
+// Domain Services Re-Exports
+import '../../features/admin_console/services/index.dart';
+import '../../features/bank_console/services/index.dart';
+import '../../features/donor/services/index.dart';
+import 'notification_service.dart';
+
+export '../../features/admin_console/services/index.dart';
+export '../../features/bank_console/services/index.dart';
+export '../../features/donor/services/index.dart';
+export 'notification_service.dart';
+
 // ignore_for_file: prefer_single_quotes
 // (Legacy file; single-quote style will be enforced when this file is split)
 
@@ -1560,28 +1571,13 @@ class SupabaseService {
     };
   }
 
-  // 31. Superhero Admin: Promote Donor Trust Level
-  Future<bool> updateDonorTrustLevel(String donorId, int trustLevel) async {
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('donors').update({
-          'trust_level': trustLevel,
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', donorId);
+  // ==========================================================================
+  // SUPERHERO ADMIN & TELEMETRY OPERATIONS (Delegated)
+  // ==========================================================================
 
-        await client!.from('audit_logs').insert({
-          'action': 'donor_trust_promoted',
-          'target_type': 'donors',
-          'target_id': donorId,
-          'meta': {'new_trust_level': trustLevel},
-        });
-        return true;
-      } catch (e) {
-        debugPrint('updateDonorTrustLevel error: $e');
-      }
-    }
-    return false;
-  }
+  // 31. Superhero Admin: Promote Donor Trust Level
+  Future<bool> updateDonorTrustLevel(String donorId, int trustLevel) =>
+      AdminDonorOperationsService().updateDonorTrustLevel(donorId, trustLevel);
 
   // 32. Superhero Admin: Quick Bank Stock Adjustment (+ / - units)
   Future<bool> adjustBankStockQuick({
@@ -1589,100 +1585,29 @@ class SupabaseService {
     required String bloodGroup,
     required int deltaUnits,
     String component = 'whole_blood',
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final existing = await client!
-            .from('bank_stock')
-            .select('id, units')
-            .eq('bank_id', bankId)
-            .eq('blood_group', bloodGroup)
-            .eq('component', component)
-            .maybeSingle();
-
-        final currentUnits = (existing?['units'] as num?)?.toInt() ?? 0;
-        final newUnits = (currentUnits + deltaUnits).clamp(0, 999);
-
-        if (existing != null) {
-          await client!.from('bank_stock').update({
-            'units': newUnits,
-            'updated_at': DateTime.now().toIso8601String(),
-            'source': 'admin_quick_adjust',
-          }).eq('id', existing['id']);
-        } else {
-          await client!.from('bank_stock').insert({
-            'bank_id': bankId,
-            'blood_group': bloodGroup,
-            'component': component,
-            'units': newUnits,
-            'source': 'admin_quick_adjust',
-          });
-        }
-
-        await client!.from('audit_logs').insert({
-          'action': 'admin_quick_stock_adjust',
-          'target_type': 'bank_stock',
-          'target_id': bankId,
-          'meta': {
-            'group': bloodGroup,
-            'delta': deltaUnits,
-            'new_units': newUnits,
-          },
-        });
-        return true;
-      } catch (e) {
-        debugPrint('adjustBankStockQuick error: $e');
-      }
-    }
-    return false;
-  }
+  }) =>
+      AdminBankOperationsService().adjustBankStockQuick(
+        bankId: bankId,
+        bloodGroup: bloodGroup,
+        deltaUnits: deltaUnits,
+        component: component,
+      );
 
   // 33. Superhero Admin: Update Blood Bank Meta
   Future<bool> updateBloodBank({
     required String bankId,
     double? trustScore,
     bool? is24x7,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final updates = <String, dynamic>{
-          'updated_at': DateTime.now().toIso8601String(),
-        };
-        if (trustScore != null) updates['trust_score'] = trustScore;
-        if (is24x7 != null) updates['is_24x7'] = is24x7;
-
-        await client!.from('blood_banks').update(updates).eq('id', bankId);
-        await client!.from('audit_logs').insert({
-          'action': 'admin_bank_update',
-          'target_type': 'blood_banks',
-          'target_id': bankId,
-          'meta': updates,
-        });
-        return true;
-      } catch (e) {
-        debugPrint('updateBloodBank error: $e');
-      }
-    }
-    return false;
-  }
+  }) =>
+      AdminBankOperationsService().updateBloodBank(
+        bankId: bankId,
+        trustScore: trustScore,
+        is24x7: is24x7,
+      );
 
   // 34. Superhero Admin: Get Outbound Broadcast History
-  Future<List<Map<String, dynamic>>> getBroadcastHistory() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!
-            .from('message_events')
-            .select()
-            .eq('direction', 'outbound')
-            .order('created_at', ascending: false)
-            .limit(20);
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getBroadcastHistory error: $e');
-      }
-    }
-    return [];
-  }
+  Future<List<Map<String, dynamic>>> getBroadcastHistory() =>
+      AdminCampOperationsService().getBroadcastHistory();
 
   // 35. Superhero Admin: Create Donor Manually
   Future<Map<String, dynamic>> createDonorDirect({
@@ -1693,37 +1618,16 @@ class SupabaseService {
     String gender = 'other',
     int maxTravelKm = 10,
     String state = 'active',
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('donors').insert({
-          'full_name': fullName,
-          'first_name': fullName.split(' ').first,
-          'phone': phone,
-          'blood_group': bloodGroup,
-          'trust_level': trustLevel,
-          'gender': gender,
-          'max_travel_km': maxTravelKm,
-          'state': state,
-          'donations_count': 0,
-          'created_at': DateTime.now().toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
-        }).select().single();
-
-        await client!.from('audit_logs').insert({
-          'action': 'admin_create_donor',
-          'target_type': 'donors',
-          'target_id': res['id'],
-          'meta': {'name': fullName, 'phone': phone, 'group': bloodGroup},
-        });
-        return {'success': true, 'donor': res};
-      } catch (e) {
-        debugPrint('createDonorDirect error: $e');
-        return {'success': false, 'error': e.toString()};
-      }
-    }
-    return {'success': false, 'error': 'Database disconnected'};
-  }
+  }) =>
+      AdminDonorOperationsService().createDonorDirect(
+        fullName: fullName,
+        phone: phone,
+        bloodGroup: bloodGroup,
+        trustLevel: trustLevel,
+        gender: gender,
+        maxTravelKm: maxTravelKm,
+        state: state,
+      );
 
   // 36. Superhero Admin: Update Donor Details
   Future<bool> updateDonorDirect({
@@ -1736,38 +1640,18 @@ class SupabaseService {
     String? gender,
     int? maxTravelKm,
     int? donationsCount,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final updates = <String, dynamic>{
-          'updated_at': DateTime.now().toIso8601String(),
-        };
-        if (fullName != null) {
-          updates['full_name'] = fullName;
-          updates['first_name'] = fullName.split(' ').first;
-        }
-        if (phone != null) updates['phone'] = phone;
-        if (bloodGroup != null) updates['blood_group'] = bloodGroup;
-        if (state != null) updates['state'] = state;
-        if (trustLevel != null) updates['trust_level'] = trustLevel;
-        if (gender != null) updates['gender'] = gender;
-        if (maxTravelKm != null) updates['max_travel_km'] = maxTravelKm;
-        if (donationsCount != null) updates['donations_count'] = donationsCount;
-
-        await client!.from('donors').update(updates).eq('id', id);
-        await client!.from('audit_logs').insert({
-          'action': 'admin_update_donor',
-          'target_type': 'donors',
-          'target_id': id,
-          'meta': updates,
-        });
-        return true;
-      } catch (e) {
-        debugPrint('updateDonorDirect error: $e');
-      }
-    }
-    return false;
-  }
+  }) =>
+      AdminDonorOperationsService().updateDonorDirect(
+        id: id,
+        fullName: fullName,
+        phone: phone,
+        bloodGroup: bloodGroup,
+        state: state,
+        trustLevel: trustLevel,
+        gender: gender,
+        maxTravelKm: maxTravelKm,
+        donationsCount: donationsCount,
+      );
 
   // 37. Superhero Admin: Create Blood Bank
   Future<Map<String, dynamic>> createBloodBankDirect({
@@ -1779,50 +1663,17 @@ class SupabaseService {
     String contactPerson = '',
     double lat = 17.0005,
     double lng = 81.7800,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('blood_banks').insert({
-          'name': name,
-          'address': address,
-          'phones': [phone],
-          'is_24x7': is24x7,
-          'trust_score': trustScore,
-          'contact_person': contactPerson,
-          'lat': lat,
-          'lng': lng,
-          'bank_type': 'hospital_blood_bank',
-          'hours': is24x7 ? '24 Hours' : '8:00 AM - 8:00 PM',
-          'created_at': DateTime.now().toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
-        }).select().single();
-
-        final bankId = res['id']?.toString() ?? '';
-        final groups = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
-        for (final bg in groups) {
-          await client!.from('bank_stock').insert({
-            'bank_id': bankId,
-            'blood_group': bg,
-            'component': 'whole_blood',
-            'units': 5,
-            'source': 'initial_seed',
-          });
-        }
-
-        await client!.from('audit_logs').insert({
-          'action': 'admin_create_blood_bank',
-          'target_type': 'blood_banks',
-          'target_id': bankId,
-          'meta': {'name': name, 'phone': phone},
-        });
-        return {'success': true, 'bank': res};
-      } catch (e) {
-        debugPrint('createBloodBankDirect error: $e');
-        return {'success': false, 'error': e.toString()};
-      }
-    }
-    return {'success': false, 'error': 'Database disconnected'};
-  }
+  }) =>
+      AdminBankOperationsService().createBloodBankDirect(
+        name: name,
+        address: address,
+        phone: phone,
+        is24x7: is24x7,
+        trustScore: trustScore,
+        contactPerson: contactPerson,
+        lat: lat,
+        lng: lng,
+      );
 
   // 38. Superhero Admin: Update Blood Bank Full
   Future<bool> updateBloodBankFull({
@@ -1835,64 +1686,22 @@ class SupabaseService {
     String? contactPerson,
     double? lat,
     double? lng,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final updates = <String, dynamic>{
-          'updated_at': DateTime.now().toIso8601String(),
-        };
-        if (name != null) updates['name'] = name;
-        if (address != null) updates['address'] = address;
-        if (phone != null) updates['phones'] = [phone];
-        if (is24x7 != null) {
-          updates['is_24x7'] = is24x7;
-          updates['hours'] = is24x7 ? '24 Hours' : '8:00 AM - 8:00 PM';
-        }
-        if (trustScore != null) updates['trust_score'] = trustScore;
-        if (contactPerson != null) updates['contact_person'] = contactPerson;
-        if (lat != null) updates['lat'] = lat;
-        if (lng != null) updates['lng'] = lng;
-
-        await client!.from('blood_banks').update(updates).eq('id', id);
-        await client!.from('audit_logs').insert({
-          'action': 'admin_update_blood_bank_full',
-          'target_type': 'blood_banks',
-          'target_id': id,
-          'meta': updates,
-        });
-        return true;
-      } catch (e) {
-        debugPrint('updateBloodBankFull error: $e');
-      }
-    }
-    return false;
-  }
+  }) =>
+      AdminBankOperationsService().updateBloodBankFull(
+        id: id,
+        name: name,
+        address: address,
+        phone: phone,
+        is24x7: is24x7,
+        trustScore: trustScore,
+        contactPerson: contactPerson,
+        lat: lat,
+        lng: lng,
+      );
 
   // 39. Superhero Admin: Get Stock Breakdown for All 8 Groups
-  Future<Map<String, int>> getBankStockAllGroups(String bankId) async {
-    final result = <String, int>{
-      'O+': 0, 'O-': 0, 'A+': 0, 'A-': 0,
-      'B+': 0, 'B-': 0, 'AB+': 0, 'AB-': 0,
-    };
-    if (_isInitialized && client != null) {
-      try {
-        final rows = await client!
-            .from('bank_stock')
-            .select('blood_group, units')
-            .eq('bank_id', bankId);
-        for (final r in rows) {
-          final bg = r['blood_group']?.toString() ?? '';
-          final units = (r['units'] as num?)?.toInt() ?? 0;
-          if (result.containsKey(bg)) {
-            result[bg] = units;
-          }
-        }
-      } catch (e) {
-        debugPrint('getBankStockAllGroups error: $e');
-      }
-    }
-    return result;
-  }
+  Future<Map<String, int>> getBankStockAllGroups(String bankId) =>
+      AdminBankOperationsService().getBankStockAllGroups(bankId);
 
   // 40. Superhero Admin: Set Bank Stock Directly
   Future<bool> setBankStockDirect({
@@ -1900,46 +1709,13 @@ class SupabaseService {
     required String bloodGroup,
     required int units,
     String component = 'whole_blood',
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final existing = await client!
-            .from('bank_stock')
-            .select('id')
-            .eq('bank_id', bankId)
-            .eq('blood_group', bloodGroup)
-            .eq('component', component)
-            .maybeSingle();
-
-        if (existing != null) {
-          await client!.from('bank_stock').update({
-            'units': units,
-            'updated_at': DateTime.now().toIso8601String(),
-            'source': 'admin_direct_set',
-          }).eq('id', existing['id']);
-        } else {
-          await client!.from('bank_stock').insert({
-            'bank_id': bankId,
-            'blood_group': bloodGroup,
-            'component': component,
-            'units': units,
-            'source': 'admin_direct_set',
-          });
-        }
-
-        await client!.from('audit_logs').insert({
-          'action': 'admin_set_stock_direct',
-          'target_type': 'bank_stock',
-          'target_id': bankId,
-          'meta': {'group': bloodGroup, 'units': units},
-        });
-        return true;
-      } catch (e) {
-        debugPrint('setBankStockDirect error: $e');
-      }
-    }
-    return false;
-  }
+  }) =>
+      AdminBankOperationsService().setBankStockDirect(
+        bankId: bankId,
+        bloodGroup: bloodGroup,
+        units: units,
+        component: component,
+      );
 
   // 41. Superhero Admin: Update Blood Camp
   Future<bool> updateCampDirect({
@@ -1951,97 +1727,25 @@ class SupabaseService {
     DateTime? endsAt,
     int? capacity,
     String? status,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final updates = <String, dynamic>{};
-        if (title != null) updates['title'] = title;
-        if (venue != null) updates['venue'] = venue;
-        if (area != null) updates['area'] = area;
-        if (startsAt != null) updates['starts_at'] = startsAt.toIso8601String();
-        if (endsAt != null) updates['ends_at'] = endsAt.toIso8601String();
-        if (capacity != null) updates['capacity'] = capacity;
-        if (status != null) updates['status'] = status;
-
-        await client!.from('bank_camps').update(updates).eq('id', id);
-        await client!.from('audit_logs').insert({
-          'action': 'admin_update_camp',
-          'target_type': 'bank_camps',
-          'target_id': id,
-          'meta': updates,
-        });
-        return true;
-      } catch (e) {
-        debugPrint('updateCampDirect error: $e');
-      }
-    }
-    return false;
-  }
+  }) =>
+      AdminCampOperationsService().updateCampDirect(
+        id: id,
+        title: title,
+        venue: venue,
+        area: area,
+        startsAt: startsAt,
+        endsAt: endsAt,
+        capacity: capacity,
+        status: status,
+      );
 
   // 42. Superhero Admin: Delete Blood Camp
-  Future<bool> deleteCampDirect(String id) async {
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('bank_camps').delete().eq('id', id);
-        await client!.from('audit_logs').insert({
-          'action': 'admin_delete_camp',
-          'target_type': 'bank_camps',
-          'target_id': id,
-        });
-        return true;
-      } catch (e) {
-        debugPrint('deleteCampDirect error: $e');
-      }
-    }
-    return false;
-  }
+  Future<bool> deleteCampDirect(String id) =>
+      AdminCampOperationsService().deleteCampDirect(id);
 
   // 43. Superhero Admin: AI Voice Configuration & Training
-  Future<Map<String, dynamic>> getAIVoiceConfig() async {
-    if (_isInitialized && client != null) {
-      try {
-        final promptRow = await client!
-            .from('app_settings')
-            .select('value')
-            .eq('key', 'ai_voice_system_prompt')
-            .maybeSingle();
-
-        final capRow = await client!
-            .from('app_settings')
-            .select('value')
-            .eq('key', 'ai_voice_daily_minutes_cap')
-            .maybeSingle();
-
-        final voiceVal = promptRow?['value'] as Map<String, dynamic>? ?? {};
-        final capVal = capRow?['value'];
-        int capMinutes = 60;
-        if (capVal is Map) {
-          capMinutes = (capVal['value'] as num?)?.toInt() ?? 60;
-        } else if (capVal is num) {
-          capMinutes = capVal.toInt();
-        }
-
-        return {
-          'prompt': voiceVal['prompt'] ?? 'You are BloodNorms Voice AI Lifesaver Assistant for Rajahmundry. Triage emergency blood requests with calm urgency.',
-          'persona': voiceVal['persona'] ?? 'Priya (Clinical Coordinator)',
-          'language': voiceVal['language'] ?? 'te-IN / en-IN',
-          'temperature': (voiceVal['temperature'] as num?)?.toDouble() ?? 0.3,
-          'guidelines': voiceVal['guidelines'] ?? '1. Zero commercial transactions.\n2. Verify hospital location.\n3. Escalate rare groups immediately.',
-          'daily_minutes_cap': capMinutes,
-        };
-      } catch (e) {
-        debugPrint('getAIVoiceConfig error: $e');
-      }
-    }
-    return {
-      'prompt': 'You are BloodNorms Voice AI Lifesaver Assistant for Rajahmundry.',
-      'persona': 'Priya (Clinical Coordinator)',
-      'language': 'te-IN / en-IN',
-      'temperature': 0.3,
-      'guidelines': '1. Zero commercial transactions.\n2. Verify hospital location.\n3. Escalate rare groups.',
-      'daily_minutes_cap': 60,
-    };
-  }
+  Future<Map<String, dynamic>> getAIVoiceConfig() =>
+      AdminTelemetryService().getAIVoiceConfig();
 
   Future<bool> saveAIVoiceConfig({
     required String prompt,
@@ -2050,271 +1754,43 @@ class SupabaseService {
     required double temperature,
     required String guidelines,
     required int dailyMinutesCap,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('app_settings').upsert({
-          'key': 'ai_voice_system_prompt',
-          'value': {
-            'prompt': prompt,
-            'persona': persona,
-            'language': language,
-            'temperature': temperature,
-            'guidelines': guidelines,
-          },
-          'description': 'AI Voice assistant system prompt and personality configuration',
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-
-        await client!.from('app_settings').upsert({
-          'key': 'ai_voice_daily_minutes_cap',
-          'value': {'value': dailyMinutesCap},
-          'description': 'Max daily minutes for AI voice before falling back to keypad',
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-
-        await client!.from('audit_logs').insert({
-          'action': 'admin_update_ai_voice_config',
-          'target_type': 'app_settings',
-          'target_id': 'ai_voice_system_prompt',
-          'meta': {'persona': persona, 'language': language, 'temperature': temperature, 'cap': dailyMinutesCap},
-        });
-        return true;
-      } catch (e) {
-        debugPrint('saveAIVoiceConfig error: $e');
-      }
-    }
-    return false;
-  }
+  }) =>
+      AdminTelemetryService().saveAIVoiceConfig(
+        prompt: prompt,
+        persona: persona,
+        language: language,
+        temperature: temperature,
+        guidelines: guidelines,
+        dailyMinutesCap: dailyMinutesCap,
+      );
 
   // 44. Superhero Admin: WhatsApp Templates & Triggers
-  Future<List<Map<String, dynamic>>> getWhatsAppTemplates() async {
-    if (_isInitialized && client != null) {
-      try {
-        final row = await client!
-            .from('app_settings')
-            .select('value')
-            .eq('key', 'whatsapp_templates')
-            .maybeSingle();
-        final val = row?['value'] as Map<String, dynamic>?;
-        if (val != null && val['templates'] is List) {
-          return List<Map<String, dynamic>>.from(val['templates']);
-        }
-      } catch (e) {
-        debugPrint('getWhatsAppTemplates error: $e');
-      }
-    }
-    return [
-      {
-        'id': 'camp_invite',
-        'name': 'Blood Camp Invitation',
-        'body': 'Dear {donor_name}, Voluntary Blood Donation Camp is organized at {venue} on {date}. Will you donate? Reply YES to confirm.',
-      },
-      {
-        'id': 'shortage_alert',
-        'name': 'Urgent Shortage Alert',
-        'body': 'URGENT: {hospital_name} has critical shortage of {blood_group}. If eligible today, please visit or tap here to accept pass.',
-      },
-      {
-        'id': 'donation_reminder',
-        'name': 'Donation Day Reminder',
-        'body': 'Hello {donor_name}, reminder for your scheduled donation today at {bank_name} at {time}. Drink plenty of water!',
-      },
-      {
-        'id': 'appreciation_note',
-        'name': 'Donor Thank You',
-        'body': 'Thank you {donor_name}! Your recent donation at {bank_name} saved lives today. You are a true BloodNorms Hero!',
-      },
-    ];
-  }
+  Future<List<Map<String, dynamic>>> getWhatsAppTemplates() =>
+      AdminTelemetryService().getWhatsAppTemplates();
 
-  Future<bool> saveWhatsAppTemplates(List<Map<String, dynamic>> templates) async {
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('app_settings').upsert({
-          'key': 'whatsapp_templates',
-          'value': {'templates': templates},
-          'description': 'WhatsApp Cloud API pre-approved message templates',
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-        await client!.from('audit_logs').insert({
-          'action': 'admin_update_whatsapp_templates',
-          'target_type': 'app_settings',
-          'target_id': 'whatsapp_templates',
-          'meta': {'count': templates.length},
-        });
-        return true;
-      } catch (e) {
-        debugPrint('saveWhatsAppTemplates error: $e');
-      }
-    }
-    return false;
-  }
+  Future<bool> saveWhatsAppTemplates(List<Map<String, dynamic>> templates) =>
+      AdminTelemetryService().saveWhatsAppTemplates(templates);
 
   // 45. Superhero Admin: Telephony Settings
-  Future<Map<String, dynamic>> getTelephonySettings() async {
-    if (_isInitialized && client != null) {
-      try {
-        final row = await client!
-            .from('app_settings')
-            .select('value')
-            .eq('key', 'telephony_settings')
-            .maybeSingle();
-        final val = row?['value'] as Map<String, dynamic>?;
-        if (val != null) return val;
-      } catch (e) {
-        debugPrint('getTelephonySettings error: $e');
-      }
-    }
-    return {
-      'provider': 'Twilio / Exotel',
-      'caller_id': '+918832471234',
-      'max_retries': 3,
-      'retry_interval_sec': 60,
-      'fallback_to_ivr': true,
-      'record_calls': true,
-    };
-  }
+  Future<Map<String, dynamic>> getTelephonySettings() =>
+      AdminTelemetryService().getTelephonySettings();
 
-  Future<bool> saveTelephonySettings(Map<String, dynamic> config) async {
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('app_settings').upsert({
-          'key': 'telephony_settings',
-          'value': config,
-          'description': 'Telephony gateway and voice call routing configuration',
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-        await client!.from('audit_logs').insert({
-          'action': 'admin_update_telephony_settings',
-          'target_type': 'app_settings',
-          'target_id': 'telephony_settings',
-          'meta': config,
-        });
-        return true;
-      } catch (e) {
-        debugPrint('saveTelephonySettings error: $e');
-      }
-    }
-    return false;
-  }
+  Future<bool> saveTelephonySettings(Map<String, dynamic> config) =>
+      AdminTelemetryService().saveTelephonySettings(config);
 
   // 46. Superhero Admin: Telemetry Metrics (WhatsApp Counts, Voice Calls, Costs)
-  Future<Map<String, dynamic>> getTelemetryMetrics() async {
-    int totalOutboundMessages = 0;
-    int deliveredMessages = 0;
-    int readMessages = 0;
-    int inboundMessages = 0;
-
-    int totalVoiceCalls = 0;
-    int totalVoiceMinutes = 0;
-    double estimatedVoiceCost = 0.0;
-    List<Map<String, dynamic>> recentCalls = [];
-    List<Map<String, dynamic>> recentMessages = [];
-
-    if (_isInitialized && client != null) {
-      try {
-        // Message telemetry
-        final msgs = await client!
-            .from('message_events')
-            .select()
-            .order('created_at', ascending: false)
-            .limit(50);
-        recentMessages = List<Map<String, dynamic>>.from(msgs);
-
-        for (final m in recentMessages) {
-          final dir = m['direction']?.toString() ?? 'outbound';
-          final st = m['status']?.toString() ?? 'sent';
-          if (dir == 'inbound') {
-            inboundMessages++;
-          } else {
-            totalOutboundMessages++;
-            if (st == 'delivered' || st == 'read') deliveredMessages++;
-            if (st == 'read') readMessages++;
-          }
-        }
-
-        // Voice calls telemetry
-        final calls = await client!
-            .from('voice_calls')
-            .select()
-            .order('created_at', ascending: false)
-            .limit(50);
-        recentCalls = List<Map<String, dynamic>>.from(calls);
-
-        for (final c in recentCalls) {
-          totalVoiceCalls++;
-          final sec = (c['duration_seconds'] as num?)?.toInt() ?? 0;
-          totalVoiceMinutes += (sec / 60).ceil();
-          final cost = (c['estimated_cost_inr'] as num?)?.toDouble() ?? 0.0;
-          estimatedVoiceCost += cost;
-        }
-      } catch (e) {
-        debugPrint('getTelemetryMetrics error: $e');
-      }
-    }
-
-    return {
-      'outbound_messages': totalOutboundMessages,
-      'delivered_messages': deliveredMessages,
-      'read_messages': readMessages,
-      'inbound_messages': inboundMessages,
-      'voice_calls_count': totalVoiceCalls,
-      'voice_minutes_used': totalVoiceMinutes,
-      'estimated_cost_inr': estimatedVoiceCost,
-      'recent_calls': recentCalls,
-      'recent_messages': recentMessages,
-    };
-  }
+  Future<Map<String, dynamic>> getTelemetryMetrics() =>
+      AdminTelemetryService().getTelemetryMetrics();
 
   // 47. Superhero Admin: Simulate Voice AI Triage Test
-  Map<String, dynamic> simulateAITriageResponse(String userSpeech, {String prompt = ''}) {
-    final lower = userSpeech.toLowerCase();
-    String detectedHospital = 'GGH Rajahmundry';
-    if (lower.contains('swatantra')) detectedHospital = 'Swatantra Hospital';
-    if (lower.contains('bollineni')) detectedHospital = 'Bollineni Hospital';
-    if (lower.contains('rotary') || lower.contains('suraksha')) detectedHospital = 'Suraksha Rotary Blood Bank';
-
-    String detectedGroup = 'O+';
-    if (lower.contains('o-') || lower.contains('o negative')) {
-      detectedGroup = 'O-';
-    } else if (lower.contains('o+') || lower.contains('o positive')) {
-      detectedGroup = 'O+';
-    } else if (lower.contains('a-') || lower.contains('a negative')) {
-      detectedGroup = 'A-';
-    } else if (lower.contains('a+') || lower.contains('a positive')) {
-      detectedGroup = 'A+';
-    } else if (lower.contains('b-') || lower.contains('b negative')) {
-      detectedGroup = 'B-';
-    } else if (lower.contains('b+') || lower.contains('b positive')) {
-      detectedGroup = 'B+';
-    } else if (lower.contains('ab-') || lower.contains('ab negative')) {
-      detectedGroup = 'AB-';
-    } else if (lower.contains('ab+') || lower.contains('ab positive')) {
-      detectedGroup = 'AB+';
-    }
-
-    final isUrgent = lower.contains('emergency') ||
-        lower.contains('critical') ||
-        lower.contains('trauma') ||
-        lower.contains('urgent') ||
-        lower.contains('surgery') ||
-        detectedGroup == 'O-';
-
-    String teluguResponse =
-        'నమస్కారం, బ్లడ్‌నార్మ్స్ రాజమండ్రి ఎమర్జెన్సీ కంట్రోల్ రూమ్. మేము $detectedHospital లో $detectedGroup రక్తం కోసం అర్జెన్సీ గుర్తించాము. దగ్గరలోని డోనర్లకు మరియు బ్లడ్ బ్యాంకులకు అలర్ట్ పంపుతున్నాము. మీరు నిశ్చింతగా ఉండండి.';
-    String englishResponse =
-        'Hello, this is BloodNorms Emergency Control. We have verified the requirement for $detectedGroup blood at $detectedHospital. Search Ring 1 has been initiated with highest priority. Please stay on the line.';
-
-    return {
-      'detected_hospital': detectedHospital,
-      'detected_group': detectedGroup,
-      'urgency_tier': isUrgent ? 'TIER 1 CRITICAL' : 'TIER 2 STANDARD',
-      'telugu_response': teluguResponse,
-      'english_response': englishResponse,
-      'simulated_at': DateTime.now().toIso8601String(),
-    };
-  }
+  Map<String, dynamic> simulateAITriageResponse(
+    String userSpeech, {
+    String prompt = '',
+  }) =>
+      AdminTelemetryService().simulateAITriageResponse(
+        userSpeech,
+        prompt: prompt,
+      );
 
   // --- CONTINUOUS REALTIME CHANNELS (STAGE 1) ---
   RealtimeChannel? _requestsChannel;
@@ -2457,366 +1933,71 @@ class SupabaseService {
   }
 
   // ==========================================================================
-  // STAGE 3: DONOR MILESTONE BADGES & CERTIFICATES ENGINE
+  // STAGE 3: DONOR MILESTONE BADGES & CERTIFICATES ENGINE (Delegated)
   // ==========================================================================
 
-  /// Fetch all milestone badges for a donor (both unlocked and locked with progress)
-  Future<List<DonorBadgeModel>> getDonorBadges(String donorId, {int donationsCount = 0}) async {
-    final Map<String, dynamic> unlockedBadgesMap = {};
+  Future<List<DonorBadgeModel>> getDonorBadges(
+    String donorId, {
+    int donationsCount = 0,
+  }) =>
+      DonorMilestoneService().getDonorBadges(
+        donorId,
+        donationsCount: donationsCount,
+      );
 
-    // 1. Load unlocked badges from local cache
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cachedJson = prefs.getString('donor_badges_$donorId');
-      if (cachedJson != null) {
-        final List decoded = jsonDecode(cachedJson) as List;
-        for (final item in decoded) {
-          if (item is Map) {
-            unlockedBadgesMap[item['badge_code']?.toString() ?? ''] = item;
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('Error reading local donor badges: $e');
-    }
-
-    // 2. Fetch live unlocked badges from Supabase
-    if (_isInitialized && client != null && donorId.isNotEmpty) {
-      try {
-        final response = await client!
-            .from('donor_badges')
-            .select()
-            .eq('donor_id', donorId);
-        final list = response as List;
-        for (final item in list) {
-          if (item is Map<String, dynamic>) {
-            unlockedBadgesMap[item['badge_code']?.toString() ?? ''] = item;
-          }
-        }
-      } catch (e) {
-        debugPrint('Supabase getDonorBadges table error: $e');
-      }
-    }
-
-    // 3. Define standard milestone badge ladder
-    final ladder = [
-      {
-        'code': 'bronze_hero',
-        'name': 'Bronze Hero',
-        'desc': 'First verified blood donation recorded',
-        'req': 1,
-        'icon': '🥉',
-      },
-      {
-        'code': 'silver_guardian',
-        'name': 'Silver Guardian',
-        'desc': '3 lives saved through emergency response',
-        'req': 3,
-        'icon': '🥈',
-      },
-      {
-        'code': 'gold_lifesaver',
-        'name': 'Gold Lifesaver',
-        'desc': '5 donations - community lifeline pillar',
-        'req': 5,
-        'icon': '🥇',
-      },
-      {
-        'code': 'platinum_savior',
-        'name': 'Platinum Savior',
-        'desc': '10 verified donations across Andhra Pradesh',
-        'req': 10,
-        'icon': '💎',
-      },
-      {
-        'code': 'centurion',
-        'name': 'Centurion Lifesaver',
-        'desc': '25+ life donations - Hall of Fame',
-        'req': 25,
-        'icon': '👑',
-      },
-    ];
-
-    final List<DonorBadgeModel> badges = [];
-    for (final item in ladder) {
-      final code = item['code'] as String;
-      final req = item['req'] as int;
-      final bool isEarned = (donationsCount >= req) || unlockedBadgesMap.containsKey(code);
-
-      DateTime unlockedAt = DateTime.now();
-      String? certUrl;
-
-      if (unlockedBadgesMap.containsKey(code)) {
-        final raw = unlockedBadgesMap[code];
-        unlockedAt = DateTime.tryParse(raw['unlocked_at']?.toString() ?? '') ?? DateTime.now();
-        certUrl = raw['certificate_url']?.toString();
-      }
-
-      badges.add(DonorBadgeModel(
-        id: unlockedBadgesMap[code]?['id']?.toString() ?? 'badge-$code',
-        donorId: donorId,
-        badgeCode: code,
-        badgeName: item['name'] as String,
-        description: item['desc'] as String,
-        unlockedAt: unlockedAt,
-        certificateUrl: certUrl,
-        isUnlocked: isEarned,
-        requiredDonations: req,
-        icon: item['icon'] as String,
-      ));
-    }
-
-    return badges;
-  }
-
-  /// Award a milestone badge to a donor in Supabase & cache locally
   Future<bool> awardDonorBadge({
     required String donorId,
     required String badgeCode,
     required String badgeName,
     required String description,
     String? certificateUrl,
-  }) async {
-    final newBadge = {
-      'id': 'badge-${DateTime.now().millisecondsSinceEpoch}',
-      'donor_id': donorId,
-      'badge_code': badgeCode,
-      'badge_name': badgeName,
-      'description': description,
-      'unlocked_at': DateTime.now().toIso8601String(),
-      'certificate_url': certificateUrl,
-    };
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cachedJson = prefs.getString('donor_badges_$donorId');
-      List list = [];
-      if (cachedJson != null) {
-        list = jsonDecode(cachedJson) as List;
-      }
-      list.removeWhere((item) => (item as Map)['badge_code'] == badgeCode);
-      list.add(newBadge);
-      await prefs.setString('donor_badges_$donorId', jsonEncode(list));
-    } catch (e) {
-      debugPrint('Error updating local badges cache: $e');
-    }
-
-    if (_isInitialized && client != null && donorId.isNotEmpty) {
-      try {
-        await client!.from('donor_badges').upsert(newBadge, onConflict: 'donor_id,badge_code');
-        return true;
-      } catch (e) {
-        debugPrint('Error saving badge to Supabase: $e');
-      }
-    }
-    return true;
-  }
+  }) =>
+      DonorMilestoneService().awardDonorBadge(
+        donorId: donorId,
+        badgeCode: badgeCode,
+        badgeName: badgeName,
+        description: description,
+        certificateUrl: certificateUrl,
+      );
 
   // ==========================================================================
-  // STAGE 4: CAMP QR & KEYPAD CHECK-IN ENGINE
+  // STAGE 4: CAMP QR & KEYPAD CHECK-IN ENGINE (Delegated)
   // ==========================================================================
 
-  /// Check-in an attendee at a donation camp by ID or phone number
   Future<Map<String, dynamic>> checkInCampAttendee({
     required String campId,
     String? donorId,
     String? phone,
     int units = 1,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('bank_check_in_camp_attendee', params: {
-          'p_camp_id': campId,
-          'p_donor_id': donorId,
-          'p_phone': phone,
-          'p_units_donated': units,
-        });
-        if (res is Map && res['ok'] == true) {
-          return Map<String, dynamic>.from(res);
-        }
-      } catch (e) {
-        debugPrint('bank_check_in_camp_attendee RPC not available: $e');
-      }
+  }) =>
+      BankCampCheckinService().checkInCampAttendee(
+        campId: campId,
+        donorId: donorId,
+        phone: phone,
+        units: units,
+      );
 
-      try {
-        await client!.from('bank_camps').update({
-          'attendees_checked_in': 1,
-          'units_collected': units,
-        }).eq('id', campId);
-      } catch (_) {}
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cacheKey = 'camp_checkins_$campId';
-      final cached = prefs.getString(cacheKey);
-      List list = [];
-      if (cached != null) {
-        list = jsonDecode(cached) as List;
-      }
-      final checkinEntry = {
-        'camp_id': campId,
-        'donor_id': donorId ?? 'offline-donor',
-        'phone': phone ?? '+919848012345',
-        'units': units,
-        'checked_in_at': DateTime.now().toIso8601String(),
-      };
-      list.add(checkinEntry);
-      await prefs.setString(cacheKey, jsonEncode(list));
-    } catch (e) {
-      debugPrint('Error caching camp check-in: $e');
-    }
-
-    return {
-      'ok': true,
-      'donor_id': donorId ?? 'donor-verified',
-      'first_name': 'Verified Donor',
-      'blood_group': 'O+',
-      'total_donations': units,
-    };
-  }
-
-  /// Get list of checked-in attendees for a camp
-  Future<List<Map<String, dynamic>>> getCampAttendees(String campId) async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!
-            .from('camp_signups')
-            .select('camp_id, donor_id, checked_in, checked_in_at, donors(first_name, blood_group)')
-            .eq('camp_id', campId);
-        return List<Map<String, dynamic>>.from(res as List);
-      } catch (e) {
-        debugPrint('Error getting camp attendees from Supabase: $e');
-      }
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cacheKey = 'camp_checkins_$campId';
-      final cached = prefs.getString(cacheKey);
-      if (cached != null) {
-        final decoded = jsonDecode(cached) as List;
-        return decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-      }
-    } catch (_) {}
-
-    return [];
-  }
+  Future<List<Map<String, dynamic>>> getCampAttendees(String campId) =>
+      BankCampCheckinService().getCampAttendees(campId);
 
   // ==========================================================================
-  // STAGE 5: CENTRALIZED IN-APP NOTIFICATIONS ENGINE
+  // STAGE 5: CENTRALIZED IN-APP NOTIFICATIONS ENGINE (Delegated)
   // ==========================================================================
 
-  /// Fetch in-app notifications with role & recipient filtering
   Future<List<InAppNotificationModel>> getNotifications({
     String? recipientId,
     String? recipientRole,
     int limit = 30,
-  }) async {
-    final List<InAppNotificationModel> results = [];
+  }) =>
+      NotificationService().getNotifications(
+        recipientId: recipientId,
+        recipientRole: recipientRole,
+        limit: limit,
+      );
 
-    if (_isInitialized && client != null) {
-      try {
-        final query = client!
-            .from('notifications')
-            .select()
-            .order('created_at', ascending: false)
-            .limit(limit);
+  Future<bool> markNotificationAsRead(String notificationId) =>
+      NotificationService().markNotificationAsRead(notificationId);
 
-        final res = await query;
-        final list = res as List;
-        for (final item in list) {
-          if (item is Map<String, dynamic>) {
-            results.add(InAppNotificationModel.fromJson(item));
-          }
-        }
-      } catch (e) {
-        debugPrint('Supabase notifications select error: $e');
-      }
-    }
-
-    if (results.isNotEmpty) return results;
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_notifications_cache');
-      if (cached != null) {
-        final List decoded = jsonDecode(cached) as List;
-        for (final item in decoded) {
-          if (item is Map<String, dynamic>) {
-            results.add(InAppNotificationModel.fromJson(item));
-          }
-        }
-      }
-    } catch (_) {}
-
-    if (results.isNotEmpty) return results;
-
-    return [
-      InAppNotificationModel(
-        id: 'notif-1',
-        recipientRole: 'all',
-        title: 'Emergency Alert: O- Required at GGH',
-        body: 'Urgent request for 2 units O- at Government General Hospital, Danavaipeta. Contact hospital or tap to respond.',
-        category: 'emergency',
-        payload: {'request_id': 'req-ggh-01', 'blood_group': 'O-'},
-        isRead: false,
-        createdAt: DateTime.now().subtract(const Duration(minutes: 12)),
-      ),
-      InAppNotificationModel(
-        id: 'notif-2',
-        recipientRole: 'donor',
-        title: 'Rotary Blood Donation Camp Tomorrow',
-        body: 'Join the mega blood donation drive at Rotary Diamond Hall, Innespeta from 9:00 AM to 5:00 PM.',
-        category: 'camp',
-        payload: {'camp_id': 'camp-rotary-01'},
-        isRead: false,
-        createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      ),
-      InAppNotificationModel(
-        id: 'notif-3',
-        recipientRole: 'all',
-        title: 'Milestone Honor Unlocked',
-        body: 'BloodNorms community has helped coordinate over 1,200 emergency blood units across Godavari region.',
-        category: 'milestone',
-        payload: {'achievement': 'godavari_1200'},
-        isRead: true,
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-    ];
-  }
-
-  /// Mark a notification as read
-  Future<bool> markNotificationAsRead(String notificationId) async {
-    if (_isInitialized && client != null) {
-      try {
-        await client!
-            .from('notifications')
-            .update({'is_read': true})
-            .eq('id', notificationId);
-      } catch (e) {
-        debugPrint('Supabase markNotificationAsRead error: $e');
-      }
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_notifications_cache');
-      if (cached != null) {
-        final List decoded = jsonDecode(cached) as List;
-        for (final item in decoded) {
-          if (item is Map && item['id'] == notificationId) {
-            item['is_read'] = true;
-          }
-        }
-        await prefs.setString('local_notifications_cache', jsonEncode(decoded));
-      }
-    } catch (_) {}
-
-    return true;
-  }
-
-  /// Send an in-app notification to a user, role, or broadcast to all
   Future<bool> sendInAppNotification({
     String? recipientId,
     required String recipientRole,
@@ -2824,169 +2005,42 @@ class SupabaseService {
     required String body,
     required String category,
     Map<String, dynamic>? payload,
-  }) async {
-    final entry = {
-      'id': 'notif-${DateTime.now().millisecondsSinceEpoch}',
-      'recipient_id': recipientId,
-      'recipient_role': recipientRole,
-      'title': title,
-      'body': body,
-      'category': category,
-      'payload': payload ?? {},
-      'is_read': false,
-      'created_at': DateTime.now().toIso8601String(),
-    };
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_notifications_cache');
-      List list = [];
-      if (cached != null) {
-        list = jsonDecode(cached) as List;
-      }
-      list.insert(0, entry);
-      if (list.length > 50) list = list.sublist(0, 50);
-      await prefs.setString('local_notifications_cache', jsonEncode(list));
-    } catch (e) {
-      debugPrint('Error updating local notifications: $e');
-    }
-
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('notifications').insert(entry);
-        return true;
-      } catch (e) {
-        debugPrint('Error inserting notification to Supabase: $e');
-      }
-    }
-
-    return true;
-  }
+  }) =>
+      NotificationService().sendInAppNotification(
+        recipientId: recipientId,
+        recipientRole: recipientRole,
+        title: title,
+        body: body,
+        category: category,
+        payload: payload,
+      );
 
   // ==========================================================================
-  // AM0: FEATURE FLAGS & ADVANCED RBAC PERMISSIONS SCAFFOLDING
+  // AM0: FEATURE FLAGS & ADVANCED RBAC PERMISSIONS (Delegated)
   // ==========================================================================
 
-  /// Check if a progressive expansion feature flag is enabled
-  Future<bool> isFeatureEnabled(String flagKey, {bool defaultValue = false}) async {
-    // 1. Check local cache first
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getBool('flag_$flagKey');
-      if (cached != null) return cached;
-    } catch (_) {}
+  Future<bool> isFeatureEnabled(String flagKey, {bool defaultValue = false}) =>
+      AdminFeatureFlagsService().isFeatureEnabled(
+        flagKey,
+        defaultValue: defaultValue,
+      );
 
-    // 2. Query Supabase feature_flags table if online
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!
-            .from('feature_flags')
-            .select('enabled')
-            .eq('key', flagKey)
-            .maybeSingle();
-        if (res != null && res['enabled'] != null) {
-          final enabled = res['enabled'] == true;
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setBool('flag_$flagKey', enabled);
-          return enabled;
-        }
-      } catch (e) {
-        debugPrint('Error querying feature flag $flagKey from Supabase: $e');
-      }
-    }
+  Future<List<Map<String, dynamic>>> getFeatureFlags() =>
+      AdminFeatureFlagsService().getFeatureFlags();
 
-    return defaultValue;
-  }
+  Future<bool> setFeatureFlag(String flagKey, bool enabled) =>
+      AdminFeatureFlagsService().setFeatureFlag(flagKey, enabled);
 
-  /// Get all registered feature flags
-  Future<List<Map<String, dynamic>>> getFeatureFlags() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('feature_flags').select().order('category');
-        return List<Map<String, dynamic>>.from(res as List);
-      } catch (e) {
-        debugPrint('Error querying feature_flags: $e');
-      }
-    }
+  Future<bool> hasAdminPermission(String permissionCode) =>
+      AdminFeatureFlagsService().hasAdminPermission(permissionCode);
 
-    // Default flags inventory
-    return [
-      {'key': 'flag_advanced_rbac', 'name': 'Advanced RBAC & 4-Eyes Approvals', 'enabled': false, 'category': 'security'},
-      {'key': 'flag_scoped_maintenance', 'name': 'Scoped Maintenance Controls', 'enabled': false, 'category': 'operations'},
-      {'key': 'flag_data_export_engine', 'name': 'Multi-Tier Data Export Engine', 'enabled': false, 'category': 'data'},
-      {'key': 'flag_cost_computation', 'name': 'Itemized INR Cost Computation', 'enabled': false, 'category': 'finance'},
-      {'key': 'flag_ai_voice_studio', 'name': 'AI Voice Studio Evaluation', 'enabled': false, 'category': 'ai'},
-      {'key': 'flag_data_quality_centre', 'name': 'Data Quality Anomaly Centre', 'enabled': false, 'category': 'data'},
-      {'key': 'flag_global_search_palette', 'name': 'Global Command Palette (Ctrl+K)', 'enabled': false, 'category': 'productivity'},
-    ];
-  }
-
-  /// Update feature flag status
-  Future<bool> setFeatureFlag(String flagKey, bool enabled) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('flag_$flagKey', enabled);
-    } catch (_) {}
-
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('feature_flags').upsert({
-          'key': flagKey,
-          'enabled': enabled,
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-        return true;
-      } catch (e) {
-        debugPrint('Error updating feature flag in Supabase: $e');
-      }
-    }
-    return true;
-  }
-
-  /// Verify if the current administrator has a specific permission code
-  Future<bool> hasAdminPermission(String permissionCode) async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('has_permission', params: {'p_permission': permissionCode});
-        if (res is bool) return res;
-      } catch (e) {
-        debugPrint('has_permission RPC error: $e');
-      }
-    }
-    // Default safe fallback: allow standard view for authenticated admins
-    return permissionCode.endsWith('.view');
-  }
-
-  /// Get master list of 10 built-in admin roles
-  Future<List<Map<String, dynamic>>> getAdminRoles() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('admin_roles').select().order('created_at');
-        return List<Map<String, dynamic>>.from(res as List);
-      } catch (e) {
-        debugPrint('Error querying admin_roles: $e');
-      }
-    }
-
-    return [
-      {'id': 'super_admin', 'label': 'Super Admin', 'description': 'Full system access, promote admins, release kill switch'},
-      {'id': 'admin', 'label': 'Admin', 'description': 'Day-to-day operations, settings, content, campaigns'},
-      {'id': 'support', 'label': 'Support', 'description': 'Read-limited: look up, resend messages, handle cases'},
-      {'id': 'oncall', 'label': 'On-Call Responder', 'description': 'Live requests, Needs-human queue, kill switch'},
-      {'id': 'bank_manager', 'label': 'Bank Manager', 'description': 'Banks, stock, partners, bank staff invites'},
-      {'id': 'content_editor', 'label': 'Content Editor', 'description': 'Copy deck, help pages, translations'},
-      {'id': 'clinical_reviewer', 'label': 'Clinical Reviewer', 'description': 'Approve health questions and eligibility'},
-      {'id': 'legal_officer', 'label': 'Legal Officer', 'description': 'Consent texts, policies, data-rights queue'},
-      {'id': 'analyst', 'label': 'Analyst', 'description': 'Aggregate dashboards and Tier 1 exports only'},
-      {'id': 'finance', 'label': 'Finance', 'description': 'Cost, caps (view), invoices, renewals'},
-    ];
-  }
+  Future<List<Map<String, dynamic>>> getAdminRoles() =>
+      AdminFeatureFlagsService().getAdminRoles();
 
   // ==========================================================================
-  // MILESTONE AM1: FOUR-EYES APPROVALS, STEP-UP TOTP & ACTIVE SESSIONS
+  // MILESTONE AM1: FOUR-EYES APPROVALS, STEP-UP TOTP & SESSIONS (Delegated)
   // ==========================================================================
 
-  /// Submit a four-eyes approval request for sensitive operational actions
   Future<Map<String, dynamic>> submitApprovalRequest({
     required String actionType,
     String? targetEntity,
@@ -2994,383 +2048,67 @@ class SupabaseService {
     required Map<String, dynamic> diffPayload,
     required String reason,
     String? makerId,
-  }) async {
-    final effectiveMakerId = makerId ?? client?.auth.currentUser?.id ?? '00000000-0000-0000-0000-000000000001';
-    final newEntry = {
-      'id': 'appr-${DateTime.now().millisecondsSinceEpoch}',
-      'action_type': actionType,
-      'maker_id': effectiveMakerId,
-      'maker_role': 'admin',
-      'target_entity': targetEntity ?? 'general',
-      'target_id': targetId ?? 'system',
-      'diff_payload': diffPayload,
-      'reason': reason,
-      'status': 'pending',
-      'created_at': DateTime.now().toIso8601String(),
-      'expires_at': DateTime.now().add(const Duration(hours: 24)).toIso8601String(),
-    };
+  }) =>
+      AdminGovernanceService().submitApprovalRequest(
+        actionType: actionType,
+        targetEntity: targetEntity,
+        targetId: targetId,
+        diffPayload: diffPayload,
+        reason: reason,
+        makerId: makerId,
+      );
 
-    // 1. Try Supabase
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('submit_approval_request', params: {
-          'p_action_type': actionType,
-          'p_target_entity': targetEntity,
-          'p_target_id': targetId,
-          'p_diff_payload': diffPayload,
-          'p_reason': reason,
-        });
-        if (res != null) {
-          newEntry['id'] = res.toString();
-        }
-      } catch (e) {
-        debugPrint('submit_approval_request RPC error: $e');
-      }
-    }
+  Future<List<Map<String, dynamic>>> getApprovalRequests({
+    String status = 'pending',
+  }) =>
+      AdminGovernanceService().getApprovalRequests(status: status);
 
-    // 2. Cache in local storage for offline reliability
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_approvals_cache');
-      List list = [];
-      if (cached != null) {
-        list = jsonDecode(cached) as List;
-      }
-      list.insert(0, newEntry);
-      await prefs.setString('local_approvals_cache', jsonEncode(list));
-    } catch (_) {}
-
-    return newEntry;
-  }
-
-  /// Get list of approval requests
-  Future<List<Map<String, dynamic>>> getApprovalRequests({String status = 'pending'}) async {
-    final List<Map<String, dynamic>> results = [];
-
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!
-            .from('approval_requests')
-            .select()
-            .order('created_at', ascending: false);
-        final list = res as List;
-        for (final item in list) {
-          if (item is Map<String, dynamic>) {
-            if (status == 'all' || item['status'] == status) {
-              results.add(item);
-            }
-          }
-        }
-      } catch (e) {
-        debugPrint('getApprovalRequests error: $e');
-      }
-    }
-
-    if (results.isNotEmpty) return results;
-
-    // Local fallback
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_approvals_cache');
-      if (cached != null) {
-        final List list = jsonDecode(cached) as List;
-        for (final item in list) {
-          if (item is Map<String, dynamic>) {
-            if (status == 'all' || item['status'] == status) {
-              results.add(item);
-            }
-          }
-        }
-      }
-    } catch (_) {}
-
-    if (results.isNotEmpty) return results;
-
-    // Default seed pending approval for UI demonstration
-    return [
-      {
-        'id': 'appr-demo-1',
-        'action_type': 'broadcast.mass',
-        'maker_id': '00000000-0000-0000-0000-000000000001',
-        'maker_role': 'admin',
-        'target_entity': 'broadcast',
-        'target_id': 'camp-rotary-01',
-        'diff_payload': {'recipients_count': 350, 'channel': 'whatsapp', 'cost_estimate_inr': 420.0},
-        'reason': 'Emergency regional notification for Sunday Blood Drive at Rotary Hall',
-        'status': 'pending',
-        'created_at': DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
-        'expires_at': DateTime.now().add(const Duration(hours: 22)).toIso8601String(),
-      },
-      {
-        'id': 'appr-demo-2',
-        'action_type': 'caps.change',
-        'maker_id': '00000000-0000-0000-0000-000000000003',
-        'maker_role': 'oncall',
-        'target_entity': 'system_caps',
-        'target_id': 'ai_voice_daily_minutes',
-        'diff_payload': {'old_minutes': 60, 'new_minutes': 120},
-        'reason': 'High trauma intake weekend at GGH Rajahmundry requiring extra telephone minutes',
-        'status': 'pending',
-        'created_at': DateTime.now().subtract(const Duration(minutes: 45)).toIso8601String(),
-        'expires_at': DateTime.now().add(const Duration(hours: 23)).toIso8601String(),
-      },
-    ];
-  }
-
-  /// Decide on an approval request (Four-eyes rule: maker cannot approve own request!)
   Future<Map<String, dynamic>> decideApprovalRequest({
     required String requestId,
     required bool approve,
     String? note,
     String? currentUserId,
-  }) async {
-    final decision = approve ? 'approved' : 'rejected';
-    final effectiveCheckerId = currentUserId ?? client?.auth.currentUser?.id ?? '00000000-0000-0000-0000-000000000002';
+  }) =>
+      AdminGovernanceService().decideApprovalRequest(
+        requestId: requestId,
+        approve: approve,
+        note: note,
+        currentUserId: currentUserId,
+      );
 
-    // 1. Check local cache to verify four-eyes constraint
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_approvals_cache');
-      if (cached != null) {
-        final List list = jsonDecode(cached) as List;
-        for (final item in list) {
-          if (item is Map && item['id'] == requestId) {
-            // Four-eyes rule check
-            if (item['maker_id'] == effectiveCheckerId) {
-              return {'ok': false, 'reason': 'maker_cannot_be_checker'};
-            }
-            // Check expiration
-            final expiresAt = DateTime.tryParse(item['expires_at']?.toString() ?? '');
-            if (expiresAt != null && expiresAt.isBefore(DateTime.now())) {
-              item['status'] = 'expired';
-              await prefs.setString('local_approvals_cache', jsonEncode(list));
-              return {'ok': false, 'reason': 'expired'};
-            }
-            item['status'] = decision;
-            item['checker_id'] = effectiveCheckerId;
-            item['checker_note'] = note;
-            item['decided_at'] = DateTime.now().toIso8601String();
-          }
-        }
-        await prefs.setString('local_approvals_cache', jsonEncode(list));
-      }
-    } catch (_) {}
+  Future<bool> verifyStepUpCode(String totpCode) =>
+      AdminGovernanceService().verifyStepUpCode(totpCode);
 
-    // 2. Try Supabase RPC
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('decide_approval_request', params: {
-          'p_request_id': requestId,
-          'p_decision': decision,
-          'p_note': note,
-        });
-        if (res is Map) {
-          return Map<String, dynamic>.from(res);
-        }
-      } catch (e) {
-        debugPrint('decide_approval_request RPC error: $e');
-      }
-    }
+  Future<bool> hasActiveStepUp() =>
+      AdminGovernanceService().hasActiveStepUp();
 
-    return {'ok': true, 'status': decision};
-  }
+  Future<List<Map<String, dynamic>>> getActiveAdminSessions() =>
+      AdminGovernanceService().getActiveAdminSessions();
 
-  /// Step-Up Re-Authentication verification (TOTP aal2 check valid for 5 mins)
-  Future<bool> verifyStepUpCode(String totpCode) async {
-    final cleanCode = totpCode.trim();
-    if (cleanCode.length != 6 || int.tryParse(cleanCode) == null) {
-      return false;
-    }
+  Future<bool> revokeAdminSession(String sessionId) =>
+      AdminGovernanceService().revokeAdminSession(sessionId);
 
-    // Persist step-up grant timestamp
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('last_step_up_timestamp', DateTime.now().millisecondsSinceEpoch);
-    } catch (_) {}
-
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('verify_step_up_code', params: {'p_code': cleanCode});
-        if (res is Map && res['ok'] == true) return true;
-      } catch (e) {
-        debugPrint('verify_step_up_code RPC error: $e');
-      }
-    }
-
-    return true;
-  }
-
-  /// Check if user has active valid step-up authorization (within 5 minutes)
-  Future<bool> hasActiveStepUp() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final lastTs = prefs.getInt('last_step_up_timestamp');
-      if (lastTs != null) {
-        final diff = DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(lastTs));
-        return diff.inMinutes < 5;
-      }
-    } catch (_) {}
-    return false;
-  }
-
-  /// Get active administrator sessions
-  Future<List<Map<String, dynamic>>> getActiveAdminSessions() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!
-            .from('admin_sessions')
-            .select()
-            .filter('revoked_at', 'is', null)
-            .order('last_active_at', ascending: false);
-        return List<Map<String, dynamic>>.from(res as List);
-      } catch (e) {
-        debugPrint('getActiveAdminSessions error: $e');
-      }
-    }
-
-    return [
-      {
-        'id': 'sess-current',
-        'device_info': 'Admin Console Desktop (macOS / Chrome)',
-        'ip_address': '49.205.112.45 (Rajahmundry, AP)',
-        'last_active_at': DateTime.now().toIso8601String(),
-        'is_current': true,
-      },
-      {
-        'id': 'sess-mobile',
-        'device_info': 'Pixel 8 (Android 15 PWA)',
-        'ip_address': '157.48.90.12 (Vijayawada, AP)',
-        'last_active_at': DateTime.now().subtract(const Duration(hours: 3)).toIso8601String(),
-        'is_current': false,
-      },
-    ];
-  }
-
-  /// Revoke an active admin session remotely
-  Future<bool> revokeAdminSession(String sessionId) async {
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('admin_sessions').update({
-          'revoked_at': DateTime.now().toIso8601String(),
-        }).eq('id', sessionId);
-        return true;
-      } catch (e) {
-        debugPrint('revokeAdminSession error: $e');
-      }
-    }
-    return true;
-  }
-
-  /// Request temporary Break-Glass elevation (max 2 hours, mandatory reason)
-  Future<Map<String, dynamic>> requestBreakGlassElevation({required String reason}) async {
-    if (reason.trim().length < 10) {
-      return {'ok': false, 'reason': 'Reason must be at least 10 characters long'};
-    }
-
-    final entry = {
-      'id': 'bg-${DateTime.now().millisecondsSinceEpoch}',
-      'user_id': client?.auth.currentUser?.id ?? '00000000-0000-0000-0000-000000000001',
-      'reason': reason.trim(),
-      'granted_at': DateTime.now().toIso8601String(),
-      'expires_at': DateTime.now().add(const Duration(hours: 2)).toIso8601String(),
-    };
-
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('admin_break_glass_grants').insert(entry);
-        return {'ok': true, 'expires_in_hours': 2};
-      } catch (e) {
-        debugPrint('requestBreakGlassElevation error: $e');
-      }
-    }
-
-    return {'ok': true, 'expires_in_hours': 2};
-  }
+  Future<Map<String, dynamic>> requestBreakGlassElevation({
+    required String reason,
+  }) =>
+      AdminGovernanceService().requestBreakGlassElevation(reason: reason);
 
   // ============================================================================
-  // MILESTONE AM2: MAINTENANCE MODE & SCOPED SWITCHES (MNT-1 to MNT-10)
+  // MILESTONE AM2: MAINTENANCE MODE & SCOPED SWITCHES (Delegated)
   // ============================================================================
 
-  /// Check maintenance status for a specific scope (web, donor, bank, public, etc.)
   Future<Map<String, dynamic>> checkMaintenanceStatus({
     required String scope,
     String? identifier,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('check_maintenance_status', params: {
-          'p_scope': scope,
-          'p_identifier': identifier,
-        });
-        if (res != null && res is Map<String, dynamic>) {
-          return res;
-        }
-      } catch (e) {
-        debugPrint('checkMaintenanceStatus error: $e');
-      }
-    }
+  }) =>
+      AdminMaintenanceService().checkMaintenanceStatus(
+        scope: scope,
+        identifier: identifier,
+      );
 
-    // Baseline offline/mock fallback
-    bool active = false;
-    List<String> scopes = ['web', 'donor', 'bank', 'public', 'whatsapp', 'phone', 'api', 'admin'];
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      active = prefs.getBool('pref_maintenance_active') ?? false;
-      scopes = prefs.getStringList('pref_maintenance_scopes') ?? scopes;
-    } catch (_) {}
-    final isScopeActive = active && scopes.contains(scope);
+  Future<List<Map<String, dynamic>>> getMaintenanceWindows() =>
+      AdminMaintenanceService().getMaintenanceWindows();
 
-    return {
-      'active': isScopeActive,
-      'is_maintenance': active,
-      'bypassed': false,
-      'scope': scope,
-      'policy': 'continue_active',
-      'messages': {
-        'en': 'Scheduled maintenance in progress. Emergency helpline remains active.',
-        'te': 'నిర్వహణ పనులు జరుగుతున్నాయి. అత్యవసర రక్త సహాయం అందుబాటులో ఉంది.',
-        'hi': 'रखरखाव कार्य प्रगति पर है। आपातकालीन रक्त हेल्पलाइन सक्रिय है।'
-      }
-    };
-  }
-
-  /// Get list of maintenance windows
-  Future<List<Map<String, dynamic>>> getMaintenanceWindows() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!
-            .from('maintenance_windows')
-            .select()
-            .order('created_at', ascending: false)
-            .limit(20);
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getMaintenanceWindows error: $e');
-      }
-    }
-    bool active = false;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      active = prefs.getBool('pref_maintenance_active') ?? false;
-    } catch (_) {}
-
-    return [
-      {
-        'id': 'win-default-01',
-        'title': 'System Core Maintenance Window',
-        'scopes': ['web', 'donor', 'bank', 'public'],
-        'status': active ? 'active' : 'scheduled',
-        'inflight_policy': 'continue_active',
-        'scheduled_start': DateTime.now().toIso8601String(),
-        'scheduled_end': DateTime.now().add(const Duration(hours: 1)).toIso8601String(),
-        'reason': 'Database indexes and capacity upgrade',
-        'bypass_allowlist': {'phones': ['+919876543210'], 'admin_ids': [], 'ips': ['127.0.0.1']},
-        'created_at': DateTime.now().toIso8601String(),
-      }
-    ];
-  }
-
-  /// Activate or deactivate maintenance mode with scopes, policy, and audit logging
   Future<Map<String, dynamic>> setMaintenanceMode({
     required bool active,
     List<String>? scopes,
@@ -3378,80 +2116,37 @@ class SupabaseService {
     String reason = 'Scheduled maintenance window',
     int durationMinutes = 60,
     Map<String, dynamic>? bypassAllowlist,
-  }) async {
-    final effectiveScopes = scopes ?? ['web', 'donor', 'bank', 'public', 'whatsapp', 'phone', 'api'];
+  }) =>
+      AdminMaintenanceService().setMaintenanceMode(
+        active: active,
+        scopes: scopes,
+        policy: policy,
+        reason: reason,
+        durationMinutes: durationMinutes,
+        bypassAllowlist: bypassAllowlist,
+      );
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('pref_maintenance_active', active);
-      await prefs.setStringList('pref_maintenance_scopes', effectiveScopes);
-    } catch (_) {}
-
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('set_maintenance_mode', params: {
-          'p_active': active,
-          'p_scopes': effectiveScopes,
-          'p_policy': policy,
-          'p_reason': reason,
-          'p_duration_minutes': durationMinutes,
-          'p_bypass_allowlist': bypassAllowlist ?? {'phones': [], 'admin_ids': [], 'ips': []},
-        });
-        if (res != null && res is Map<String, dynamic>) {
-          return res;
-        }
-      } catch (e) {
-        debugPrint('setMaintenanceMode error: $e');
-      }
-    }
-
-    return {'ok': true, 'active': active, 'window_id': 'mock-win-${DateTime.now().millisecondsSinceEpoch}'};
-  }
-
-  /// Extend active maintenance window
   Future<Map<String, dynamic>> extendMaintenanceWindow({
     required String windowId,
     required int additionalMinutes,
     String reason = 'Additional migration verification required',
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('extend_maintenance_window', params: {
-          'p_window_id': windowId,
-          'p_additional_minutes': additionalMinutes,
-          'p_reason': reason,
-        });
-        if (res != null && res is Map<String, dynamic>) {
-          return res;
-        }
-      } catch (e) {
-        debugPrint('extendMaintenanceWindow error: $e');
-      }
-    }
-    return {'ok': true, 'new_end': DateTime.now().add(Duration(minutes: additionalMinutes)).toIso8601String()};
-  }
+  }) =>
+      AdminMaintenanceService().extendMaintenanceWindow(
+        windowId: windowId,
+        additionalMinutes: additionalMinutes,
+        reason: reason,
+      );
 
-  /// Helper to check if global maintenance mode is active
-  Future<bool> isMaintenanceActive() async {
-    final status = await checkMaintenanceStatus(scope: 'web');
-    return status['active'] == true || status['is_maintenance'] == true;
-  }
+  Future<bool> isMaintenanceActive() =>
+      AdminMaintenanceService().isMaintenanceActive();
 
   // ============================================================================
-  // MILESTONE AM3: DATA EXPORT & REPORTING CENTRE (EXP-1 to EXP-10)
+  // MILESTONE AM3: DATA EXPORT & REPORTING CENTRE (Delegated)
   // ============================================================================
 
-  /// Sanitize cell content to prevent CSV injection (=, +, -, @)
-  String sanitizeCsvCell(String input) {
-    if (input.isEmpty) return input;
-    final firstChar = input[0];
-    if (firstChar == '=' || firstChar == '+' || firstChar == '-' || firstChar == '@') {
-      return "'$input";
-    }
-    return input;
-  }
+  String sanitizeCsvCell(String input) =>
+      AdminExportService().sanitizeCsvCell(input);
 
-  /// Create a new data export (enforces Four-Eyes approval check for Tier 3)
   Future<Map<String, dynamic>> createDataExport({
     required String entityType,
     required String tier,
@@ -3460,363 +2155,80 @@ class SupabaseService {
     int rowCount = 0,
     Map<String, dynamic>? filterParams,
     String? approvalId,
-  }) async {
-    if (tier == 'tier_3_identifiers' && approvalId == null) {
-      return {
-        'ok': false,
-        'reason': 'Tier 3 (Identifiable data) mandates Four-Eyes approval before generation.',
-      };
-    }
+  }) =>
+      AdminExportService().createDataExport(
+        entityType: entityType,
+        tier: tier,
+        format: format,
+        reason: reason,
+        rowCount: rowCount,
+        filterParams: filterParams,
+        approvalId: approvalId,
+      );
 
-    final watermark = 'BN-EXP-${DateTime.now().millisecondsSinceEpoch}-${entityType.toUpperCase()}';
-    final exportEntry = {
-      'id': 'exp-${DateTime.now().millisecondsSinceEpoch}',
-      'entity_type': entityType,
-      'tier': tier,
-      'format': format,
-      'status': 'completed',
-      'row_count': rowCount,
-      'filter_params': filterParams ?? {},
-      'watermark_token': watermark,
-      'approval_id': approvalId,
-      'reason': reason,
-      'expires_at': DateTime.now().add(const Duration(minutes: 15)).toIso8601String(),
-      'created_at': DateTime.now().toIso8601String(),
-    };
-
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('create_data_export', params: {
-          'p_entity_type': entityType,
-          'p_tier': tier,
-          'p_format': format,
-          'p_reason': reason,
-          'p_row_count': rowCount,
-          'p_filter': filterParams ?? {},
-          'p_approval_id': approvalId,
-        });
-        if (res != null && res is Map<String, dynamic>) {
-          return res;
-        }
-      } catch (e) {
-        debugPrint('createDataExport error: $e');
-      }
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_exports_cache');
-      List list = cached != null ? jsonDecode(cached) as List : [];
-      list.insert(0, exportEntry);
-      await prefs.setString('local_exports_cache', jsonEncode(list.take(20).toList()));
-    } catch (_) {}
-
-    return {
-      'ok': true,
-      'export_id': exportEntry['id'],
-      'watermark': watermark,
-      'expires_at': exportEntry['expires_at'],
-    };
-  }
-
-  /// Get recent data exports history
-  Future<List<Map<String, dynamic>>> getDataExports() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!
-            .from('data_exports')
-            .select()
-            .order('created_at', ascending: false)
-            .limit(20);
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getDataExports error: $e');
-      }
-    }
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_exports_cache');
-      if (cached != null) {
-        final List list = jsonDecode(cached) as List;
-        return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-      }
-    } catch (_) {}
-
-    return [
-      {
-        'id': 'exp-mock-01',
-        'entity_type': 'requests',
-        'tier': 'tier_2_masked',
-        'format': 'csv',
-        'status': 'completed',
-        'row_count': 42,
-        'watermark_token': 'BN-EXP-20261107-123456',
-        'reason': 'Weekly Operations Audit',
-        'expires_at': DateTime.now().add(const Duration(minutes: 12)).toIso8601String(),
-        'created_at': DateTime.now().toIso8601String(),
-      }
-    ];
-  }
+  Future<List<Map<String, dynamic>>> getDataExports() =>
+      AdminExportService().getDataExports();
 
   // ============================================================================
-  // MILESTONE AM4: LEDGERS & COST ENGINE (EXP-LED-1, EXP-LED-2, EXP-CST-1, FIN-1..5)
+  // MILESTONE AM4: LEDGERS & COST ENGINE (Delegated)
   // ============================================================================
 
-  /// Get current service cost rate cards in INR
-  Future<List<Map<String, dynamic>>> getCostRateCards() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('cost_rate_cards').select().order('service_name');
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getCostRateCards error: $e');
-      }
-    }
+  Future<List<Map<String, dynamic>>> getCostRateCards() =>
+      AdminCostLedgerService().getCostRateCards();
 
-    return [
-      {'service_name': 'whatsapp_utility', 'unit_cost_inr': 0.3500, 'unit_label': 'per template'},
-      {'service_name': 'whatsapp_marketing', 'unit_cost_inr': 0.8500, 'unit_label': 'per template'},
-      {'service_name': 'twilio_voice_min', 'unit_cost_inr': 1.8000, 'unit_label': 'per minute'},
-      {'service_name': 'gemini_live_min', 'unit_cost_inr': 2.4000, 'unit_label': 'per minute'},
-      {'service_name': 'sms_failover', 'unit_cost_inr': 0.2800, 'unit_label': 'per SMS'},
-    ];
-  }
-
-  /// Record cost event attributed to an emergency request
   Future<Map<String, dynamic>> recordCostEvent({
     required String requestId,
     required String serviceName,
     double units = 1.0,
     Map<String, dynamic>? meta,
-  }) async {
-    final rates = {
-      'whatsapp_utility': 0.35,
-      'whatsapp_marketing': 0.85,
-      'twilio_voice_min': 1.80,
-      'gemini_live_min': 2.40,
-      'sms_failover': 0.28,
-    };
-    final unitRate = rates[serviceName] ?? 0.50;
-    final totalCost = double.parse((unitRate * units).toStringAsFixed(4));
+  }) =>
+      AdminCostLedgerService().recordCostEvent(
+        requestId: requestId,
+        serviceName: serviceName,
+        units: units,
+        meta: meta,
+      );
 
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('record_cost_event', params: {
-          'p_request_id': requestId,
-          'p_service_name': serviceName,
-          'p_units': units,
-          'p_meta': meta ?? {},
-        });
-        if (res != null && res is Map<String, dynamic>) {
-          return res;
-        }
-      } catch (e) {
-        debugPrint('recordCostEvent error: $e');
-      }
-    }
-
-    return {
-      'ok': true,
-      'event_id': 'cost-${DateTime.now().millisecondsSinceEpoch}',
-      'unit_rate': unitRate,
-      'total_cost_inr': totalCost,
-    };
-  }
-
-  /// Get daily spend summary with breakdown by channel in INR
-  Future<Map<String, dynamic>> getDailySpendSummary({DateTime? date}) async {
-    final target = date ?? DateTime.now();
-    final dateStr = target.toIso8601String().substring(0, 10);
-
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.rpc('get_daily_spend_summary', params: {
-          'p_target_date': dateStr,
-        });
-        if (res != null && res is Map<String, dynamic>) {
-          return res;
-        }
-      } catch (e) {
-        debugPrint('getDailySpendSummary error: $e');
-      }
-    }
-
-    return {
-      'target_date': dateStr,
-      'total_spend_inr': 48.75,
-      'breakdown': [
-        {'service_name': 'whatsapp_utility', 'count': 45, 'units': 45, 'total_inr': 15.75},
-        {'service_name': 'twilio_voice_min', 'count': 10, 'units': 12.5, 'total_inr': 22.50},
-        {'service_name': 'gemini_live_min', 'count': 3, 'units': 4.38, 'total_inr': 10.50},
-      ],
-    };
-  }
+  Future<Map<String, dynamic>> getDailySpendSummary({DateTime? date}) =>
+      AdminCostLedgerService().getDailySpendSummary(date: date);
 
   // ============================================================================
-  // MILESTONE AM5..AM11: OPERATIONS, PEOPLE, VOICE STUDIO, SAFETY & PARTNERS
+  // MILESTONE AM5..AM11: DIRECTORY, SAFETY & OPERATIONS (Delegated)
   // ============================================================================
 
-  /// Get verified hospitals with GPS coordinates
-  Future<List<Map<String, dynamic>>> getHospitals() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('hospitals').select().order('name');
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getHospitals error: $e');
-      }
-    }
-    return [
-      {'name': 'Government General Hospital (GGH)', 'city': 'Rajahmundry', 'district': 'East Godavari', 'latitude': 17.0005, 'longitude': 81.8040, 'is_verified': true, 'contact_phone': '+918832442222', 'blood_bank_attached': true},
-      {'name': 'Apollo Speciality Hospitals', 'city': 'Kakinada', 'district': 'Kakinada', 'latitude': 16.9891, 'longitude': 82.2475, 'is_verified': true, 'contact_phone': '+918842345678', 'blood_bank_attached': true},
-      {'name': 'King George Hospital (KGH)', 'city': 'Visakhapatnam', 'district': 'Visakhapatnam', 'latitude': 17.7042, 'longitude': 83.3032, 'is_verified': true, 'contact_phone': '+918912564891', 'blood_bank_attached': true},
-      {'name': 'Government General Hospital', 'city': 'Vijayawada', 'district': 'NTR', 'latitude': 16.5062, 'longitude': 80.6480, 'is_verified': true, 'contact_phone': '+918662578912', 'blood_bank_attached': true},
-    ];
-  }
+  Future<List<Map<String, dynamic>>> getHospitals() =>
+      AdminDirectoryService().getHospitals();
 
-  /// Get AI voice prompt versions
-  Future<List<Map<String, dynamic>>> getAIPromptVersions() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('ai_prompt_versions').select().order('created_at', ascending: false);
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getAIPromptVersions error: $e');
-      }
-    }
-    return [
-      {
-        'version_tag': 'v1.0.0-prod',
-        'system_prompt': 'You are BloodNorms Voice Triage Assistant, speaking concisely in English, Telugu, or Hindi. Collect emergency blood group, units, hospital name, and patient status.',
-        'safety_guidelines': '1. Refuse medical diagnostic queries. 2. Never store caller audio or transcripts. 3. Adhere to < 28 characters short speech prompts where possible.',
-        'temperature': 0.30,
-        'is_active': true,
-      }
-    ];
-  }
+  Future<List<Map<String, dynamic>>> getAIPromptVersions() =>
+      AdminDirectoryService().getAIPromptVersions();
 
-  /// Run 60-dialogue synthetic AI evaluation suite
-  Future<Map<String, dynamic>> runAIEvaluationSuite({required String promptVersionId}) async {
-    final entry = {
-      'id': 'eval-${DateTime.now().millisecondsSinceEpoch}',
-      'prompt_version_id': promptVersionId,
-      'total_test_dialogues': 60,
-      'passed_count': 60,
-      'failed_count': 0,
-      'safety_score_percent': 100.0,
-      'status': 'passed',
-      'evaluated_at': DateTime.now().toIso8601String(),
-    };
+  Future<Map<String, dynamic>> runAIEvaluationSuite({
+    required String promptVersionId,
+  }) =>
+      AdminDirectoryService().runAIEvaluationSuite(
+        promptVersionId: promptVersionId,
+      );
 
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('ai_eval_runs').insert(entry);
-      } catch (e) {
-        debugPrint('runAIEvaluationSuite error: $e');
-      }
-    }
+  Future<List<Map<String, dynamic>>> getSafetyIncidents() =>
+      AdminDirectoryService().getSafetyIncidents();
 
-    return entry;
-  }
+  Future<List<Map<String, dynamic>>> getDPDPRequests() =>
+      AdminDirectoryService().getDPDPRequests();
 
-  /// Get safety incidents desk tickets
-  Future<List<Map<String, dynamic>>> getSafetyIncidents() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('safety_incidents').select().order('declared_at', ascending: false);
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getSafetyIncidents error: $e');
-      }
-    }
-    return [
-      {
-        'id': 'inc-001',
-        'title': 'Telephony Webhook Latency Fluctuation',
-        'severity': 'P3_moderate',
-        'status': 'resolved',
-        'impacted_service': 'telephony',
-        'description': 'Temporary carrier SMS delivery delay resolved in 8 minutes',
-        'declared_at': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
-      }
-    ];
-  }
+  Future<List<Map<String, dynamic>>> getCommunityPartners() =>
+      AdminDirectoryService().getCommunityPartners();
 
-  /// Get DPDP compliance requests
-  Future<List<Map<String, dynamic>>> getDPDPRequests() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('dpdp_requests').select().order('created_at', ascending: false);
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getDPDPRequests error: $e');
-      }
-    }
-    return [
-      {
-        'id': 'dpdp-01',
-        'request_type': 'export',
-        'phone_masked': '+91 ******3210',
-        'status': 'completed',
-        'created_at': DateTime.now().subtract(const Duration(hours: 4)).toIso8601String(),
-      }
-    ];
-  }
+  Future<List<Map<String, dynamic>>> getRequesterProfiles() =>
+      AdminDirectoryService().getRequesterProfiles();
 
-  /// Get registered community partners
-  Future<List<Map<String, dynamic>>> getCommunityPartners() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('partners').select().order('name');
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getCommunityPartners error: $e');
-      }
-    }
-    return [
-      {'name': 'Indian Red Cross Society (East Godavari)', 'organization_type': 'red_cross', 'contact_person': 'District Coordinator', 'camps_organized_count': 12, 'is_active': true},
-      {'name': 'Rotary Club of Rajahmundry', 'organization_type': 'rotary', 'contact_person': 'Camp Director', 'camps_organized_count': 8, 'is_active': true},
-      {'name': 'Lions Club International Godavari', 'organization_type': 'lions', 'contact_person': 'President', 'camps_organized_count': 5, 'is_active': true},
-      {'name': 'National Service Scheme (NSS) AU', 'organization_type': 'nss', 'contact_person': 'Program Officer', 'camps_organized_count': 9, 'is_active': true},
-    ];
-  }
-
-  /// Get requester profiles with abuse indicators
-  Future<List<Map<String, dynamic>>> getRequesterProfiles() async {
-    if (_isInitialized && client != null) {
-      try {
-        final res = await client!.from('requester_profiles').select().order('total_requests', ascending: false);
-        return List<Map<String, dynamic>>.from(res);
-      } catch (e) {
-        debugPrint('getRequesterProfiles error: $e');
-      }
-    }
-    return [
-      {'phone': '+919876543210', 'full_name': 'K. Satyanarayana', 'total_requests': 3, 'cancelled_requests': 0, 'abuse_score': 0, 'is_blocked': false},
-      {'phone': '+919440112233', 'full_name': 'R. Venkatesh', 'total_requests': 1, 'cancelled_requests': 0, 'abuse_score': 0, 'is_blocked': false},
-    ];
-  }
-
-  /// Set requester block status
   Future<bool> setRequesterBlockStatus({
     required String phone,
     required bool isBlocked,
     String? reason,
-  }) async {
-    if (_isInitialized && client != null) {
-      try {
-        await client!.from('requester_profiles').upsert({
-          'phone': phone,
-          'is_blocked': isBlocked,
-          'blocked_reason': reason,
-          'blocked_at': isBlocked ? DateTime.now().toIso8601String() : null,
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-      } catch (e) {
-        debugPrint('setRequesterBlockStatus error: $e');
-      }
-    }
-    return true;
-  }
+  }) =>
+      AdminDirectoryService().setRequesterBlockStatus(
+        phone: phone,
+        isBlocked: isBlocked,
+        reason: reason,
+      );
 }
