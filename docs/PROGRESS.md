@@ -129,4 +129,33 @@
        - DevzeMart pagination bar (`Showing 1–10 of 450 entries`, `← Previous 1 2 3 ... 8 9 10 Next →`).
   - **Verification**: `flutter analyze` passed with 0 issues; all 67 automated tests passed across all 15 test suites.
 
+- **Milestone AM15 — Untitled UI Dark Nested Expandable Sidebar & Interactive Workspaces**:
+  - Re-architected [`lib/features/admin_console/screens/admin_console_screen.dart`](file:///c:/BloodNorms/lib/features/admin_console/screens/admin_console_screen.dart) based on the user's reference design (`media_1794046430449_155ea6d1.jpg`):
+    1. **Untitled UI Deep Charcoal Sidebar (`#121316`)**:
+       - Brand mark with emerald/lime sunburst icon + Title ("BloodNorms OS") + Subtitle ("admin.bloodnorms.org") + Expand/Collapse toggle icon.
+       - Quick search field with ⌘K badge.
+       - Standalone top items: Overview Dashboard, Live Crisis Radar (`LIVE` badge), Needs Human Queue (`CRITICAL` badge).
+       - Subtle divider line.
+       - **Expandable Tree Navigation**:
+         - Parent group headers with right chevron indicator (Regional Broadcast, AI Voice Studio, WhatsApp Center, Blood Camps & Drives, Blood Banks & Stock, Donors Registry, Requester Shield, Four-Eyes Governance, Settings & Maintenance).
+         - Smooth expansion rendering an indented vertical tree guide line (`#282B37`).
+         - Nested children with glowing dot connector on the guide line and container highlight pill (`#1F222B`).
+       - **68px Compact Icon Rail Mode**:
+         - Can collapse the 256px full sidebar into a 68px compact icon rail matching the 3rd variant of the Untitled UI design.
+         - Compact mode centers icons, hides text, and displays floating tooltips on hover.
+       - **Bottom Profile Card**:
+         - Displays avatar, admin name ("Siva (Super Admin)"), email ("siva@bloodnorms.org"), and a `^v` popup menu with "View profile", "Account settings", "Analytics", and "Log out".
+    2. **Dedicated Interactive Workspaces (Zero Generic Tables / Zero Dummy Hardcoded Stubs)**:
+       - **Dashboard Cockpit**: The ONLY page featuring the 6 Pastel KPI cards, quick triage shortcuts, and high-level platform status.
+       - **Regional Broadcast**: Geofence radius slider (1–50 km), live donor audience count, suppression breakdown with explicit reasons, and real dispatching.
+       - **WhatsApp Center**: Authentic WhatsApp phone conversation bubble preview with live dynamic variable replacement (`{{name}}`, `{{hospital}}`, `{{units}}`), template selector, and message counter.
+       - **AI Voice Studio**: Audio waveform indicator, synthetic transcript testbench with dialect picker (EN, TE, HI), intent parsing, clinical guardrails, 60-min safety gauge, and 1–5 star human ratings.
+       - **8-Group Blood Stock Matrix**: Interactive cards for $A+, A-, B+, B-, O+, O-, AB+, AB-$ with real `+` and `-` unit steppers that reactively update the database and UI instantly.
+       - **Four-Eyes Approvals**: Real Maker vs Checker cards with functional "Approve" and "Reject" buttons.
+       - **Data Exports Engine**: Real DPDP-compliant masked CSV generator with "Copy to Clipboard" modal and Tier 3 approval gate.
+       - **Donors Registry**: DevzeMart styled directory with functional `PAUSE` and `ACTIVATE` alert toggles and milestone badge awards.
+       - **Requester Fraud Shield**: Real `BLOCK` and `UNBLOCK` buttons that update the database.
+       - **Master Killswitch**: Interactive platform emergency killswitch toggle with audit log feedback.
+  - **Verification**: `flutter analyze lib/features/admin_console/screens/admin_console_screen.dart` passed with 0 issues; all 67 automated tests passed across all 15 test suites.
+
 
