@@ -6,17 +6,31 @@
 import 'package:flutter/material.dart';
 import '../../../shared/models/blood_bank_model.dart';
 import '../../../shared/models/camp_model.dart';
-import 'ai_voice_studio_view.dart';
+import 'algorithm_settings_view.dart';
+import 'approvals_queue_view.dart';
+import 'audit_logs_view.dart';
 import 'blood_banks_stock_view.dart';
 import 'blood_camps_admin_view.dart';
+import 'broadcast_audience_view.dart';
+import 'broadcast_dispatch_view.dart';
+import 'broadcast_history_view.dart';
+import 'community_partners_view.dart';
 import 'crisis_radar_view.dart';
 import 'dashboard_cockpit_view.dart';
-import 'directory_registry_view.dart';
+import 'data_exports_view.dart';
 import 'donors_registry_view.dart';
-import 'governance_views.dart';
+import 'dpdp_registry_view.dart';
+import 'hospitals_registry_view.dart';
+import 'killswitch_settings_view.dart';
 import 'needs_human_view.dart';
-import 'regional_broadcast_view.dart';
-import 'whatsapp_center_view.dart';
+import 'requester_shield_view.dart';
+import 'safety_desk_view.dart';
+import 'voice_prompts_view.dart';
+import 'voice_safety_view.dart';
+import 'voice_simulator_view.dart';
+import 'whatsapp_bot_view.dart';
+import 'whatsapp_telecom_view.dart';
+import 'whatsapp_templates_view.dart';
 
 class AdminWorkspaceRouter extends StatelessWidget {
   final String activePage;
@@ -134,12 +148,8 @@ class AdminWorkspaceRouter extends StatelessWidget {
           onCloseRequest: onCloseRequest,
         );
       case 'broadcast_dispatch':
-      case 'broadcast_audience':
-      case 'broadcast_history':
-        return RegionalBroadcastView(
-          subPage: activePage,
+        return BroadcastDispatchView(
           audiencePreview: audiencePreview,
-          broadcastHistory: broadcastHistory,
           selectedTargetCity: selectedTargetCity,
           selectedChannel: selectedChannel,
           broadcastRadiusKm: broadcastRadiusKm,
@@ -153,20 +163,32 @@ class AdminWorkspaceRouter extends StatelessWidget {
           onRespectRadiusChanged: onRespectRadiusChanged,
           onDispatch: onDispatchBroadcast,
         );
+      case 'broadcast_audience':
+        return BroadcastAudienceView(
+          audiencePreview: audiencePreview,
+        );
+      case 'broadcast_history':
+        return BroadcastHistoryView(
+          broadcastHistory: broadcastHistory,
+        );
       case 'voice_simulator':
+        return VoiceSimulatorView(
+          onShowToast: onShowToast,
+        );
       case 'voice_prompts':
+        return const VoicePromptsView();
       case 'voice_safety':
-        return AiVoiceStudioView(
-          subPage: activePage,
-          onShowToast: onShowToast,
-        );
+        return const VoiceSafetyView();
       case 'whatsapp_bot':
-      case 'whatsapp_templates':
-      case 'whatsapp_telecom':
-        return WhatsAppCenterView(
-          subPage: activePage,
+        return WhatsAppBotView(
           onShowToast: onShowToast,
         );
+      case 'whatsapp_templates':
+        return WhatsAppTemplatesView(
+          onShowToast: onShowToast,
+        );
+      case 'whatsapp_telecom':
+        return const WhatsAppTelecomView();
       case 'camps_list':
       case 'camps_create':
         return BloodCampsAdminView(
@@ -195,34 +217,47 @@ class AdminWorkspaceRouter extends StatelessWidget {
           onShowToast: onShowToast,
         );
       case 'hospitals_list':
-      case 'requester_shield':
-      case 'community_partners':
-        return DirectoryRegistryView(
-          subPage: activePage,
+        return HospitalsRegistryView(
           hospitalsList: hospitalsList,
+        );
+      case 'requester_shield':
+        return RequesterShieldView(
           requestersList: requestersList,
-          partnersList: partnersList,
           onToggleRequesterBlock: onToggleRequesterBlock,
         );
+      case 'community_partners':
+        return CommunityPartnersView(
+          partnersList: partnersList,
+        );
       case 'approvals_queue':
+        return ApprovalsQueueView(
+          approvalRequests: approvalRequests,
+          onDecideApproval: onDecideApproval,
+        );
       case 'data_exports':
+        return DataExportsView(
+          dataExports: dataExports,
+          onShowToast: onShowToast,
+        );
       case 'dpdp_registry':
+        return DPDPRegistryView(
+          dpdpRequests: dpdpRequests,
+        );
       case 'settings_killswitch':
+        return KillswitchSettingsView(
+          killSwitchActive: killSwitchActive,
+          onToggleKillSwitch: onToggleKillSwitch,
+        );
       case 'settings_algorithm':
+        return const AlgorithmSettingsView();
       case 'settings_safety':
+        return SafetyDeskView(
+          safetyIncidents: safetyIncidents,
+        );
       case 'settings_audit':
       default:
-        return GovernanceViews(
-          subPage: activePage,
-          approvalRequests: approvalRequests,
-          dataExports: dataExports,
-          dpdpRequests: dpdpRequests,
-          killSwitchActive: killSwitchActive,
-          safetyIncidents: safetyIncidents,
+        return AuditLogsView(
           auditLogs: auditLogs,
-          onDecideApproval: onDecideApproval,
-          onToggleKillSwitch: onToggleKillSwitch,
-          onShowToast: onShowToast,
         );
     }
   }
