@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | hospitals_registry_view.dart
-// Verified Hospitals & Clinical Facilities Directory View
+// Modern Minimal Verified Hospitals & Clinical Facilities Directory View
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -18,44 +18,96 @@ class HospitalsRegistryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
-      child: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: hospitalsList.map((h) => ListTile(
-              leading: const Icon(Icons.local_hospital_rounded, color: BrandColors.red),
-              title: Text(
-                h['name'] ?? 'Hospital',
-                style: const TextStyle(
-                  fontFamily: BrandTypography.fontFamily,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-              ),
-              subtitle: Text(
-                '${h['city']} · Phone: ${h['contact_phone'] ?? h['emergency_phone']} · Blood Bank: ${h['blood_bank_attached'] == true ? "YES" : "NO"}',
-              ),
-              trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Verified hospital directory',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: BrandColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...hospitalsList.map((h) => Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: BrandColors.greenTint,
-                  borderRadius: BorderRadius.circular(999),
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                 ),
-                child: const Text(
-                  'VERIFIED',
-                  style: TextStyle(
-                    color: BrandColors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: BrandColors.accentTint,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.local_hospital_outlined,
+                            size: 16,
+                            color: BrandColors.accent,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              h['name'] ?? 'Hospital',
+                              style: const TextStyle(
+                                fontFamily: BrandTypography.fontFamily,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: BrandColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${h['city']} · Phone: ${h['contact_phone'] ?? h['emergency_phone']} · Blood Bank: ${h['blood_bank_attached'] == true ? "Yes" : "No"}',
+                              style: const TextStyle(
+                                fontFamily: BrandTypography.fontFamily,
+                                fontSize: 12,
+                                color: BrandColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: BrandColors.statusSuccessTint,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                      ),
+                      child: const Text(
+                        'Verified',
+                        style: TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          color: BrandColors.statusSuccess,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            )).toList(),
+              )),
+        ],
       ),
     );
   }

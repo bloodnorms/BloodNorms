@@ -1,14 +1,13 @@
 // ============================================================================
 // BloodNorms | blood_camps_admin_view.dart
-// Blood Camps Admin Roster & Drive Scheduling
+// Modern Minimal Blood Camps Admin Roster & Drive Scheduling
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import '../../../shared/models/camp_model.dart';
-import '../../../shared/models/blood_bank_model.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class BloodCampsAdminView extends StatefulWidget {
   final String subPage; // 'camps_list' | 'camps_create'
@@ -61,42 +60,89 @@ class _BloodCampsAdminViewState extends State<BloodCampsAdminView> {
 
   Widget _buildCampsListPage() {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Scheduled Blood Drives', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 15)),
-              ElevatedButton.icon(
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Scheduled blood drives',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: BrandColors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Voluntary donation camps organized across regions',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontSize: 13,
+                      color: BrandColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              AppPillButton(
+                label: 'Schedule new drive',
+                icon: Icons.add_rounded,
+                variant: AppPillButtonVariant.primary,
                 onPressed: widget.onNavigateToCreate,
-                icon: const Icon(Icons.add_rounded, size: 16),
-                label: const Text('New Drive'),
-                style: ElevatedButton.styleFrom(backgroundColor: BrandColors.red, foregroundColor: Colors.white),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           ...widget.campsList.map((c) => Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0))),
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(c.title, style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
-                        Text('${c.venue} · ${c.area}, ${c.city} · Target Radius: ${c.targetRadiusKm}km · Capacity: ${c.capacity} donors', style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 12, color: BrandColors.textSecondary)),
+                        Text(
+                          c.title,
+                          style: const TextStyle(
+                            fontFamily: BrandTypography.fontFamily,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: BrandColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${c.venue} · ${c.area}, ${c.city} · ${c.targetRadiusKm} km radius · Target: ${c.capacity} donors',
+                          style: const TextStyle(
+                            fontFamily: BrandTypography.fontFamily,
+                            fontSize: 12,
+                            color: BrandColors.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
-                    OutlinedButton.icon(
+                    AppPillButton(
+                      label: 'Broadcast',
+                      icon: Icons.campaign_outlined,
+                      variant: AppPillButtonVariant.secondary,
                       onPressed: () => widget.onCampSelectedForBroadcast(c),
-                      icon: const Icon(Icons.campaign_rounded, size: 14, color: BrandColors.red),
-                      label: const Text('Broadcast', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 12, color: BrandColors.red)),
                     ),
                   ],
                 ),
@@ -109,23 +155,38 @@ class _BloodCampsAdminViewState extends State<BloodCampsAdminView> {
   Widget _buildCampsCreatePage() {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
+      decoration: BoxDecoration(
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Schedule Voluntary Blood Drive Camp', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text(
+            'Schedule voluntary blood drive camp',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: BrandColors.textPrimary,
+            ),
+          ),
           const SizedBox(height: 16),
-          TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'Camp Drive Title', border: OutlineInputBorder())),
+          TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'Camp title')),
           const SizedBox(height: 12),
-          TextField(controller: _venueController, decoration: const InputDecoration(labelText: 'Venue / Hall Name', border: OutlineInputBorder())),
+          TextField(controller: _venueController, decoration: const InputDecoration(labelText: 'Venue / Hall name')),
           const SizedBox(height: 12),
-          TextField(controller: _areaController, decoration: const InputDecoration(labelText: 'Area / Neighborhood', border: OutlineInputBorder())),
+          TextField(controller: _areaController, decoration: const InputDecoration(labelText: 'Area / Neighborhood')),
           const SizedBox(height: 12),
-          TextField(controller: _cityController, decoration: const InputDecoration(labelText: 'City', border: OutlineInputBorder())),
+          TextField(controller: _cityController, decoration: const InputDecoration(labelText: 'City')),
           const SizedBox(height: 12),
-          TextField(controller: _capacityController, decoration: const InputDecoration(labelText: 'Donor Capacity Target', border: OutlineInputBorder()), keyboardType: TextInputType.number),
+          TextField(controller: _capacityController, decoration: const InputDecoration(labelText: 'Target donor capacity'), keyboardType: TextInputType.number),
           const SizedBox(height: 20),
-          ElevatedButton(
+          AppPillButton(
+            label: 'Publish drive now',
+            icon: Icons.check_circle_outline_rounded,
+            variant: AppPillButtonVariant.primary,
             onPressed: () async {
               if (_titleController.text.isNotEmpty && _venueController.text.isNotEmpty) {
                 final newCamp = CampModel(
@@ -158,8 +219,6 @@ class _BloodCampsAdminViewState extends State<BloodCampsAdminView> {
                 widget.onShowToast('Blood camp drive successfully scheduled and published!');
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: BrandColors.red, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
-            child: const Text('Publish Drive Now'),
           ),
         ],
       ),

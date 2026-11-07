@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | blood_banks_stock_view.dart
-// Blood Centers Directory & Interactive 8-Group Stock Matrix with Steppers
+// Modern Minimal Blood Centers Directory & Interactive 8-Group Stock Matrix
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -32,19 +32,94 @@ class BloodBanksStockView extends StatelessWidget {
 
   Widget _buildBanksDirectoryPage() {
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Connected Blood Center Facilities', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 15)),
-          const SizedBox(height: 12),
-          ...banksList.map((b) => ListTile(
-                dense: true,
-                leading: const Icon(Icons.local_hospital_rounded, color: BrandColors.red),
-                title: Text(b.name, style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
-                subtitle: Text('${b.address}, ${b.city} · ${b.is24x7 ? "24x7 Emergency" : "Standard"} · Trust: ${b.trustScore}'),
-                trailing: Text('${b.stockUnits} units', style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, color: BrandColors.green)),
+          const Text(
+            'Connected blood center facilities',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: BrandColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...banksList.map((b) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: BrandColors.accentTint,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.local_hospital_outlined,
+                            size: 16,
+                            color: BrandColors.accent,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              b.name,
+                              style: const TextStyle(
+                                fontFamily: BrandTypography.fontFamily,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: BrandColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${b.address}, ${b.city} · ${b.is24x7 ? "24x7 Emergency" : "Standard"} · Trust: ${b.trustScore}',
+                              style: const TextStyle(
+                                fontFamily: BrandTypography.fontFamily,
+                                fontSize: 12,
+                                color: BrandColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: BrandColors.statusSuccessTint,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                      ),
+                      child: Text(
+                        '${b.stockUnits} units',
+                        style: const TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontWeight: FontWeight.w600,
+                          color: BrandColors.statusSuccess,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               )),
         ],
       ),
@@ -52,9 +127,15 @@ class BloodBanksStockView extends StatelessWidget {
   }
 
   Widget _buildBanksStockPage() {
+    final totalUnits = stockMatrix.values.fold(0, (a, b) => a + b);
+
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2E8F0))),
+      decoration: BoxDecoration(
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -64,14 +145,41 @@ class BloodBanksStockView extends StatelessWidget {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Interactive 8-Group Realtime Stock Matrix', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
-                  Text('Tap + and - buttons to adjust units in real-time. Changes persist live to Supabase.', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 12, color: BrandColors.textSecondary)),
+                  Text(
+                    'Interactive 8-group stock matrix',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: BrandColors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Tap + and - to adjust units in real-time with instant persistence',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontSize: 13,
+                      color: BrandColors.textSecondary,
+                    ),
+                  ),
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: BrandColors.greenTint, borderRadius: BorderRadius.circular(999)),
-                child: Text('${stockMatrix.values.fold(0, (a, b) => a + b)} TOTAL UNITS', style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, color: BrandColors.green, fontSize: 11)),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: BrandColors.accentTint,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                ),
+                child: Text(
+                  '$totalUnits units available',
+                  style: const TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontWeight: FontWeight.w600,
+                    color: BrandColors.accent,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ],
           ),
@@ -84,33 +192,62 @@ class BloodBanksStockView extends StatelessWidget {
               final units = e.value;
 
               return Container(
-                width: 150,
-                padding: const EdgeInsets.all(14),
+                width: 145,
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                 ),
                 child: Column(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: BrandColors.red, borderRadius: BorderRadius.circular(6)),
-                      child: Text(group, style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13)),
+                      decoration: BoxDecoration(
+                        color: BrandColors.background,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                      ),
+                      child: Text(
+                        group,
+                        style: const TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontWeight: FontWeight.w600,
+                          color: BrandColors.textPrimary,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    Text('$units', style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 24, fontWeight: FontWeight.bold, color: BrandColors.textPrimary)),
-                    const Text('Available Units', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 10, color: BrandColors.textSecondary)),
+                    Text(
+                      '$units',
+                      style: const TextStyle(
+                        fontFamily: BrandTypography.fontFamily,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: BrandColors.textPrimary,
+                      ),
+                    ),
+                    const Text(
+                      'Units in stock',
+                      style: TextStyle(
+                        fontFamily: BrandTypography.fontFamily,
+                        fontSize: 11,
+                        color: BrandColors.textSecondary,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.remove_circle_outline_rounded, color: BrandColors.red, size: 22),
+                          icon: const Icon(Icons.remove_circle_outline_rounded, size: 20),
+                          color: BrandColors.textSecondary,
                           onPressed: () => onAdjustStock(group, -1),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.add_circle_outline_rounded, color: BrandColors.green, size: 22),
+                          icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
+                          color: BrandColors.primaryAction,
                           onPressed: () => onAdjustStock(group, 1),
                         ),
                       ],
