@@ -1,6 +1,7 @@
 // ============================================================================
 // BloodNorms | data_exports_view.dart
 // Privacy-Governed DPDP Data Exports Desk (SHA-256 Watermarking Engine)
+// Neutralizes CSV Formula Injection (CWE-1236) via sanitizeCsvCell
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -18,6 +19,13 @@ class DataExportsView extends StatelessWidget {
     required this.dataExports,
     required this.onShowToast,
   });
+
+  String _buildSanitizedCsv(List<List<String>> rows) {
+    final s = SupabaseService();
+    return rows
+        .map((row) => row.map((cell) => s.sanitizeCsvCell(cell)).join(','))
+        .join('\n');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +80,8 @@ class DataExportsView extends StatelessWidget {
           const SizedBox(height: 6),
           ...dataExports.map((e) => ListTile(
                 dense: true,
-                leading: const Icon(Icons.table_chart_rounded, color: Color(0xFF0891B2)),
+                leading: const Icon(Icons.table_chart_rounded,
+                    color: Color(0xFF0891B2)),
                 title: Text(
                   e['filename']?.toString() ?? 'export.csv',
                   style: const TextStyle(
@@ -80,7 +89,8 @@ class DataExportsView extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                subtitle: Text('SHA-256: ${e['watermark_hash']?.toString().substring(0, 10)}...'),
+                subtitle: Text(
+                    'SHA-256: ${e['watermark_hash']?.toString().substring(0, 10)}...'),
                 trailing: const Text(
                   'READY',
                   style: TextStyle(
@@ -104,6 +114,13 @@ class DataExportsView extends StatelessWidget {
       reason: 'Routine quarterly audit export for health authorities',
     );
     if (res['ok'] == true && context.mounted) {
+      final sampleRows = [
+        ['id', 'name', 'phone', 'blood_group', 'city'],
+        ['#101', 'Suresh M.', '+91******3210', 'O+', 'Rajahmundry'],
+        ['#102', 'K. Ravi', '+91******4321', 'B+', 'Rajahmundry'],
+      ];
+      final csvContent = _buildSanitizedCsv(sampleRows);
+
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -127,9 +144,10 @@ class DataExportsView extends StatelessWidget {
                     color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'id,name,phone,blood_group,city\n#101,Suresh M.,+91******3210,O+,Rajahmundry\n#102,K. Ravi,+91******4321,B+,Rajahmundry',
-                    style: TextStyle(fontFamily: 'monospace', fontSize: 11),
+                  child: Text(
+                    csvContent,
+                    style:
+                        const TextStyle(fontFamily: 'monospace', fontSize: 11),
                   ),
                 ),
               ],
@@ -138,9 +156,7 @@ class DataExportsView extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Clipboard.setData(const ClipboardData(
-                  text: 'id,name,phone,blood_group,city\n#101,Suresh M.,+91******3210,O+,Rajahmundry\n#102,K. Ravi,+91******4321,B+,Rajahmundry',
-                ));
+                Clipboard.setData(ClipboardData(text: csvContent));
                 Navigator.pop(ctx);
                 onShowToast('CSV contents copied to clipboard!');
               },

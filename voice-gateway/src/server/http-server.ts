@@ -1,7 +1,7 @@
 // ============================================================================
 // BloodNorms Voice Gateway | server/http-server.ts
 //
-// HTTP and WebSocket server with health check and authenticated upgrade.
+// HTTP and WebSocket server with health check, concurrency caps, and authenticated upgrade.
 // ============================================================================
 
 import http from "node:http";
@@ -10,6 +10,8 @@ import { env } from "../config/env.js";
 import { logger } from "../lib/logger.js";
 import { CallSession } from "../sessions/call-session.js";
 
+const MAX_CONCURRENT_CALLS = 50;
+
 export class GatewayServer {
   private server: http.Server;
   private wss: WebSocketServer;
@@ -17,7 +19,7 @@ export class GatewayServer {
 
   constructor() {
     this.server = http.createServer((req, res) => this.handleHttpRequest(req, res));
-    this.wss = new WebSocketServer({ noServer: true });
+    this.wss = new WebSocketServer({ noServer: true, maxPayload: 65536 });
     this.setupUpgradeHandler();
     this.setupWebSocketHandler();
   }
@@ -25,12 +27,16 @@ export class GatewayServer {
   private handleHttpRequest(req: http.IncomingMessage, res: http.ServerResponse): void {
     if (req.url === "/health" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ ok: true, version: "1.0.0", activeCalls: this.activeCalls }));
+      res.end(JSON.stringify({
+        status: "healthy",
+        uptime_seconds: Math.floor(process.uptime()),
+        active_calls: this.activeCalls,
+      }));
       return;
     }
 
-    res.writeHead(404);
-    res.end();
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not Found");
   }
 
   private setupUpgradeHandler(): void {
@@ -43,15 +49,32 @@ export class GatewayServer {
         return;
       }
 
-      // Security Check: Optional secret token parameter or header verification
+      // Concurrency protection: Reject if active calls reach capacity
+      if (this.activeCalls >= MAX_CONCURRENT_CALLS) {
+        logger.warn(
+          { activeCalls: this.activeCalls, ip: req.socket.remoteAddress },
+          "[GatewayServer] Concurrency cap reached. Rejecting connection."
+        );
+        socket.write("HTTP/1.1 503 Service Unavailable\r\n\r\n");
+        socket.destroy();
+        return;
+      }
+
+      // Security Check: Token parameter or Bearer header verification
       const secretParam = url.searchParams.get("secret");
       const authHeader = req.headers["authorization"]?.replace(/^Bearer\s+/i, "");
-      const isSecretConfigured = env.VOICE_GATEWAY_SECRET && env.VOICE_GATEWAY_SECRET !== "voice_secret";
+      const providedToken = secretParam || authHeader;
+      const expectedSecret = env.VOICE_GATEWAY_SECRET;
 
-      if (isSecretConfigured) {
-        const providedToken = secretParam || authHeader;
-        if (providedToken !== env.VOICE_GATEWAY_SECRET) {
-          logger.warn({ ip: req.socket.remoteAddress }, "[GatewayServer] Unauthorized upgrade attempt rejected");
+      const isProduction = env.NODE_ENV === "production";
+      const isSecretConfigured = expectedSecret && expectedSecret !== "voice_secret";
+
+      if (isProduction || isSecretConfigured) {
+        if (!providedToken || providedToken !== expectedSecret) {
+          logger.warn(
+            { ip: req.socket.remoteAddress },
+            "[GatewayServer] Unauthorized upgrade attempt rejected"
+          );
           socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
           socket.destroy();
           return;
@@ -87,4 +110,3 @@ export class GatewayServer {
     this.server.close(callback);
   }
 }
-

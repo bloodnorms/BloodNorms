@@ -2,12 +2,15 @@
 // BloodNorms Voice Gateway | sessions/call-session.ts
 //
 // Manages the state and bidirectional audio pipeline for a single call.
+// Validates event structure and guards against oversized payloads.
 // ============================================================================
 
 import { WebSocket } from "ws";
 import { GeminiLiveAdapter } from "../providers/gemini-live-adapter.js";
 import type { SpeechProvider, TwilioEvent } from "../types/index.js";
 import { logger } from "../lib/logger.js";
+
+const MAX_MESSAGE_BYTES = 65536;
 
 export class CallSession {
   private streamSid: string = "";
@@ -19,7 +22,7 @@ export class CallSession {
   }
 
   private setupTwilioListeners(): void {
-    this.twilioWs.on("message", (raw: string) => {
+    this.twilioWs.on("message", (raw: string | Buffer) => {
       this.handleTwilioMessage(raw);
     });
 
@@ -28,19 +31,34 @@ export class CallSession {
     });
   }
 
-  private async handleTwilioMessage(raw: string): Promise<void> {
+  private async handleTwilioMessage(raw: string | Buffer): Promise<void> {
     try {
-      const data: TwilioEvent = JSON.parse(raw);
+      const payloadStr = typeof raw === "string" ? raw : raw.toString("utf8");
+
+      if (payloadStr.length > MAX_MESSAGE_BYTES) {
+        logger.warn("[CallSession] Message exceeded maximum allowed byte size. Dropping.");
+        return;
+      }
+
+      const data: TwilioEvent = JSON.parse(payloadStr);
+
+      if (!data || typeof data !== "object" || typeof (data as any).event !== "string") {
+        return;
+      }
 
       switch (data.event) {
         case "start":
-          this.streamSid = data.streamSid;
-          logger.info({ streamSid: this.streamSid }, "[CallSession] Call started");
-          await this.initializeSpeechProvider();
+          if (data.streamSid && typeof data.streamSid === "string") {
+            this.streamSid = data.streamSid;
+            logger.info({ streamSid: this.streamSid }, "[CallSession] Call started");
+            await this.initializeSpeechProvider();
+          }
           break;
 
         case "media":
-          this.speechProvider.sendAudio(data.media.payload);
+          if (data.media && typeof data.media.payload === "string") {
+            this.speechProvider.sendAudio(data.media.payload);
+          }
           break;
 
         case "stop":
@@ -89,4 +107,3 @@ export class CallSession {
     this.speechProvider.close();
   }
 }
-
