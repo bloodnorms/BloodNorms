@@ -6,6 +6,9 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import 'broadcast_audience_summary_banner.dart';
+
+export 'broadcast_audience_summary_banner.dart';
 
 class BroadcastDispatchView extends StatelessWidget {
   final Map<String, dynamic> audiencePreview;
@@ -41,9 +44,9 @@ class BroadcastDispatchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final eligible = audiencePreview['eligible_count'] ?? 0;
-    final suppressed = audiencePreview['suppressed_count'] ?? 0;
-    final cost = audiencePreview['estimated_cost_inr'] ?? 0.0;
+    final eligible = (audiencePreview['eligible_count'] as num?)?.toInt() ?? 0;
+    final suppressed = (audiencePreview['suppressed_count'] as num?)?.toInt() ?? 0;
+    final cost = (audiencePreview['estimated_cost_inr'] as num?)?.toDouble() ?? 0.0;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -149,40 +152,10 @@ class BroadcastDispatchView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '🎯 Matched Audience: $eligible donors',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '🚫 Suppressed: $suppressed donors',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    color: BrandColors.textSecondary,
-                  ),
-                ),
-                Text(
-                  'Cost: ₹${cost.toStringAsFixed(2)} INR',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: FontWeight.bold,
-                    color: BrandColors.red,
-                  ),
-                ),
-              ],
-            ),
+          BroadcastAudienceSummaryBanner(
+            eligible: eligible,
+            suppressed: suppressed,
+            cost: cost,
           ),
           const SizedBox(height: 16),
           Align(

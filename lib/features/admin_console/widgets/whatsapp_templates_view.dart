@@ -5,7 +5,9 @@
 
 import 'package:flutter/material.dart';
 import '../../../shared/services/messaging_service.dart';
-import '../../../shared/theme/brand_typography.dart';
+import 'whatsapp_chat_bubble_preview.dart';
+
+export 'whatsapp_chat_bubble_preview.dart';
 
 class WhatsAppTemplatesView extends StatefulWidget {
   final void Function(String message) onShowToast;
@@ -21,10 +23,14 @@ class WhatsAppTemplatesView extends StatefulWidget {
 
 class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
   String _activeTemplateKey = 'camp_invite';
-  final TextEditingController _templateNameVar = TextEditingController(text: 'Suresh');
-  final TextEditingController _templateHospVar = TextEditingController(text: 'GGH Rajahmundry');
-  final TextEditingController _templateUnitsVar = TextEditingController(text: '2 Units of O+');
-  final TextEditingController _waTestPhoneController = TextEditingController(text: '+91 9052493747');
+  final TextEditingController _templateNameVar =
+      TextEditingController(text: 'Suresh');
+  final TextEditingController _templateHospVar =
+      TextEditingController(text: 'GGH Rajahmundry');
+  final TextEditingController _templateUnitsVar =
+      TextEditingController(text: '2 Units of O+');
+  final TextEditingController _waTestPhoneController =
+      TextEditingController(text: '+91 9052493747');
 
   @override
   void dispose() {
@@ -62,19 +68,22 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
               ChoiceChip(
                 label: const Text('Camp Invitation'),
                 selected: _activeTemplateKey == 'camp_invite',
-                onSelected: (_) => setState(() => _activeTemplateKey = 'camp_invite'),
+                onSelected: (_) =>
+                    setState(() => _activeTemplateKey = 'camp_invite'),
               ),
               const SizedBox(width: 8),
               ChoiceChip(
                 label: const Text('Emergency Need Alert'),
                 selected: _activeTemplateKey == 'emergency_alert',
-                onSelected: (_) => setState(() => _activeTemplateKey = 'emergency_alert'),
+                onSelected: (_) =>
+                    setState(() => _activeTemplateKey = 'emergency_alert'),
               ),
               const SizedBox(width: 8),
               ChoiceChip(
                 label: const Text('Donor Thank You'),
                 selected: _activeTemplateKey == 'thank_you',
-                onSelected: (_) => setState(() => _activeTemplateKey = 'thank_you'),
+                onSelected: (_) =>
+                    setState(() => _activeTemplateKey = 'thank_you'),
               ),
             ],
           ),
@@ -116,7 +125,9 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildPreviewBubble(),
+          WhatsAppChatBubblePreview(
+            formattedMessageBody: _formatMessageBody(),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -134,90 +145,13 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
               const SizedBox(width: 12),
               OutlinedButton.icon(
                 onPressed: _sendTestMessage,
-                icon: const Icon(Icons.send_rounded, size: 16, color: Color(0xFF25D366)),
+                icon: const Icon(Icons.send_rounded,
+                    size: 16, color: Color(0xFF25D366)),
                 label: Text('Send Test to ${_waTestPhoneController.text}'),
-                style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF0F172A)),
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF0F172A)),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPreviewBubble() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFEAE2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFCBD5E1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              CircleAvatar(
-                radius: 14,
-                backgroundColor: Color(0xFF25D366),
-                child: Icon(Icons.favorite_rounded, color: Colors.white, size: 14),
-              ),
-              SizedBox(width: 8),
-              Text(
-                'BloodNorms Assistant (Verified)',
-                style: TextStyle(
-                  fontFamily: BrandTypography.fontFamily,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              SizedBox(width: 4),
-              Icon(Icons.verified_rounded, color: Color(0xFF25D366), size: 14),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            constraints: const BoxConstraints(maxWidth: 480),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFD9FDD3),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x11000000),
-                  blurRadius: 4,
-                  offset: Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _formatMessageBody(),
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontSize: 13,
-                    height: 1.4,
-                    color: Color(0xFF111827),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Align(
-                  alignment: Alignment.bottomRight,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('10:42 AM', style: TextStyle(fontSize: 10, color: Color(0xFF6B7280))),
-                      SizedBox(width: 4),
-                      Icon(Icons.done_all_rounded, size: 14, color: Color(0xFF53BDEB)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -226,13 +160,15 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
 
   Future<void> _sendTestMessage() async {
     final text = _formatMessageBody();
-    widget.onShowToast('Sending WhatsApp message to ${_waTestPhoneController.text}...');
+    widget.onShowToast(
+        'Sending WhatsApp message to ${_waTestPhoneController.text}...');
     final res = await WhatsAppService().sendTextMessage(
       toPhone: _waTestPhoneController.text,
       bodyText: text,
     );
     if (res.success) {
-      widget.onShowToast('✓ WhatsApp message delivered! ID: ${res.messageId}');
+      widget.onShowToast(
+          '✓ WhatsApp message delivered! ID: ${res.messageId}');
     } else {
       widget.onShowToast('✕ Meta error: ${res.errorSummary}');
     }

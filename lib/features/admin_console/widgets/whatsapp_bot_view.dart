@@ -8,8 +8,11 @@ import 'package:flutter/material.dart';
 import '../../../shared/services/messaging_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import 'whatsapp_cloud_api_guide_card.dart';
 import 'whatsapp_credentials_card.dart';
 import 'whatsapp_dispatcher_card.dart';
+
+export 'whatsapp_cloud_api_guide_card.dart';
 
 class WhatsAppBotView extends StatefulWidget {
   final void Function(String message) onShowToast;
@@ -29,7 +32,8 @@ class _WhatsAppBotViewState extends State<WhatsAppBotView> {
   final TextEditingController _waPhoneIdController = TextEditingController();
   final TextEditingController _waAccessTokenController = TextEditingController();
   final TextEditingController _waCustomTextController = TextEditingController(
-    text: 'Hello from BloodNorms Admin Console! Live Meta WhatsApp Cloud API test message.',
+    text:
+        'Hello from BloodNorms Admin Console! Live Meta WhatsApp Cloud API test message.',
   );
 
   @override
@@ -59,7 +63,8 @@ class _WhatsAppBotViewState extends State<WhatsAppBotView> {
             is10DigitMobile: is10DigitMobile,
             onApplied: () {
               setState(() {});
-              widget.onShowToast('WhatsApp runtime credentials saved and active!');
+              widget.onShowToast(
+                  'WhatsApp runtime credentials saved and active!');
             },
           ),
           const SizedBox(height: 16),
@@ -69,7 +74,7 @@ class _WhatsAppBotViewState extends State<WhatsAppBotView> {
             onShowToast: widget.onShowToast,
           ),
           const SizedBox(height: 16),
-          _buildGuideCard(),
+          const WhatsAppCloudApiGuideCard(),
         ],
       ),
     );
@@ -113,7 +118,8 @@ class _WhatsAppBotViewState extends State<WhatsAppBotView> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: waConfig.isConfigured
                       ? const Color(0xFFDCFCE7)
@@ -140,7 +146,9 @@ class _WhatsAppBotViewState extends State<WhatsAppBotView> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      waConfig.isConfigured ? 'CREDENTIALS SET' : 'CREDENTIALS NEEDED',
+                      waConfig.isConfigured
+                          ? 'CREDENTIALS SET'
+                          : 'CREDENTIALS NEEDED',
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
                         fontWeight: FontWeight.bold,
@@ -171,45 +179,8 @@ class _WhatsAppBotViewState extends State<WhatsAppBotView> {
             ),
             value: true,
             activeThumbColor: BrandColors.green,
-            onChanged: (val) => widget.onShowToast('WhatsApp assistant status updated'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGuideCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFF0F172A)),
-              SizedBox(width: 8),
-              Text(
-                'Meta WhatsApp Cloud API Instructions',
-                style: TextStyle(
-                  fontFamily: BrandTypography.fontFamily,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8),
-          Text(
-            '1. Go to developers.facebook.com -> WhatsApp -> API Setup\n'
-            '2. Add recipient number under sandbox phone numbers\n'
-            '3. Copy 15-digit Phone Number ID and Bearer Token',
-            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.5),
+            onChanged: (val) =>
+                widget.onShowToast('WhatsApp assistant status updated'),
           ),
         ],
       ),

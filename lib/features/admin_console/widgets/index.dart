@@ -3,13 +3,18 @@
 // Barrel export for Admin Console widgets
 // ============================================================================
 
+export 'admin_comms_sub_router.dart';
+export 'admin_directory_sub_router.dart';
 export 'admin_four_eyes_dialog.dart';
+export 'admin_governance_sub_router.dart';
 export 'admin_header.dart';
 export 'admin_sidebar.dart';
 export 'admin_sidebar_category_tile.dart';
+export 'admin_sidebar_direct_group.dart';
 export 'admin_sidebar_direct_item.dart';
 export 'admin_sidebar_footer.dart';
 export 'admin_sidebar_header.dart';
+export 'admin_sidebar_navigation_tree.dart';
 export 'admin_workspace_canvas.dart';
 export 'admin_workspace_router.dart';
 export 'algorithm_settings_view.dart';
@@ -17,9 +22,11 @@ export 'approvals_queue_view.dart';
 export 'audit_logs_view.dart';
 export 'blood_banks_stock_view.dart';
 export 'blood_camps_admin_view.dart';
+export 'broadcast_audience_summary_banner.dart';
 export 'broadcast_audience_view.dart';
 export 'broadcast_dispatch_view.dart';
 export 'broadcast_history_view.dart';
+export 'cockpit_kpi_cards_row.dart';
 export 'community_partners_view.dart';
 export 'crisis_radar_view.dart';
 export 'dashboard_cockpit_view.dart';
@@ -36,7 +43,10 @@ export 'voice_prompts_view.dart';
 export 'voice_safety_view.dart';
 export 'voice_simulator_view.dart';
 export 'whatsapp_bot_view.dart';
+export 'whatsapp_chat_bubble_preview.dart';
+export 'whatsapp_cloud_api_guide_card.dart';
 export 'whatsapp_credentials_card.dart';
+export 'whatsapp_dispatch_feedback.dart';
 export 'whatsapp_dispatcher_card.dart';
 export 'whatsapp_telecom_view.dart';
 export 'whatsapp_templates_view.dart';
