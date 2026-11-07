@@ -46,3 +46,13 @@ If you discover a security vulnerability or leaked credential within this projec
   - RLS is enabled on all tables containing user or donor records.
   - Donors can only view and mutate their own profile and availability records.
 
+---
+
+## 4. Security Documentation Suite
+
+For detailed engineering analysis and operational runbooks, see:
+- [Threat Model & Attack Vector Analysis](docs/security/THREAT_MODEL.md)
+- [Security Findings & Remediation Log](docs/security/FINDINGS.md)
+- [Secrets Classification & Key Management Policy](docs/security/SECRETS.md)
+- [Production Release Security Checklist](docs/security/CHECKLIST.md)
+- [Security Hardening Change Log](docs/security/CHANGE_LOG.md)
