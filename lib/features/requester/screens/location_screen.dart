@@ -60,14 +60,21 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       final point = LatLng(pos.latitude, pos.longitude);
       setState(() {
         _currentPoint = point;
-        _placeLabel = 'Current Location (${pos.latitude.toStringAsFixed(3)}, ${pos.longitude.toStringAsFixed(3)})';
+        _placeLabel = 'Resolving GPS location...';
       });
       _mapController.move(point, 14.0);
-      globalRequestFlow.setLocation(
-        lat: point.latitude,
-        lng: point.longitude,
-        label: _placeLabel,
-      );
+
+      final resolved = await LocationService.reverseGeocode(pos.latitude, pos.longitude);
+      if (mounted) {
+        setState(() {
+          _placeLabel = resolved ?? 'Current Location (${pos.latitude.toStringAsFixed(4)}, ${pos.longitude.toStringAsFixed(4)})';
+        });
+        globalRequestFlow.setLocation(
+          lat: point.latitude,
+          lng: point.longitude,
+          label: _placeLabel,
+        );
+      }
     }
   }
 
@@ -195,22 +202,28 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     options: MapOptions(
                       initialCenter: _currentPoint,
                       initialZoom: 13.0,
-                      onTap: (_, point) {
+                      onTap: (_, point) async {
                         setState(() {
                           _currentPoint = point;
-                          _placeLabel = 'Pinned: ${point.latitude.toStringAsFixed(3)}, ${point.longitude.toStringAsFixed(3)}';
+                          _placeLabel = 'Resolving OpenStreetMap address...';
                         });
-                        globalRequestFlow.setLocation(
-                          lat: point.latitude,
-                          lng: point.longitude,
-                          label: _placeLabel,
-                        );
+                        final resolved = await LocationService.reverseGeocode(point.latitude, point.longitude);
+                        if (mounted) {
+                          setState(() {
+                            _placeLabel = resolved ?? 'Pinned: ${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}';
+                          });
+                          globalRequestFlow.setLocation(
+                            lat: point.latitude,
+                            lng: point.longitude,
+                            label: _placeLabel,
+                          );
+                        }
                       },
                     ),
                     children: [
                       TileLayer(
-                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.arkiolabs.bloodnorms',
+                        urlTemplate: LocationService.osmTileUrl,
+                        userAgentPackageName: 'org.bloodnorms.emergency',
                       ),
                       MarkerLayer(
                         markers: [
