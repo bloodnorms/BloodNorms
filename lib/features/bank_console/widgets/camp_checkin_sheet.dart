@@ -4,7 +4,6 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import '../../../shared/models/camp_model.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';

@@ -154,7 +154,7 @@ class _WhatsAppDispatcherCardState extends State<WhatsAppDispatcherCard> {
                 border: Border.all(color: const Color(0xFFFECACA)),
               ),
               child: Text(
-                '✕ Failed: ${_waLastErrorDetails ?? "Unknown error"}',
+                '✕ Failed (HTTP ${_waLastDispatchStatus ?? "ERR"}): ${_waLastErrorDetails ?? "Unknown error"}',
                 style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF991B1B)),
               ),
             ),

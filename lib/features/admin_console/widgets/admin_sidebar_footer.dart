@@ -26,10 +26,10 @@ class AdminSidebarFooter extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 17,
             backgroundColor: BrandColors.redTint,
-            child: const Text(
+            child: Text(
               'SA',
               style: TextStyle(
                 fontFamily: BrandTypography.fontFamily,
