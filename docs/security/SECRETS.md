@@ -35,3 +35,14 @@
    - Update Secret Manager in Cloud Run / deployment orchestrator.
    - Verify zero downtime via `/health` endpoint.
    - Revoke previous key.
+
+---
+
+## 3. MCP Server & AI Agent Credential Hygiene
+
+1. **Personal Access Tokens (PAT):**
+   Developers configuring Supabase MCP servers must use scoped Personal Access Tokens limited strictly to the development project (`ixrborkhofxlxbedpang`). Never use full-account unscoped tokens in shared development workstations.
+2. **Automated Secret Redaction in Responses:**
+   AI agents must never output plaintext JWTs, service role keys, or database passwords in tool summaries, markdown artifacts, or conversation responses. Always mask keys: `eyJh...[REDACTED]`.
+3. **Database URL Separation:**
+   Client applications must communicate through PostgREST HTTPS endpoints (`/rest/v1/`). Direct database connection strings (`postgresql://postgres:...@db...`) are restricted to deployment migrations and server-side connection poolers.
