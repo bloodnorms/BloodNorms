@@ -158,4 +158,20 @@
        - **Master Killswitch**: Interactive platform emergency killswitch toggle with audit log feedback.
   - **Verification**: `flutter analyze lib/features/admin_console/screens/admin_console_screen.dart` passed with 0 issues; all 67 automated tests passed across all 15 test suites.
 
+- **Milestone AM16 — WhatsApp Cloud API Verification & 100% Free Open-Source OpenStreetMap**:
+  - **WhatsApp Live Test Bench & Meta Integration**:
+    - Created [`lib/core/services/whatsapp_service.dart`](file:///c:/BloodNorms/lib/core/services/whatsapp_service.dart) for Meta Graph API v19.0 direct dispatch (`sendTemplateMessage`, `sendTextMessage`).
+    - Phone number normalization (`9052493747` -> `919052493747`), DPDP privacy masking, and automatic logging to `message_events`.
+    - Added interactive test bench in Admin Console with 1-click dispatch buttons: Meta standard `hello_world` template, Emergency Shortage alert, and Camp Invite.
+    - Added terminal CLI diagnostic tool [`scripts/test_whatsapp.dart`](file:///c:/BloodNorms/scripts/test_whatsapp.dart).
+    - Verified `GEMINI_API_KEY` (100% active against Google Generative Language API).
+    - Diagnosed Meta WhatsApp configuration: identified that `9052493747` is a 10-digit personal mobile number whereas Meta requires a 15-digit Phone Number ID, and clarified App Secret vs Access Token.
+  - **100% Open-Source OpenStreetMap (OSM) Services**:
+    - Enhanced [`lib/core/services/location_service.dart`](file:///c:/BloodNorms/lib/core/services/location_service.dart) with Nominatim forward search and reverse geocoding (`reverseGeocode(lat, lng)`).
+    - Integrated automatic street/locality name resolution when user taps anywhere on the interactive OpenStreetMap in [`location_screen.dart`](file:///c:/BloodNorms/lib/features/requester/screens/location_screen.dart).
+    - All 4 map screens (`location_screen.dart`, `banks_list_screen.dart`, `live_tracking_screen.dart`, `public_banks_screen.dart`) strictly use OpenStreetMap tiles (`https://tile.openstreetmap.org/{z}/{x}/{y}.png`) with ZERO Google Maps billing or paid proprietary dependencies.
+  - **Verification**:
+    - 77 / 77 automated tests passing cleanly across 17 test suites (`flutter test`).
+    - 0 issues in `flutter analyze`.
+
 
