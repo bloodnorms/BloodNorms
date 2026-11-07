@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | duo_bottom_nav_bar.dart
 // Duolingo Feather Custom Bottom Navigation Bar
 // Physical 3D active tab highlights, Material Icons, Arial bold labels
@@ -114,3 +114,4 @@ class AppNavBar extends StatelessWidget {
 
 /// Backward compatibility alias for existing code.
 typedef DuoBottomNavBar = AppNavBar;
+typedef NavItem = DuoNavItem;

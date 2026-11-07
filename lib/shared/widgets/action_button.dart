@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | duo_button.dart
 // Duolingo Feather 3D Tactile Pushable Button Component
 // Physical 4px mechanical bottom bevel, Material Icons, Arial bold text
@@ -360,3 +360,5 @@ class DuoSpeechBubble extends StatelessWidget {
 
 /// Backward compatibility alias for existing code.
 typedef DuoButton = ActionButton;
+typedef ActionButtonVariant = DuoButtonVariant;
+typedef SpeechBubble = DuoSpeechBubble;
