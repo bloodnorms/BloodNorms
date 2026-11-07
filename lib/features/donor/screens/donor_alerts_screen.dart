@@ -1,6 +1,6 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | donor_alerts_screen.dart
-// Donor Alerts Tab — Duolingo Feather Red Style
+// Donor Alerts Tab — Thin Screen Composing Alert and History Cards
 // Connected to Supabase requests table for real emergency dispatch alerts
 // ============================================================================
 
@@ -12,6 +12,8 @@ import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../widgets/donor_alert_card.dart';
+import '../widgets/donor_history_card.dart';
 
 class DonorAlertsScreen extends StatefulWidget {
   const DonorAlertsScreen({super.key});
@@ -65,36 +67,46 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
     }
   }
 
+  void _handleDecline(String alertId) {
+    setState(() {
+      _alerts.removeWhere((a) => a.id == alertId);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Alert declined. You will not be contacted for this request.'),
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DuoColors.bgGrouped,
-      appBar: const DuoHeaderBar(
+      backgroundColor: BrandColors.bgGrouped,
+      appBar: const ScreenHeader(
         title: 'Emergency Alerts',
         showBackButton: false,
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          color: DuoColors.red,
+          color: BrandColors.red,
           onRefresh: _loadAll,
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             children: [
-              // Mascot Speech Bubble
-              const DuoSpeechBubble(
+              const SpeechBubble(
                 emoji: '🚨',
                 text: 'Emergency requests incoming! Check hospital distance and tap ACCEPT if you can donate.',
               ),
               const SizedBox(height: 20),
-
-              Text('Live Alerts', style: DuoTypography.title1(color: DuoColors.textPrimary)),
+              Text('Live Alerts', style: BrandTypography.title1(color: BrandColors.textPrimary)),
               const SizedBox(height: 16),
-
               if (_isLoading)
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(32),
-                    child: CircularProgressIndicator(color: DuoColors.red),
+                    child: CircularProgressIndicator(color: BrandColors.red),
                   ),
                 )
               else if (_alerts.isEmpty)
@@ -103,18 +115,18 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: DuoColors.border, width: 2.0),
+                    border: Border.all(color: BrandColors.border, width: 2.0),
                   ),
                   child: Center(
                     child: Column(
                       children: [
                         const Text('🛡️', style: TextStyle(fontSize: 40)),
                         const SizedBox(height: 12),
-                        Text('No Emergency Alerts Nearby', style: DuoTypography.title2(color: DuoColors.textPrimary)),
+                        Text('No Emergency Alerts Nearby', style: BrandTypography.title2(color: BrandColors.textPrimary)),
                         const SizedBox(height: 6),
                         Text(
                           'You will be notified immediately when a patient in Rajahmundry needs your blood group.',
-                          style: DuoTypography.caption(color: DuoColors.textSecondary),
+                          style: BrandTypography.caption(color: BrandColors.textSecondary),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -123,146 +135,18 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
                 )
               else
                 ..._alerts.map((alert) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: DuoColors.redShadow, width: 2.5),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: DuoColors.redShadow,
-                            offset: Offset(0, 5),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: DuoColors.red,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  alert.urgency == 'now' ? 'URGENT NOW' : 'WITHIN 24H',
-                                  style: const TextStyle(
-                                    fontFamily: DuoTypography.fontFamily,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: DuoColors.redTint,
-                                  borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(color: DuoColors.redShadow, width: 1.5),
-                                ),
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.location_on_rounded, size: 14, color: DuoColors.red),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'RAJAHMUNDRY',
-                                      style: TextStyle(
-                                        fontFamily: DuoTypography.fontFamily,
-                                        color: DuoColors.red,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          Text(alert.hospitalName, style: DuoTypography.title2(color: DuoColors.textPrimary)),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${alert.unitsNeeded} Unit ${alert.bloodGroup} ${alert.component.replaceAll('_', ' ')} needed for patient (${alert.patientFirstName})',
-                            style: DuoTypography.body(color: DuoColors.textPrimary),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: DuoButton(
-                                  label: _acceptingId == alert.id ? 'ACCEPTING...' : 'ACCEPT',
-                                  icon: Icons.check_circle_rounded,
-                                  variant: DuoButtonVariant.success,
-                                  height: 48,
-                                  onPressed: _acceptingId != null ? null : () => _handleAccept(alert),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: DuoButton(
-                                  label: 'DECLINE',
-                                  variant: DuoButtonVariant.secondary,
-                                  height: 48,
-                                  onPressed: () {
-                                    setState(() {
-                                      _alerts.removeWhere((a) => a.id == alert.id);
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Alert declined. You will not be contacted for this request.'),
-                                        duration: Duration(seconds: 2),
-                                        behavior: SnackBarBehavior.floating,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  return DonorAlertCard(
+                    alert: alert,
+                    isAccepting: _acceptingId == alert.id,
+                    onAccept: () => _handleAccept(alert),
+                    onDecline: () => _handleDecline(alert.id),
                   );
                 }),
-
               const SizedBox(height: 12),
-              Text('Past Donations & Passes', style: DuoTypography.title3(color: DuoColors.textPrimary)),
+              Text('Past Donations & Passes', style: BrandTypography.title3(color: BrandColors.textPrimary)),
               const SizedBox(height: 12),
               if (_pastHistory.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: DuoColors.border, width: 2.0),
-                  ),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        const Icon(Icons.history_rounded, size: 36, color: DuoColors.textSecondary),
-                        const SizedBox(height: 8),
-                        Text(
-                          'No Past Donations Yet',
-                          style: DuoTypography.headline(color: DuoColors.textPrimary),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'When you complete a donation at a hospital or blood bank, your verified record will appear here.',
-                          style: DuoTypography.caption(color: DuoColors.textSecondary),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                const DonorEmptyHistoryCard()
               else
                 ..._pastHistory.map((item) {
                   final req = item['requests'] as Map<String, dynamic>? ?? {};
@@ -275,78 +159,20 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildPastAlertCard(
+                    child: DonorHistoryCard(
                       hospital: hosp,
                       date: '$displayDate • Code #$code',
                       group: '$group',
                       status: status,
-                      statusColor: DuoColors.green,
-                      statusBg: DuoColors.greenTint,
-                      statusBorder: DuoColors.greenShadow,
+                      statusColor: BrandColors.green,
+                      statusBg: BrandColors.greenTint,
+                      statusBorder: BrandColors.greenShadow,
                     ),
                   );
                 }),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPastAlertCard({
-    required String hospital,
-    required String date,
-    required String group,
-    required String status,
-    required Color statusColor,
-    required Color statusBg,
-    required Color statusBorder,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: DuoColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: DuoColors.border,
-            offset: Offset(0, 3),
-            blurRadius: 0,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(hospital, style: DuoTypography.title3(color: DuoColors.textPrimary)),
-                const SizedBox(height: 4),
-                Text('$date • $group Whole Blood', style: DuoTypography.caption(color: DuoColors.textSecondary)),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: statusBg,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: statusBorder, width: 1.5),
-            ),
-            child: Text(
-              status,
-              style: TextStyle(
-                fontFamily: DuoTypography.fontFamily,
-                color: statusColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 11,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

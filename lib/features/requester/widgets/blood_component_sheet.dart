@@ -31,7 +31,7 @@ void showBloodComponentPickerSheet({
             final isSel = c == selectedComponent;
             return ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Text(c.iconEmoji, style: const TextStyle(fontSize: 22)),
+              leading: const Text('🩸', style: TextStyle(fontSize: 22)),
               title: Text(
                 c.label,
                 style: TextStyle(

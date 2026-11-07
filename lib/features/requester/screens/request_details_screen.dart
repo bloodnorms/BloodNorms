@@ -32,7 +32,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
     super.initState();
     final state = globalRequestFlow.state;
     _hospitalController.text = state.hospitalName;
-    _patientController.text = state.patientName;
+    _patientController.text = state.patientFirstName;
     _phoneController.text = state.requesterPhone;
     _noteController.text = state.note;
     _allowCompatible = state.allowCompatible;
