@@ -85,3 +85,8 @@ supabase/.temp/
 *.bak
 *_OLD*
 *_BACKUP*
+
+node_modules/
+**/node_modules/
+**/dist/
+
