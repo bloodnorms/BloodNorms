@@ -65,12 +65,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Verify All 17 Migrations Present
+      - name: Verify All 20 Migrations Present
         run: |
           count=$(ls -1 supabase/migrations/0*.sql | wc -l)
           echo "Found $count SQL migration files."
-          if [ "$count" -lt 17 ]; then
-            echo "Error: Expected at least 17 migrations, found $count"
+          if [ "$count" -lt 20 ]; then
+            echo "Error: Expected at least 20 migrations, found $count"
             exit 1
           fi
-          echo "All 17 SQL migrations verified."
+          echo "All 20 SQL migrations verified."
