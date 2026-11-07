@@ -156,4 +156,24 @@ export class GatewayServer {
     this.wss.close();
     this.server.close(callback);
   }
+
+  drain(timeoutMs: number, callback: () => void): void {
+    this.server.close();
+    if (this.activeCalls === 0) {
+      this.wss.close(callback);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      this.wss.close(callback);
+    }, timeoutMs);
+
+    const check = setInterval(() => {
+      if (this.activeCalls === 0) {
+        clearInterval(check);
+        clearTimeout(timeout);
+        this.wss.close(callback);
+      }
+    }, 200);
+  }
 }

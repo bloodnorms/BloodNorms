@@ -16,9 +16,9 @@ server.listen(env.PORT, () => {
 });
 
 function handleShutdown(signal: string): void {
-  logger.info({ signal }, "[VoiceGateway] Graceful shutdown initiated");
-  server.close(() => {
-    logger.info("[VoiceGateway] Server closed successfully");
+  logger.info({ signal }, "[VoiceGateway] Graceful shutdown initiated. Draining connections...");
+  server.drain(15000, () => {
+    logger.info("[VoiceGateway] Server drained and closed successfully");
     process.exit(0);
   });
 }

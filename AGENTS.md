@@ -65,5 +65,23 @@ If you touch `voice-gateway/`:
 ```bash
 cd voice-gateway
 npm run build
+npm test
 ```
+
+---
+
+## 6. Operations & Reliability Rules for Agents
+
+1. **Zero-Downtime Migrations:**
+   - All migrations in `supabase/migrations/` must follow sequential naming (`00XX_*.sql`), be strictly additive, and use `IF NOT EXISTS` / `IF EXISTS`.
+   - Never drop columns or tables in step 1; follow the 4-phase expand/contract migration cycle defined in `docs/operations/MIGRATION_RULES.md`.
+2. **Progressive Guardrails Default OFF:**
+   - Any new spending cap, call duration restriction, or behavior-altering safeguard must sit behind a feature flag in `app_settings` that defaults strictly to `false` (OFF).
+3. **Telemetry & Log Redaction:**
+   - Always propagate `X-Request-Id` across service boundaries.
+   - All logs must redact phone numbers (`+918832 •••••`), bearer tokens, raw audio frames, and speech transcripts.
+4. **Resilience & Graceful Draining:**
+   - All server processes must intercept `SIGTERM` / `SIGINT` and permit active emergency calls to conclude naturally before exiting.
+5. **No Undocumented Alerts:**
+   - Every new alert must be registered in `docs/operations/ALERTS.md` with an actionable runbook in `docs/operations/runbooks/`.
 

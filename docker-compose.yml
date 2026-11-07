@@ -1,0 +1,56 @@
+# ============================================================================
+# BloodNorms | docker-compose.yml
+# Local Operations, Testing, and Simulation Environment
+# ============================================================================
+
+version: "3.8"
+
+services:
+  voice-gateway:
+    build:
+      context: ./voice-gateway
+      dockerfile: Dockerfile
+    container_name: bloodnorms-voice-gateway
+    environment:
+      - PORT=8080
+      - NODE_ENV=development
+      - VOICE_GATEWAY_SECRET=voice_secret
+      - GEMINI_API_KEY=mock_gemini_key
+      - GEMINI_LIVE_MODEL=gemini-2.0-flash-exp
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - bloodnorms-net
+
+  postgres:
+    image: postgis/postgis:15-3.4-alpine
+    container_name: bloodnorms-postgres
+    environment:
+      - POSTGRES_DB=bloodnorms
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres_local_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - bloodnorms-net
+
+networks:
+  bloodnorms-net:
+    driver: bridge
+
+volumes:
+  pgdata:
