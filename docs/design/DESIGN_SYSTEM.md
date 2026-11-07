@@ -57,3 +57,4 @@ Caption / Micro - 11px / SemiBold (600)  - Badges, Status Tags, Data Units
    - Large `+` and `-` physical buttons (44x44 dp) flanking numeric counter.
 4. **`DonorRadarCard`:**
    - Concentric pulse animation indicating live match expansion.
+

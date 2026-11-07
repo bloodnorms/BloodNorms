@@ -1,30 +1,31 @@
 // ============================================================================
-// BloodNorms | duo_segmented_control.dart
-// Duolingo Feather 3D Segmented Control Component
-// Tactile choice buttons with red active indicator and 3D mechanical press
+// BloodNorms | shared/widgets/segmented_picker.dart
+//
+// Pill-shaped sliding segmented control.
+// Soft muted background with white elevated pill indicator for the active item.
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../theme/brand_colors.dart';
 import '../theme/brand_typography.dart';
 
-class DuoSegmentItem<T> {
+class SegmentItem<T> {
   final T value;
   final String label;
   final IconData? icon;
 
-  const DuoSegmentItem({
+  const SegmentItem({
     required this.value,
     required this.label,
     this.icon,
   });
 }
 
-typedef SegmentItem<T> = DuoSegmentItem<T>;
+/// Backward compatibility alias
+typedef DuoSegmentItem<T> = SegmentItem<T>;
 
 class SegmentedPicker<T> extends StatelessWidget {
-  final List<DuoSegmentItem<T>> items;
+  final List<SegmentItem<T>> items;
   final T selectedValue;
   final ValueChanged<T> onValueChanged;
   final Color activeColor;
@@ -35,8 +36,8 @@ class SegmentedPicker<T> extends StatelessWidget {
     required this.items,
     required this.selectedValue,
     required this.onValueChanged,
-    this.activeColor = BrandColors.red,
-    this.activeShadowColor = BrandColors.redShadow,
+    this.activeColor = BrandColors.primaryAction,
+    this.activeShadowColor = Colors.transparent,
   });
 
   @override
@@ -44,34 +45,31 @@ class SegmentedPicker<T> extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F0F0),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: BrandColors.border, width: 2.0),
+        color: BrandColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: items.map((item) {
           final isSelected = item.value == selectedValue;
 
           return Expanded(
             child: GestureDetector(
-              onTap: () {
-                if (!isSelected) {
-                  HapticFeedback.selectionClick();
-                  onValueChanged(item.value);
-                }
-              },
+              onTap: () => onValueChanged(item.value),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 decoration: BoxDecoration(
-                  color: isSelected ? activeColor : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
+                  color: isSelected ? BrandColors.background : Colors.transparent,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                   boxShadow: isSelected
-                      ? [
+                      ? const [
                           BoxShadow(
-                            color: activeShadowColor,
-                            offset: const Offset(0, 3),
-                            blurRadius: 0,
+                            color: Color(0x10202124),
+                            blurRadius: 4,
+                            offset: Offset(0, 1),
                           ),
                         ]
                       : null,
@@ -82,8 +80,8 @@ class SegmentedPicker<T> extends StatelessWidget {
                     if (item.icon != null) ...[
                       Icon(
                         item.icon,
-                        size: 18,
-                        color: isSelected ? Colors.white : BrandColors.textSecondary,
+                        size: 16,
+                        color: isSelected ? BrandColors.textPrimary : BrandColors.textSecondary,
                       ),
                       const SizedBox(width: 6),
                     ],
@@ -91,10 +89,12 @@ class SegmentedPicker<T> extends StatelessWidget {
                       item.label,
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
-                        fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected ? Colors.white : BrandColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                        color: isSelected ? BrandColors.textPrimary : BrandColors.textSecondary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -106,9 +106,3 @@ class SegmentedPicker<T> extends StatelessWidget {
     );
   }
 }
-
-
-/// Backward compatibility aliases for existing code.
-typedef DuoSegmentControl<T> = SegmentedPicker<T>;
-typedef DuoSegmentedControl<T> = SegmentedPicker<T>;
-typedef SegmentControl<T> = SegmentedPicker<T>;

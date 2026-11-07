@@ -111,3 +111,4 @@ Refactor views sequentially with Conventional Commits, verifying each view:
 | Files exceed 200 lines after adding UI structure | High | Target 50–150 lines per file; extract sub-widgets into dedicated files immediately. |
 | Contrast failure on light surfaces | High | All text tokens strictly tested for WCAG 2.1 AA compliance (>= 4.5:1 for body, >= 3:1 for UI elements). |
 | Existing automated tests break | High | Preserve all `data-testid` keys and widget types; run test suite after every step. |
+

@@ -78,3 +78,4 @@ The Admin Console contains 24 modular sub-views routed via `AdminWorkspaceRouter
 3. **Make Targets Forgiving:** All buttons, chips, and inputs must have a minimum tap target height of 44px with generous spacing.
 4. **Calm Empty & Error States:** Replace blank tables and raw error texts with friendly illustrations, plain Grade-5 language, and single obvious recovery buttons.
 5. **Prompt-Style Composer for Broadcasts:** Redesign the emergency broadcast view into an expansive, softly rounded composer with segmented choices below.
+
