@@ -85,3 +85,26 @@ npm test
 5. **No Undocumented Alerts:**
    - Every new alert must be registered in `docs/operations/ALERTS.md` with an actionable runbook in `docs/operations/runbooks/`.
 
+---
+
+## 7. UI and UX Rules for Agents
+
+1. **Light Theme Strictness:**
+   - Light theme only (`color-scheme: light`). Never add dark-mode toggles or dark variants.
+   - Canvas is `#FFFFFF`, surfaces are `#F8F9FA`, borders are `#E8EAED`.
+2. **One Primary Action Pill Per View:**
+   - Exactly ONE near-black `#1F1F1F` pill button (`AppPillButtonVariant.primary`) per screen.
+   - All secondary buttons must be outlined or tonal.
+3. **Pill-Shaped Geometry:**
+   - All buttons, badges, and search bars must use `BrandColors.radiusPill` (`999.0`).
+   - Cards use `BrandColors.radiusCard` (`16.0`). Dialogs use `BrandColors.radiusDialog` (`24.0`).
+4. **No Raw Hex Values or Hardcoded Sizes:**
+   - Always use `BrandColors.*` and `BrandTypography.*`. Never write `Color(0xFF...)` in view files.
+5. **3-Year-Old Simple Language & Minimum 44px Touch Targets:**
+   - Use Grade-5 plain words ("Triage queue", "Connected centers").
+   - Every interactive element must have a touch target of at least 44x44 dp.
+6. **Adhere to the Component Library:**
+   - Use `AppPillButton`, `AppStatCard`, `AppSearchField`, `AppPageHeader`, `AppEmptyState`, `AppErrorState`, and `SegmentedPicker`.
+7. **File Size Strictness:**
+   - Target: 50–150 lines. Hard limit: 200 lines. Extract sub-widgets immediately if approaching 200 lines.
+
