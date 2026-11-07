@@ -163,14 +163,9 @@ class _BankConsoleScreenState extends State<BankConsoleScreen> {
               setState(() => _selectedComponent = val);
               _loadLiveStock();
             },
-            onIncrement: (group) {
-              setState(() => _stock[group] = (_stock[group] ?? 0) + 1);
-            },
-            onDecrement: (group) {
-              final current = _stock[group] ?? 0;
-              if (current > 0) {
-                setState(() => _stock[group] = current - 1);
-              }
+            onIncrement: (g) => setState(() => _stock[g] = (_stock[g] ?? 0) + 1),
+            onDecrement: (g) {
+              if ((_stock[g] ?? 0) > 0) setState(() => _stock[g] = _stock[g]! - 1);
             },
             onSaveStock: _saveStock,
           ),

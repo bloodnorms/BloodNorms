@@ -8,6 +8,7 @@ import '../../../shared/models/camp_model.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/action_button.dart';
+import 'bank_camp_actions_row.dart';
 
 class BankCampCard extends StatelessWidget {
   final CampModel camp;
@@ -23,13 +24,11 @@ class BankCampCard extends StatelessWidget {
     required this.onBroadcast,
   });
 
-  String _monthName(int month) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return (month >= 1 && month <= 12) ? months[month - 1] : '';
-  }
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+  String _monthName(int m) => (m >= 1 && m <= 12) ? _months[m - 1] : '';
 
   @override
   Widget build(BuildContext context) {
@@ -188,41 +187,10 @@ class BankCampCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: ActionButton(
-                  label: 'CHECK-IN',
-                  icon: Icons.qr_code_scanner_rounded,
-                  variant: ActionButtonVariant.success,
-                  height: 40,
-                  onPressed: onCheckIn,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                flex: 3,
-                child: ActionButton(
-                  label: 'ROSTER',
-                  icon: Icons.people_outline_rounded,
-                  variant: ActionButtonVariant.secondary,
-                  height: 40,
-                  onPressed: onRoster,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                flex: 3,
-                child: ActionButton(
-                  label: 'BROADCAST',
-                  icon: Icons.campaign_rounded,
-                  variant: ActionButtonVariant.primary,
-                  height: 40,
-                  onPressed: onBroadcast,
-                ),
-              ),
-            ],
+          BankCampActionsRow(
+            onCheckIn: onCheckIn,
+            onRoster: onRoster,
+            onBroadcast: onBroadcast,
           ),
         ],
       ),

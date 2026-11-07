@@ -9,6 +9,8 @@ import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/action_button.dart';
+import 'camp_date_box.dart';
+import 'camp_distance_zone_row.dart';
 
 class DonorCampCard extends StatelessWidget {
   final CampModel camp;
@@ -62,48 +64,10 @@ class DonorCampCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Date Box
-              Container(
-                width: 58,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: isJoined ? BrandColors.greenTint : BrandColors.redTint,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isJoined ? BrandColors.greenShadow : BrandColors.redShadow,
-                    width: 2.0,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isJoined ? BrandColors.greenShadow : BrandColors.redShadow,
-                      offset: const Offset(0, 2),
-                      blurRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      month,
-                      style: TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        color: isJoined ? BrandColors.green : BrandColors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    Text(
-                      day,
-                      style: TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        color: isJoined ? BrandColors.green : BrandColors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                        height: 1.1,
-                      ),
-                    ),
-                  ],
-                ),
+              CampDateBox(
+                month: month,
+                day: day,
+                isJoined: isJoined,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -147,72 +111,10 @@ class DonorCampCard extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Distance and Zone Badges
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: BrandColors.bgGrouped,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: BrandColors.border),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.near_me_rounded, size: 12, color: BrandColors.textSecondary),
-                    const SizedBox(width: 4),
-                    Text(
-                      '~${distanceKm.toStringAsFixed(1)} KM Away',
-                      style: const TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: BrandColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: inTravelZone ? BrandColors.greenTint : const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  inTravelZone ? '✓ In Your Zone' : 'Outside Zone',
-                  style: TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: inTravelZone ? BrandColors.green : const Color(0xFFB45309),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              InkWell(
-                onTap: onOpenDirections,
-                borderRadius: BorderRadius.circular(6),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  child: Row(
-                    children: [
-                      Icon(Icons.directions_rounded, size: 14, color: BrandColors.red),
-                      SizedBox(width: 3),
-                      Text(
-                        'Route',
-                        style: TextStyle(
-                          fontFamily: BrandTypography.fontFamily,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: BrandColors.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          CampDistanceZoneRow(
+            distanceKm: distanceKm,
+            inTravelZone: inTravelZone,
+            onOpenDirections: onOpenDirections,
           ),
           const SizedBox(height: 12),
 
