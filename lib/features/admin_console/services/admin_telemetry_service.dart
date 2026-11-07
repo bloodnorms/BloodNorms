@@ -5,6 +5,11 @@
 
 import 'package:flutter/foundation.dart';
 import '../../../shared/services/supabase_service.dart';
+import 'admin_voice_ai_config_service.dart';
+import 'admin_whatsapp_template_service.dart';
+
+export 'admin_voice_ai_config_service.dart';
+export 'admin_whatsapp_template_service.dart';
 
 class AdminTelemetryService {
   static final AdminTelemetryService _instance =
@@ -13,59 +18,8 @@ class AdminTelemetryService {
   AdminTelemetryService._internal();
 
   /// AI Voice Configuration & Training
-  Future<Map<String, dynamic>> getAIVoiceConfig() async {
-    final client = SupabaseService().client;
-    final isInitialized = SupabaseService().isInitialized;
-
-    if (isInitialized && client != null) {
-      try {
-        final promptRow = await client
-            .from('app_settings')
-            .select('value')
-            .eq('key', 'ai_voice_system_prompt')
-            .maybeSingle();
-
-        final capRow = await client
-            .from('app_settings')
-            .select('value')
-            .eq('key', 'ai_voice_daily_minutes_cap')
-            .maybeSingle();
-
-        final voiceVal = promptRow?['value'] as Map<String, dynamic>? ?? {};
-        final capVal = capRow?['value'];
-        int capMinutes = 60;
-        if (capVal is Map) {
-          capMinutes = (capVal['value'] as num?)?.toInt() ?? 60;
-        } else if (capVal is num) {
-          capMinutes = capVal.toInt();
-        }
-
-        return {
-          'prompt': voiceVal['prompt'] ??
-              'You are BloodNorms Voice AI Lifesaver Assistant for Rajahmundry. Triage emergency blood requests with calm urgency.',
-          'persona': voiceVal['persona'] ?? 'Priya (Clinical Coordinator)',
-          'language': voiceVal['language'] ?? 'te-IN / en-IN',
-          'temperature':
-              (voiceVal['temperature'] as num?)?.toDouble() ?? 0.3,
-          'guidelines': voiceVal['guidelines'] ??
-              '1. Zero commercial transactions.\n2. Verify hospital location.\n3. Escalate rare groups immediately.',
-          'daily_minutes_cap': capMinutes,
-        };
-      } catch (e) {
-        debugPrint('getAIVoiceConfig error: $e');
-      }
-    }
-    return {
-      'prompt':
-          'You are BloodNorms Voice AI Lifesaver Assistant for Rajahmundry.',
-      'persona': 'Priya (Clinical Coordinator)',
-      'language': 'te-IN / en-IN',
-      'temperature': 0.3,
-      'guidelines':
-          '1. Zero commercial transactions.\n2. Verify hospital location.\n3. Escalate rare groups.',
-      'daily_minutes_cap': 60,
-    };
-  }
+  Future<Map<String, dynamic>> getAIVoiceConfig() =>
+      AdminVoiceAiConfigService().getAIVoiceConfig();
 
   Future<bool> saveAIVoiceConfig({
     required String prompt,
@@ -74,128 +28,23 @@ class AdminTelemetryService {
     required double temperature,
     required String guidelines,
     required int dailyMinutesCap,
-  }) async {
-    final client = SupabaseService().client;
-    final isInitialized = SupabaseService().isInitialized;
-
-    if (isInitialized && client != null) {
-      try {
-        await client.from('app_settings').upsert({
-          'key': 'ai_voice_system_prompt',
-          'value': {
-            'prompt': prompt,
-            'persona': persona,
-            'language': language,
-            'temperature': temperature,
-            'guidelines': guidelines,
-          },
-          'description':
-              'AI Voice assistant system prompt and personality configuration',
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-
-        await client.from('app_settings').upsert({
-          'key': 'ai_voice_daily_minutes_cap',
-          'value': {'value': dailyMinutesCap},
-          'description':
-              'Max daily minutes for AI voice before falling back to keypad',
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-
-        await client.from('audit_logs').insert({
-          'action': 'admin_update_ai_voice_config',
-          'target_type': 'app_settings',
-          'target_id': 'ai_voice_system_prompt',
-          'meta': {
-            'persona': persona,
-            'language': language,
-            'temperature': temperature,
-            'cap': dailyMinutesCap
-          },
-        });
-        return true;
-      } catch (e) {
-        debugPrint('saveAIVoiceConfig error: $e');
-      }
-    }
-    return false;
-  }
+  }) =>
+      AdminVoiceAiConfigService().saveAIVoiceConfig(
+        prompt: prompt,
+        persona: persona,
+        language: language,
+        temperature: temperature,
+        guidelines: guidelines,
+        dailyMinutesCap: dailyMinutesCap,
+      );
 
   /// WhatsApp Templates & Triggers
-  Future<List<Map<String, dynamic>>> getWhatsAppTemplates() async {
-    final client = SupabaseService().client;
-    final isInitialized = SupabaseService().isInitialized;
-
-    if (isInitialized && client != null) {
-      try {
-        final row = await client
-            .from('app_settings')
-            .select('value')
-            .eq('key', 'whatsapp_templates')
-            .maybeSingle();
-        final val = row?['value'] as Map<String, dynamic>?;
-        if (val != null && val['templates'] is List) {
-          return List<Map<String, dynamic>>.from(val['templates']);
-        }
-      } catch (e) {
-        debugPrint('getWhatsAppTemplates error: $e');
-      }
-    }
-    return [
-      {
-        'id': 'camp_invite',
-        'name': 'Blood Camp Invitation',
-        'body':
-            'Dear {donor_name}, Voluntary Blood Donation Camp is organized at {venue} on {date}. Will you donate? Reply YES to confirm.',
-      },
-      {
-        'id': 'shortage_alert',
-        'name': 'Urgent Shortage Alert',
-        'body':
-            'URGENT: {hospital_name} has critical shortage of {blood_group}. If eligible today, please visit or tap here to accept pass.',
-      },
-      {
-        'id': 'donation_reminder',
-        'name': 'Donation Day Reminder',
-        'body':
-            'Hello {donor_name}, reminder for your scheduled donation today at {bank_name} at {time}. Drink plenty of water!',
-      },
-      {
-        'id': 'appreciation_note',
-        'name': 'Donor Thank You',
-        'body':
-            'Thank you {donor_name}! Your recent donation at {bank_name} saved lives today. You are a true BloodNorms Hero!',
-      },
-    ];
-  }
+  Future<List<Map<String, dynamic>>> getWhatsAppTemplates() =>
+      AdminWhatsAppTemplateService().getWhatsAppTemplates();
 
   Future<bool> saveWhatsAppTemplates(
-      List<Map<String, dynamic>> templates) async {
-    final client = SupabaseService().client;
-    final isInitialized = SupabaseService().isInitialized;
-
-    if (isInitialized && client != null) {
-      try {
-        await client.from('app_settings').upsert({
-          'key': 'whatsapp_templates',
-          'value': {'templates': templates},
-          'description':
-              'WhatsApp Cloud API pre-approved message templates',
-          'updated_at': DateTime.now().toIso8601String(),
-        });
-        await client.from('audit_logs').insert({
-          'action': 'admin_update_whatsapp_templates',
-          'target_type': 'app_settings',
-          'target_id': 'whatsapp_templates',
-          'meta': {'count': templates.length},
-        });
-        return true;
-      } catch (e) {
-        debugPrint('saveWhatsAppTemplates error: $e');
-      }
-    }
-    return false;
-  }
+          List<Map<String, dynamic>> templates) =>
+      AdminWhatsAppTemplateService().saveWhatsAppTemplates(templates);
 
   /// Telephony Settings
   Future<Map<String, dynamic>> getTelephonySettings() async {
@@ -325,53 +174,9 @@ class AdminTelemetryService {
   Map<String, dynamic> simulateAITriageResponse(
     String userSpeech, {
     String prompt = '',
-  }) {
-    final lower = userSpeech.toLowerCase();
-    String detectedHospital = 'GGH Rajahmundry';
-    if (lower.contains('swatantra')) detectedHospital = 'Swatantra Hospital';
-    if (lower.contains('bollineni')) detectedHospital = 'Bollineni Hospital';
-    if (lower.contains('rotary') || lower.contains('suraksha')) {
-      detectedHospital = 'Suraksha Rotary Blood Bank';
-    }
-
-    String detectedGroup = 'O+';
-    if (lower.contains('o-') || lower.contains('o negative')) {
-      detectedGroup = 'O-';
-    } else if (lower.contains('o+') || lower.contains('o positive')) {
-      detectedGroup = 'O+';
-    } else if (lower.contains('a-') || lower.contains('a negative')) {
-      detectedGroup = 'A-';
-    } else if (lower.contains('a+') || lower.contains('a positive')) {
-      detectedGroup = 'A+';
-    } else if (lower.contains('b-') || lower.contains('b negative')) {
-      detectedGroup = 'B-';
-    } else if (lower.contains('b+') || lower.contains('b positive')) {
-      detectedGroup = 'B+';
-    } else if (lower.contains('ab-') || lower.contains('ab negative')) {
-      detectedGroup = 'AB-';
-    } else if (lower.contains('ab+') || lower.contains('ab positive')) {
-      detectedGroup = 'AB+';
-    }
-
-    final isUrgent = lower.contains('emergency') ||
-        lower.contains('critical') ||
-        lower.contains('trauma') ||
-        lower.contains('urgent') ||
-        lower.contains('surgery') ||
-        detectedGroup == 'O-';
-
-    String teluguResponse =
-        'నమస్కారం, బ్లడ్‌నార్మ్స్ రాజమండ్రి ఎమర్జెన్సీ కంట్రోల్ రూమ్. మేము $detectedHospital లో $detectedGroup రక్తం కోసం అర్జెన్సీ గుర్తించాము. దగ్గరలోని డోనర్లకు మరియు బ్లడ్ బ్యాంకులకు అలర్ట్ పంపుతున్నాము. మీరు నిశ్చింతగా ఉండండి.';
-    String englishResponse =
-        'Hello, this is BloodNorms Emergency Control. We have verified the requirement for $detectedGroup blood at $detectedHospital. Search Ring 1 has been initiated with highest priority. Please stay on the line.';
-
-    return {
-      'detected_hospital': detectedHospital,
-      'detected_group': detectedGroup,
-      'urgency_tier': isUrgent ? 'TIER 1 CRITICAL' : 'TIER 2 STANDARD',
-      'telugu_response': teluguResponse,
-      'english_response': englishResponse,
-      'simulated_at': DateTime.now().toIso8601String(),
-    };
-  }
+  }) =>
+      AdminVoiceAiConfigService().simulateAITriageResponse(
+        userSpeech,
+        prompt: prompt,
+      );
 }

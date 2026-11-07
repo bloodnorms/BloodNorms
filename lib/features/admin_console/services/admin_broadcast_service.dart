@@ -3,14 +3,12 @@
 // Geo-targeted regional donor broadcasting with audience preview and budgeting
 // ============================================================================
 
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../shared/services/notification_service.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../bank_console/services/camp_service.dart';
 import 'broadcast_audience_filter.dart';
+import 'broadcast_history_store.dart';
 
 class AdminBroadcastService {
   static final AdminBroadcastService _instance =
@@ -153,30 +151,14 @@ class AdminBroadcastService {
     }
 
     final eligibleDonors = audience['sample_donors'] as List? ?? [];
-    for (final d in eligibleDonors) {
-      final dMap = d as Map<String, dynamic>;
-      final donorId = dMap['id']?.toString();
-      final distKm = dMap['distance_km'];
-      final dCity = dMap['city']?.toString() ?? targetCity;
-      final dArea = dMap['area']?.toString() ?? '';
-      if (donorId != null) {
-        await NotificationService().sendInAppNotification(
-          recipientId: donorId,
-          recipientRole: 'donor',
-          title: title,
-          body:
-              '$message\n📍 Distance: ~$distKm km from your location ($dArea, $dCity)',
-          category: 'camp_invite',
-          payload: {
-            'camp_id': campId,
-            'distance_km': distKm,
-            'city': dCity,
-            'area': dArea,
-            'channel': channel,
-          },
-        );
-      }
-    }
+    await BroadcastHistoryStore.dispatchLocalNotifications(
+      sampleDonors: eligibleDonors,
+      title: title,
+      message: message,
+      targetCity: targetCity,
+      channel: channel,
+      campId: campId,
+    );
 
     final event = {
       'id': 'bcast-${DateTime.now().millisecondsSinceEpoch}',
@@ -192,14 +174,7 @@ class AdminBroadcastService {
       'created_at': DateTime.now().toIso8601String(),
     };
 
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final cached = prefs.getString('local_broadcast_history');
-      List list = cached != null ? jsonDecode(cached) as List : [];
-      list.insert(0, event);
-      await prefs.setString(
-          'local_broadcast_history', jsonEncode(list.take(20).toList()));
-    } catch (_) {}
+    await BroadcastHistoryStore.recordBroadcastEvent(event);
 
     return {
       'success': true,
