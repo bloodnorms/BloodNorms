@@ -4,7 +4,6 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/app_pill_button.dart';
