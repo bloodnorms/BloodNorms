@@ -1,0 +1,50 @@
+name: BloodNorms CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  flutter-test:
+    name: Flutter Lint & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Analyze Code
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run Tests
+        run: flutter test --coverage
+
+  database-lint:
+    name: SQL Migrations Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify SQL Files Present
+        run: |
+          test -f supabase/migrations/0001_init.sql
+          test -f supabase/migrations/0002_cron.sql
+          test -f supabase/migrations/0003_storage.sql
+          test -f supabase/migrations/0004_inbound.sql
+          test -f supabase/migrations/0005_bank_console.sql
+          test -f supabase/migrations/0006_roles.sql
+          echo "All 6 SQL migrations present."
+
