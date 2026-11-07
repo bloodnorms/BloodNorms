@@ -1,11 +1,12 @@
 // ============================================================================
 // BloodNorms | admin_four_eyes_dialog.dart
-// Dialog shown when a broadcast request exceeds single-admin threshold (>200)
+// Modern Minimal Four-Eyes Governance Approval Dialog
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 void showFourEyesApprovalDialog({
   required BuildContext context,
@@ -15,55 +16,51 @@ void showFourEyesApprovalDialog({
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: BrandColors.background,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+        side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
+      ),
       title: const Row(
         children: [
-          Icon(Icons.rule_folder_outlined, color: BrandColors.red),
-          SizedBox(width: 8),
+          Icon(Icons.rule_folder_outlined, color: BrandColors.accent, size: 22),
+          SizedBox(width: 10),
           Text(
-            'Four-Eyes Approval Required',
+            'Four-Eyes approval required',
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               fontSize: 16,
+              color: BrandColors.textPrimary,
             ),
           ),
         ],
       ),
       content: Text(
-        'Broadcasting to $recipientCount recipients exceeds single-admin threshold (>200 donors).\n\nRouted to Four-Eyes Approvals Desk for second-admin verification.',
+        'Broadcasting to $recipientCount recipients exceeds the single-admin threshold (>200 donors).\n\nThis request has been automatically routed to the Four-Eyes Approvals Desk for second-admin verification.',
         style: const TextStyle(
           fontFamily: BrandTypography.fontFamily,
           fontSize: 13,
-          height: 1.4,
+          color: BrandColors.textSecondary,
+          height: 1.5,
         ),
       ),
       actions: [
-        TextButton(
+        AppPillButton(
+          label: 'Go to approvals queue',
+          variant: AppPillButtonVariant.primary,
           onPressed: () {
             Navigator.pop(ctx);
             onNavigateToApprovals();
           },
-          child: const Text(
-            'Go to Approvals Queue',
-            style: TextStyle(
-              fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
-              color: BrandColors.red,
-            ),
-          ),
         ),
-        ElevatedButton(
+        const SizedBox(width: 8),
+        AppPillButton(
+          label: 'Close',
+          variant: AppPillButtonVariant.secondary,
           onPressed: () => Navigator.pop(ctx),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: BrandColors.red,
-            foregroundColor: Colors.white,
-          ),
-          child: const Text('Acknowledged'),
         ),
       ],
     ),
   );
 }
-

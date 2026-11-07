@@ -31,6 +31,7 @@ export 'community_partners_view.dart';
 export 'crisis_radar_view.dart';
 export 'dashboard_cockpit_view.dart';
 export 'data_exports_view.dart';
+export 'design_component_gallery_view.dart';
 export 'donors_registry_view.dart';
 export 'dpdp_registry_view.dart';
 export 'hospitals_registry_view.dart';
