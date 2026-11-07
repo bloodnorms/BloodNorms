@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../providers/request_flow_provider.dart';
+import 'emergency_blood_group_header.dart';
+import 'stop_search_dialog.dart';
 
 class ActiveEmergencyCard extends StatelessWidget {
   final Map<String, dynamic> activeRequest;
@@ -93,58 +95,10 @@ class ActiveEmergencyCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF2F2),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFE52E2E), width: 2),
-                ),
-                child: Center(
-                  child: Text(
-                    bg,
-                    style: const TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFE52E2E),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$units ${units == 1 ? "Unit" : "Units"} $bg Needed',
-                      style: const TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1F2937),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      hospital,
-                      style: const TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        fontSize: 13,
-                        color: Color(0xFF4B5563),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          EmergencyBloodGroupHeader(
+            bloodGroup: bg,
+            units: units,
+            hospital: hospital,
           ),
           const SizedBox(height: 14),
           Container(
@@ -208,7 +162,11 @@ class ActiveEmergencyCard extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: OutlinedButton(
-                  onPressed: () => _showStopSearchDialog(context, id),
+                  onPressed: () => showStopEmergencySearchDialog(
+                    context: context,
+                    reqId: id,
+                    onSearchStopped: onSearchStopped,
+                  ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFE52E2E),
                     side: const BorderSide(color: Color(0xFFE52E2E), width: 1.5),
@@ -232,85 +190,4 @@ class ActiveEmergencyCard extends StatelessWidget {
     );
   }
 
-  void _showStopSearchDialog(BuildContext context, String reqId) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFFE52E2E), width: 2.0),
-        ),
-        title: const Text(
-          'Stop Search?',
-          style: TextStyle(
-            fontFamily: BrandTypography.fontFamily,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFFE52E2E),
-          ),
-        ),
-        content: const Text(
-          'This will cancel the active request in Supabase and notify contacted donors that blood is no longer needed.',
-          style: TextStyle(
-            fontFamily: BrandTypography.fontFamily,
-            fontSize: 14,
-            color: Color(0xFF4B5563),
-          ),
-        ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text(
-                    'KEEP SEARCHING',
-                    style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(ctx);
-                    await SupabaseService().closeRequest(
-                      reqId,
-                      outcome: 'cancelled_by_requester',
-                      status: 'cancelled',
-                    );
-                    globalRequestFlow.clearActiveRequestId();
-                    onSearchStopped();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Active blood request cancelled.'),
-                          backgroundColor: Color(0xFFE52E2E),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE52E2E),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text(
-                    'STOP',
-                    style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | blood_group_screen.dart
 // Blood Group selector screen — Duolingo Feather Red Style
 // 4x2 Tactile 3D Tiles, Mascot speech bubble, Material Icons, Arial
@@ -14,6 +14,7 @@ import '../../../shared/widgets/blood_group_tile.dart';
 import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../providers/request_flow_provider.dart';
+import '../widgets/blood_group_help_sheet.dart';
 
 class BloodGroupScreen extends StatefulWidget {
   const BloodGroupScreen({super.key});
@@ -90,7 +91,7 @@ class _BloodGroupScreenState extends State<BloodGroupScreen> {
 
                     // "Don't know" 3D card
                     GestureDetector(
-                      onTap: () => _showDontKnowModal(context),
+                      onTap: () => showBloodGroupHelpSheet(context),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                         decoration: BoxDecoration(
@@ -145,61 +146,6 @@ class _BloodGroupScreenState extends State<BloodGroupScreen> {
                       : null,
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDontKnowModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: DuoColors.redTint,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: DuoColors.red, width: 1.5),
-                  ),
-                  child: const Icon(Icons.help_outline_rounded, color: DuoColors.red, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Text("Don't know the group?", style: DuoTypography.title2(color: DuoColors.textPrimary)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Please check the hospital requisition slip or ask the attending doctor. You can still search blood banks right now, but finding live verified donors requires an exact blood group.',
-              style: DuoTypography.body(color: DuoColors.textSecondary),
-            ),
-            const SizedBox(height: 20),
-            DuoButton(
-              label: 'BROWSE BLOOD BANKS NOW',
-              variant: DuoButtonVariant.primary,
-              onPressed: () {
-                Navigator.pop(ctx);
-                context.push('/b');
-              },
-            ),
-            const SizedBox(height: 10),
-            DuoButton(
-              label: 'BACK',
-              variant: DuoButtonVariant.plain,
-              height: 44,
-              onPressed: () => Navigator.pop(ctx),
             ),
           ],
         ),
