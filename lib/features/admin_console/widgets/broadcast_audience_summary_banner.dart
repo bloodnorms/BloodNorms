@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | broadcast_audience_summary_banner.dart
-// Summary Banner for Broadcast Audience Matched Count, Suppressions & Cost
+// Modern Minimal Summary Banner for Broadcast Audience & Cost
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -22,35 +22,48 @@ class BroadcastAudienceSummaryBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.surfaceSoft,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          _buildPill('Matched', '$eligible donors', BrandColors.statusSuccessTint, BrandColors.statusSuccess),
+          _buildPill('Suppressed', '$suppressed', BrandColors.surfaceMuted, BrandColors.textSecondary),
+          _buildPill('Estimated cost', '₹${cost.toStringAsFixed(2)}', BrandColors.accentTint, BrandColors.accent),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPill(String label, String value, Color bgColor, Color textColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           Text(
-            '🎯 Matched Audience: $eligible donors',
+            '$label: ',
             style: const TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            '🚫 Suppressed: $suppressed donors',
-            style: const TextStyle(
-              fontFamily: BrandTypography.fontFamily,
+              fontSize: 12,
               color: BrandColors.textSecondary,
             ),
           ),
           Text(
-            'Cost: ₹${cost.toStringAsFixed(2)} INR',
-            style: const TextStyle(
+            value,
+            style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
-              color: BrandColors.red,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: textColor,
             ),
           ),
         ],

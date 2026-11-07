@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | whatsapp_bot_view.dart
-// Meta WhatsApp Cloud API Live Bot & Test Bench Dispatcher
+// Modern Minimal Meta WhatsApp Cloud API Live Bot & Test Bench Dispatcher
 // Thin View Composing Status Header, Credentials Card, and Dispatcher Card
 // ============================================================================
 
@@ -63,8 +63,7 @@ class _WhatsAppBotViewState extends State<WhatsAppBotView> {
             is10DigitMobile: is10DigitMobile,
             onApplied: () {
               setState(() {});
-              widget.onShowToast(
-                  'WhatsApp runtime credentials saved and active!');
+              widget.onShowToast('WhatsApp runtime credentials saved and active');
             },
           ),
           const SizedBox(height: 16),
@@ -81,106 +80,70 @@ class _WhatsAppBotViewState extends State<WhatsAppBotView> {
   }
 
   Widget _buildConnectionHeader(WhatsAppConfigSummary waConfig) {
+    final isConfigured = waConfig.isConfigured;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Meta WhatsApp Cloud API Live Bot & Test Dispatcher',
-                    style: TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Direct integration with Meta Graph API v19.0 for alerts and triage.',
-                    style: TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontSize: 12,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: waConfig.isConfigured
-                      ? const Color(0xFFDCFCE7)
-                      : const Color(0xFFFEF2F2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: waConfig.isConfigured
-                        ? const Color(0xFF86EFAC)
-                        : const Color(0xFFFECACA),
-                  ),
+              Text(
+                'WhatsApp Cloud API bot & test bench',
+                style: TextStyle(
+                  fontFamily: BrandTypography.fontFamily,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: BrandColors.textPrimary,
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: waConfig.isConfigured
-                            ? const Color(0xFF16A34A)
-                            : const Color(0xFFDC2626),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      waConfig.isConfigured
-                          ? 'CREDENTIALS SET'
-                          : 'CREDENTIALS NEEDED',
-                      style: TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
-                        color: waConfig.isConfigured
-                            ? const Color(0xFF166534)
-                            : const Color(0xFF991B1B),
-                      ),
-                    ),
-                  ],
+              ),
+              SizedBox(height: 2),
+              Text(
+                'Direct integration with Meta Graph API for alerts and conversational triage',
+                style: TextStyle(
+                  fontFamily: BrandTypography.fontFamily,
+                  fontSize: 13,
+                  color: BrandColors.textSecondary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text(
-              'Inbound WhatsApp Emergency Assistant',
-              style: TextStyle(
-                fontFamily: BrandTypography.fontFamily,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: isConfigured ? BrandColors.statusSuccessTint : BrandColors.statusWarningTint,
+              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
             ),
-            subtitle: const Text(
-              'Triages emergency blood needs via Meta Cloud API webhooks',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: isConfigured ? BrandColors.statusSuccess : BrandColors.statusWarning,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  isConfigured ? 'Connected' : 'Credentials needed',
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    color: isConfigured ? BrandColors.statusSuccess : BrandColors.statusWarning,
+                  ),
+                ),
+              ],
             ),
-            value: true,
-            activeThumbColor: BrandColors.green,
-            onChanged: (val) =>
-                widget.onShowToast('WhatsApp assistant status updated'),
           ),
         ],
       ),

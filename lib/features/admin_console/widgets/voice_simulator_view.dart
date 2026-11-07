@@ -1,10 +1,12 @@
 // ============================================================================
 // BloodNorms | voice_simulator_view.dart
-// Interactive AI Speech Triage Simulator & Verification Sandbox
+// Modern Minimal Interactive AI Speech Triage Simulator & Verification Sandbox
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class VoiceSimulatorView extends StatefulWidget {
   final void Function(String message) onShowToast;
@@ -38,9 +40,9 @@ class _VoiceSimulatorViewState extends State<VoiceSimulatorView> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,25 +50,35 @@ class _VoiceSimulatorViewState extends State<VoiceSimulatorView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.mic_rounded, color: Color(0xFF9333EA)),
-                  SizedBox(width: 8),
                   Text(
-                    'Interactive AI Speech Triage Simulator',
+                    'AI speech triage simulator',
                     style: TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: BrandColors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Simulate natural caller speech and verify clinical entity extraction',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontSize: 13,
+                      color: BrandColors.textSecondary,
                     ),
                   ),
                 ],
               ),
               DropdownButton<String>(
                 value: _aiTestLanguage,
+                underline: const SizedBox(),
                 items: const [
                   DropdownMenuItem(value: 'en', child: Text('English (Indian)')),
-                  DropdownMenuItem(value: 'te', child: Text('Telugu (Godavari Dialect)')),
+                  DropdownMenuItem(value: 'te', child: Text('Telugu (Godavari)')),
                   DropdownMenuItem(value: 'hi', child: Text('Hindi')),
                 ],
                 onChanged: (val) {
@@ -75,30 +87,21 @@ class _VoiceSimulatorViewState extends State<VoiceSimulatorView> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           TextField(
             controller: _aiTestInputController,
             maxLines: 2,
             decoration: const InputDecoration(
-              labelText: 'Simulated Caller Audio Transcript',
-              border: OutlineInputBorder(),
+              labelText: 'Simulated caller transcript',
             ),
           ),
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
+          const SizedBox(height: 16),
+          AppPillButton(
+            label: 'Run voice analysis',
+            icon: Icons.play_arrow_rounded,
+            variant: AppPillButtonVariant.primary,
+            isLoading: _isAiTesting,
             onPressed: _isAiTesting ? null : _runVoiceSimulation,
-            icon: _isAiTesting
-                ? const SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                  )
-                : const Icon(Icons.play_arrow_rounded, size: 16),
-            label: const Text('Execute Voice Analysis'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF9333EA),
-              foregroundColor: Colors.white,
-            ),
           ),
           const SizedBox(height: 16),
           if (_aiTestSimulationResult != null) _buildResultCard(),
@@ -109,51 +112,79 @@ class _VoiceSimulatorViewState extends State<VoiceSimulatorView> {
 
   Widget _buildResultCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAF5FF),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE9D5FF)),
+        color: BrandColors.surfaceSoft,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Simulation Outcome (Verified against clinical prompt v2.4):',
+            'Simulation outcome (Verified against prompt v2.4)',
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               fontSize: 13,
-              color: Color(0xFF6B21A8),
+              color: BrandColors.accent,
             ),
           ),
-          const SizedBox(height: 8),
-          Text('• Extracted Blood Group: ${_aiTestSimulationResult!['recognized_group']} · Units: ${_aiTestSimulationResult!['units']}'),
-          Text('• Urgency: ${_aiTestSimulationResult!['urgency']} · Confidence: 98%'),
-          Text('• Hospital: ${_aiTestSimulationResult!['hospital']}'),
           const SizedBox(height: 10),
+          Text(
+            '• Extracted blood group: ${_aiTestSimulationResult!['recognized_group']} · Units: ${_aiTestSimulationResult!['units']}',
+            style: const TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontSize: 13,
+              color: BrandColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '• Urgency: ${_aiTestSimulationResult!['urgency']} · Confidence: 98%',
+            style: const TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontSize: 13,
+              color: BrandColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '• Hospital: ${_aiTestSimulationResult!['hospital']}',
+            style: const TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontSize: 13,
+              color: BrandColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
               const Text(
-                'Rate Quality: ',
+                'Evaluation rating: ',
                 style: TextStyle(
                   fontFamily: BrandTypography.fontFamily,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   fontSize: 12,
+                  color: BrandColors.textSecondary,
                 ),
               ),
-              ...[1, 2, 3, 4, 5].map((star) => IconButton(
-                    icon: Icon(
-                      Icons.star_rounded,
-                      color: star <= _aiHumanRating
-                          ? const Color(0xFFF59E0B)
-                          : const Color(0xFFCBD5E1),
-                      size: 20,
-                    ),
-                    onPressed: () {
+              ...[1, 2, 3, 4, 5].map((star) => InkWell(
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                    onTap: () {
                       setState(() => _aiHumanRating = star);
-                      widget.onShowToast('Saved human evaluation score: $star/5 stars');
+                      widget.onShowToast('Saved evaluation score: $star/5 stars');
                     },
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.star_rounded,
+                        color: star <= _aiHumanRating
+                            ? BrandColors.statusWarning
+                            : BrandColors.borderStrong,
+                        size: 20,
+                      ),
+                    ),
                   )),
             ],
           ),
@@ -177,7 +208,7 @@ class _VoiceSimulatorViewState extends State<VoiceSimulatorView> {
           'safety_clearance': true,
         };
       });
-      widget.onShowToast('Voice simulation completed successfully!');
+      widget.onShowToast('Voice simulation completed successfully');
     }
   }
 }

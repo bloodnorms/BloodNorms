@@ -1,10 +1,13 @@
 // ============================================================================
 // BloodNorms | whatsapp_templates_view.dart
-// WhatsApp Pre-approved HSM Templates Preview & Live Editor View
+// Modern Minimal WhatsApp Pre-approved Templates Preview & Live Editor
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import '../../../shared/services/messaging_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import 'whatsapp_chat_bubble_preview.dart';
 
 export 'whatsapp_chat_bubble_preview.dart';
@@ -56,35 +59,20 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              ChoiceChip(
-                label: const Text('Camp Invitation'),
-                selected: _activeTemplateKey == 'camp_invite',
-                onSelected: (_) =>
-                    setState(() => _activeTemplateKey = 'camp_invite'),
-              ),
+              _buildTemplateChip('Camp invitation', 'camp_invite'),
               const SizedBox(width: 8),
-              ChoiceChip(
-                label: const Text('Emergency Need Alert'),
-                selected: _activeTemplateKey == 'emergency_alert',
-                onSelected: (_) =>
-                    setState(() => _activeTemplateKey = 'emergency_alert'),
-              ),
+              _buildTemplateChip('Emergency alert', 'emergency_alert'),
               const SizedBox(width: 8),
-              ChoiceChip(
-                label: const Text('Donor Thank You'),
-                selected: _activeTemplateKey == 'thank_you',
-                onSelected: (_) =>
-                    setState(() => _activeTemplateKey = 'thank_you'),
-              ),
+              _buildTemplateChip('Donor thank you', 'thank_you'),
             ],
           ),
           const SizedBox(height: 16),
@@ -94,10 +82,7 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
                 child: TextField(
                   controller: _templateNameVar,
                   onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    labelText: 'Donor Name {{name}}',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Donor name {{name}}'),
                 ),
               ),
               const SizedBox(width: 12),
@@ -105,10 +90,7 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
                 child: TextField(
                   controller: _templateHospVar,
                   onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    labelText: 'Hospital {{hospital}}',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Hospital {{hospital}}'),
                 ),
               ),
               const SizedBox(width: 12),
@@ -116,10 +98,7 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
                 child: TextField(
                   controller: _templateUnitsVar,
                   onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    labelText: 'Units/Group {{units}}',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Units/Group {{units}}'),
                 ),
               ),
             ],
@@ -131,25 +110,20 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
           const SizedBox(height: 16),
           Row(
             children: [
-              ElevatedButton.icon(
+              AppPillButton(
+                label: 'Save and sync template',
+                icon: Icons.save_rounded,
+                variant: AppPillButtonVariant.primary,
                 onPressed: () => widget.onShowToast(
                   'Template updated and synchronized with Meta Cloud API',
                 ),
-                icon: const Icon(Icons.save_rounded, size: 16),
-                label: const Text('Save & Sync Template'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF16A34A),
-                  foregroundColor: Colors.white,
-                ),
               ),
               const SizedBox(width: 12),
-              OutlinedButton.icon(
+              AppPillButton(
+                label: 'Send test message',
+                icon: Icons.send_rounded,
+                variant: AppPillButtonVariant.secondary,
                 onPressed: _sendTestMessage,
-                icon: const Icon(Icons.send_rounded,
-                    size: 16, color: Color(0xFF25D366)),
-                label: Text('Send Test to ${_waTestPhoneController.text}'),
-                style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF0F172A)),
               ),
             ],
           ),
@@ -158,19 +132,44 @@ class _WhatsAppTemplatesViewState extends State<WhatsAppTemplatesView> {
     );
   }
 
+  Widget _buildTemplateChip(String label, String key) {
+    final isSelected = _activeTemplateKey == key;
+    return GestureDetector(
+      onTap: () => setState(() => _activeTemplateKey = key),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? BrandColors.primaryAction : BrandColors.surfaceSoft,
+          borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+          border: Border.all(
+            color: isSelected ? BrandColors.primaryAction : BrandColors.borderSubtle,
+            width: 1.0,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: BrandTypography.fontFamily,
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            color: isSelected ? Colors.white : BrandColors.textPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _sendTestMessage() async {
     final text = _formatMessageBody();
-    widget.onShowToast(
-        'Sending WhatsApp message to ${_waTestPhoneController.text}...');
+    widget.onShowToast('Sending WhatsApp message to ${_waTestPhoneController.text}...');
     final res = await WhatsAppService().sendTextMessage(
       toPhone: _waTestPhoneController.text,
       bodyText: text,
     );
     if (res.success) {
-      widget.onShowToast(
-          '✓ WhatsApp message delivered! ID: ${res.messageId}');
+      widget.onShowToast('WhatsApp message delivered! ID: ${res.messageId}');
     } else {
-      widget.onShowToast('✕ Meta error: ${res.errorSummary}');
+      widget.onShowToast('Meta error: ${res.errorSummary}');
     }
   }
 }

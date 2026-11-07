@@ -1,11 +1,12 @@
 // ============================================================================
 // BloodNorms | broadcast_dispatch_view.dart
-// Regional Broadcast Dispatch Workspace View
+// Modern Minimal Regional Broadcast Dispatch Workspace View
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import 'broadcast_audience_summary_banner.dart';
 
 export 'broadcast_audience_summary_banner.dart';
@@ -51,9 +52,9 @@ class BroadcastDispatchView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,10 +63,7 @@ class BroadcastDispatchView extends StatelessWidget {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Target City',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Target city'),
                   initialValue: selectedTargetCity,
                   items: ['Rajahmundry', 'Kakinada', 'Vijayawada', 'Visakhapatnam']
                       .map((c) => DropdownMenuItem(value: c, child: Text(c)))
@@ -78,10 +76,7 @@ class BroadcastDispatchView extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Delivery Channel',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Delivery channel'),
                   initialValue: selectedChannel,
                   items: const [
                     DropdownMenuItem(
@@ -102,11 +97,12 @@ class BroadcastDispatchView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Target Geofence Radius: ${broadcastRadiusKm.toInt()} km',
+            'Target radius: ${broadcastRadiusKm.toInt()} km',
             style: const TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               fontSize: 13,
+              color: BrandColors.textPrimary,
             ),
           ),
           Slider(
@@ -114,32 +110,40 @@ class BroadcastDispatchView extends StatelessWidget {
             min: 1.0,
             max: 50.0,
             divisions: 49,
-            activeColor: BrandColors.red,
+            activeColor: BrandColors.primaryAction,
+            inactiveColor: BrandColors.surfaceMuted,
             onChanged: onRadiusChanged,
           ),
           SwitchListTile(
             dense: true,
+            contentPadding: EdgeInsets.zero,
             title: const Text(
-              'Respect Donor Personal Travel Limits',
+              'Respect donor travel preferences',
               style: TextStyle(
                 fontFamily: BrandTypography.fontFamily,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 fontSize: 13,
+                color: BrandColors.textPrimary,
               ),
             ),
             subtitle: const Text(
-              'Exclude donors whose preferred radius is less than this camp distance',
+              'Exclude donors whose radius preference is lower than this distance',
+              style: TextStyle(
+                fontFamily: BrandTypography.fontFamily,
+                fontSize: 12,
+                color: BrandColors.textSecondary,
+              ),
             ),
             value: respectDonorTravelRadius,
-            activeThumbColor: BrandColors.red,
+            activeThumbColor: BrandColors.primaryAction,
             onChanged: onRespectRadiusChanged,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           TextField(
             controller: broadcastTitleController,
             decoration: const InputDecoration(
-              labelText: 'Broadcast Title',
-              border: OutlineInputBorder(),
+              labelText: 'Campaign title',
+              hintText: 'e.g. Urgent O+ Donors Needed at GSL Hospital',
             ),
           ),
           const SizedBox(height: 12),
@@ -147,8 +151,8 @@ class BroadcastDispatchView extends StatelessWidget {
             controller: broadcastMsgController,
             maxLines: 3,
             decoration: const InputDecoration(
-              labelText: 'Message Body',
-              border: OutlineInputBorder(),
+              labelText: 'Message body',
+              hintText: 'Type your message to eligible in-radius donors...',
             ),
           ),
           const SizedBox(height: 16),
@@ -160,24 +164,12 @@ class BroadcastDispatchView extends StatelessWidget {
           const SizedBox(height: 16),
           Align(
             alignment: Alignment.centerRight,
-            child: ElevatedButton.icon(
+            child: AppPillButton(
+              label: 'Dispatch broadcast',
+              icon: Icons.send_rounded,
+              variant: AppPillButtonVariant.primary,
+              isLoading: isBroadcasting,
               onPressed: isBroadcasting ? null : onDispatch,
-              icon: isBroadcasting
-                  ? const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Icon(Icons.send_rounded, size: 16),
-              label: const Text('Dispatch Regional Broadcast'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: BrandColors.red,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
             ),
           ),
         ],

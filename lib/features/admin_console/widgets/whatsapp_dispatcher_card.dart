@@ -1,11 +1,13 @@
 // ============================================================================
 // BloodNorms | whatsapp_dispatcher_card.dart
-// Live Dispatch Test Bench Card for Meta WhatsApp Cloud API
+// Modern Minimal Live Dispatch Test Bench Card for Meta WhatsApp Cloud API
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import '../../../shared/services/messaging_service.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import 'whatsapp_dispatch_feedback.dart';
 
 export 'whatsapp_dispatch_feedback.dart';
@@ -54,29 +56,32 @@ class _WhatsAppDispatcherCardState extends State<WhatsAppDispatcherCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.send_rounded, size: 18, color: Color(0xFF25D366)),
-              SizedBox(width: 8),
-              Text(
-                'Live WhatsApp Dispatch Test Bench',
-                style: TextStyle(
-                  fontFamily: BrandTypography.fontFamily,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-            ],
+          const Text(
+            'Live message dispatch test bench',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: BrandColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 2),
+          const Text(
+            'Dispatch interactive test payloads to verify real delivery status',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontSize: 13,
+              color: BrandColors.textSecondary,
+            ),
           ),
           const SizedBox(height: 16),
           Row(
@@ -85,27 +90,20 @@ class _WhatsAppDispatcherCardState extends State<WhatsAppDispatcherCard> {
                 flex: 2,
                 child: TextField(
                   controller: widget.testPhoneController,
-                  decoration: InputDecoration(
-                    labelText: 'Recipient Phone',
+                  decoration: const InputDecoration(
+                    labelText: 'Recipient phone',
                     hintText: '+91 90524 93747',
-                    prefixIcon:
-                        const Icon(Icons.phone_iphone_rounded, size: 18),
-                    isDense: true,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: Icon(Icons.phone_iphone_rounded, size: 18),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 flex: 3,
                 child: TextField(
                   controller: widget.customTextController,
-                  decoration: InputDecoration(
-                    labelText: 'Custom Alert Message Text',
-                    isDense: true,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                  decoration: const InputDecoration(
+                    labelText: 'Custom alert message',
                   ),
                 ),
               ),
@@ -116,30 +114,24 @@ class _WhatsAppDispatcherCardState extends State<WhatsAppDispatcherCard> {
             spacing: 10,
             runSpacing: 10,
             children: [
-              ElevatedButton.icon(
+              AppPillButton(
+                label: 'Send "hello_world" template',
+                icon: Icons.send_rounded,
+                variant: AppPillButtonVariant.primary,
+                isLoading: _isWaSending,
                 onPressed: _isWaSending ? null : _sendHelloWorldTemplate,
-                icon: const Icon(Icons.rocket_launch_rounded, size: 16),
-                label: const Text('Send "hello_world" Template'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF16A34A),
-                  foregroundColor: Colors.white,
-                ),
               ),
-              OutlinedButton.icon(
+              AppPillButton(
+                label: 'Send urgent blood alert',
+                icon: Icons.emergency_outlined,
+                variant: AppPillButtonVariant.secondary,
                 onPressed: _isWaSending ? null : _sendUrgentAlert,
-                icon: const Icon(Icons.emergency_rounded,
-                    size: 16, color: Color(0xFFE52E2E)),
-                label: const Text('Send Urgent Blood Alert'),
-                style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFE52E2E)),
               ),
-              OutlinedButton.icon(
+              AppPillButton(
+                label: 'Send custom message',
+                icon: Icons.chat_bubble_outline_rounded,
+                variant: AppPillButtonVariant.tonal,
                 onPressed: _isWaSending ? null : _sendCustomMessage,
-                icon: const Icon(Icons.message_rounded,
-                    size: 16, color: Color(0xFF25D366)),
-                label: const Text('Send Custom Message'),
-                style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF166534)),
               ),
             ],
           ),
@@ -164,9 +156,9 @@ class _WhatsAppDispatcherCardState extends State<WhatsAppDispatcherCard> {
     );
     _finishSending(res);
     if (res.success) {
-      widget.onShowToast('✓ WhatsApp hello_world delivered!');
+      widget.onShowToast('WhatsApp hello_world delivered');
     } else {
-      widget.onShowToast('✕ Delivery failed: ${res.errorSummary}');
+      widget.onShowToast('Delivery failed: ${res.errorSummary}');
     }
   }
 
