@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | bank_console_screen.dart
-// Blood Bank Console Screen — Duolingo Feather Red Style
+// Blood Bank Console Screen — Thin Screen Composing Modular Tabs & Shell
 // Orchestrates Stock, Confirm, Expected, Camps, and More tabs
 // ============================================================================
 
@@ -9,7 +9,6 @@ import '../../../../../shared/constants/blood_groups.dart';
 import '../../../shared/models/camp_model.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
-import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/app_nav_bar.dart';
 import '../widgets/index.dart';
 
@@ -71,52 +70,17 @@ class _BankConsoleScreenState extends State<BankConsoleScreen> {
   }
 
   void _showBankSelector() {
-    if (_banks.isEmpty) return;
-    showModalBottomSheet(
+    showBankSelectorSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Select Blood Bank', style: BrandTypography.title2(color: BrandColors.textPrimary)),
-            const SizedBox(height: 12),
-            ..._banks.map((b) {
-              final id = b['id']?.toString() ?? '';
-              final name = b['name']?.toString() ?? 'Blood Bank';
-              final isSel = id == _selectedBankId;
-              return ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  isSel ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
-                  color: isSel ? BrandColors.red : BrandColors.textSecondary,
-                ),
-                title: Text(
-                  name,
-                  style: TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
-                    color: BrandColors.textPrimary,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  setState(() {
-                    _selectedBankId = id;
-                    _selectedBankName = name;
-                  });
-                  _loadLiveStock();
-                },
-              );
-            }),
-          ],
-        ),
-      ),
+      banks: _banks,
+      selectedBankId: _selectedBankId,
+      onBankSelected: (id, name) {
+        setState(() {
+          _selectedBankId = id;
+          _selectedBankName = name;
+        });
+        _loadLiveStock();
+      },
     );
   }
 
@@ -240,31 +204,9 @@ class _BankConsoleScreenState extends State<BankConsoleScreen> {
           const BankMoreTabView(),
         ],
       ),
-      bottomNavigationBar: AppNavBar(
-        currentIndex: _currentTab,
-        onTap: (index) => setState(() => _currentTab = index),
-        items: const [
-          NavItem(
-            icon: Icons.water_drop_rounded,
-            label: 'Stock',
-          ),
-          NavItem(
-            icon: Icons.check_circle_rounded,
-            label: 'Confirm',
-          ),
-          NavItem(
-            icon: Icons.people_rounded,
-            label: 'Expected',
-          ),
-          NavItem(
-            icon: Icons.calendar_month_rounded,
-            label: 'Camps',
-          ),
-          NavItem(
-            icon: Icons.more_horiz_rounded,
-            label: 'More',
-          ),
-        ],
+      bottomNavigationBar: BankConsoleNavBar(
+        currentTab: _currentTab,
+        onTabSelected: (index) => setState(() => _currentTab = index),
       ),
     );
   }
