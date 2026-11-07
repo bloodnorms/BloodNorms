@@ -6,11 +6,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/whatsapp_models.dart';
+import '../utils/phone_utils.dart';
 import 'whatsapp_audit_logger.dart';
 import 'whatsapp_config_resolver.dart';
 import 'whatsapp_response_parser.dart';
 
 export '../models/whatsapp_models.dart';
+export '../utils/phone_utils.dart';
 
 class WhatsAppService {
   static final WhatsAppService _instance = WhatsAppService._internal();
@@ -45,38 +47,12 @@ class WhatsAppService {
       );
 
   /// Normalize phone number to Meta's expected digits-only format
-  static String normalizePhone(String rawPhone) {
-    String cleaned = rawPhone.replaceAll(RegExp(r'[\s\+\-\(\)]'), '');
-    if (cleaned.length == 10 && RegExp(r'^[6-9]\d{9}$').hasMatch(cleaned)) {
-      cleaned = '91$cleaned';
-    }
-    return cleaned;
-  }
+  static String normalizePhone(String rawPhone) =>
+      PhoneUtils.normalizePhone(rawPhone);
 
   /// Mask phone number for DPDP compliance logging
-  static String maskPhoneForAudit(String phone) {
-    final cleaned = normalizePhone(phone);
-    if (cleaned.length >= 10) {
-      final prefix = cleaned.substring(0, cleaned.length - 5);
-      return '+$prefix •••••';
-    }
-    return '••••••••••';
-  }
-
-  WhatsAppDispatchResult? _checkConfiguration(WhatsAppConfigSummary config) {
-    if (!config.isConfigured) {
-      return WhatsAppDispatchResult(
-        success: false,
-        statusCode: 400,
-        errorSummary:
-            'WhatsApp Cloud API is not configured. Missing Phone Number ID or Access Token.',
-        detailedError: config.isPhoneNumberIdLikelyMobile
-            ? 'Note: WHATSAPP_PHONE_NUMBER_ID is set to a 10-digit mobile number (${config.phoneNumberId}). It must be Meta\'s 15-digit Phone Number ID from developers.facebook.com.'
-            : 'Please set WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN in assets/.env.',
-      );
-    }
-    return null;
-  }
+  static String maskPhoneForAudit(String phone) =>
+      PhoneUtils.maskPhoneForAudit(phone);
 
   /// Send a pre-approved template message
   Future<WhatsAppDispatchResult> sendTemplateMessage({
@@ -86,7 +62,7 @@ class WhatsAppService {
     List<String>? bodyParameters,
   }) async {
     final config = getConfig();
-    final configErr = _checkConfiguration(config);
+    final configErr = WhatsAppConfigResolver.checkConfiguration(config);
     if (configErr != null) return configErr;
 
     final toClean = normalizePhone(toPhone);
@@ -165,7 +141,7 @@ class WhatsAppService {
     required String bodyText,
   }) async {
     final config = getConfig();
-    final configErr = _checkConfiguration(config);
+    final configErr = WhatsAppConfigResolver.checkConfiguration(config);
     if (configErr != null) return configErr;
 
     final toClean = normalizePhone(toPhone);

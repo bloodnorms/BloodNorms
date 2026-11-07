@@ -37,11 +37,13 @@ export 'notification_service.dart';
 export 'realtime_service.dart';
 export 'supabase_service_admin_extension.dart';
 export 'supabase_service_bank_extension.dart';
+export 'supabase_service_directory_extension.dart';
 export 'supabase_service_donor_extension.dart';
 export 'supabase_service_governance_extension.dart';
 export 'supabase_service_platform_extension.dart';
 export 'supabase_service_realtime_extension.dart';
 export 'supabase_service_requester_extension.dart';
+export 'supabase_service_telemetry_extension.dart';
 
 class SupabaseService {
   static final SupabaseService _instance = SupabaseService._internal();

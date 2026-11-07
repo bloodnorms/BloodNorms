@@ -58,4 +58,20 @@ class WhatsAppConfigResolver {
       maskedToken: masked,
     );
   }
+
+  static WhatsAppDispatchResult? checkConfiguration(
+      WhatsAppConfigSummary config) {
+    if (!config.isConfigured) {
+      return WhatsAppDispatchResult(
+        success: false,
+        statusCode: 400,
+        errorSummary:
+            'WhatsApp Cloud API is not configured. Missing Phone Number ID or Access Token.',
+        detailedError: config.isPhoneNumberIdLikelyMobile
+            ? 'Note: WHATSAPP_PHONE_NUMBER_ID is set to a 10-digit mobile number (${config.phoneNumberId}). It must be Meta\'s 15-digit Phone Number ID from developers.facebook.com.'
+            : 'Please set WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN in assets/.env.',
+      );
+    }
+    return null;
+  }
 }

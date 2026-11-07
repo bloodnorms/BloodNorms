@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | duo_keypad.dart
 // Duolingo Feather 3D Tactile Keypad & Code Display Component
 // 3x4 grid of physical 3D round keys + 6-digit code boxes with Material icons
@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/brand_colors.dart';
 import '../theme/brand_typography.dart';
+
+export 'code_display_dots.dart';
 
 class PinKeypad extends StatelessWidget {
   final ValueChanged<String> onDigitPressed;
@@ -186,64 +188,8 @@ class _DuoDeleteButtonState extends State<_DuoDeleteButton> {
   }
 }
 
-// 6-digit Code Display Boxes (Feather Style)
-class DuoCodeDisplayDots extends StatelessWidget {
-  final String code;
-  final int length;
-
-  const DuoCodeDisplayDots({
-    super.key,
-    required this.code,
-    this.length = 6,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(length, (index) {
-        final hasDigit = index < code.length;
-        final digit = hasDigit ? code[index] : '';
-
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 5),
-          width: 46,
-          height: 56,
-          decoration: BoxDecoration(
-            color: hasDigit ? BrandColors.redTint : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: hasDigit ? BrandColors.red : BrandColors.border,
-              width: 2.0,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: hasDigit ? BrandColors.redShadow : BrandColors.border,
-                offset: const Offset(0, 3),
-                blurRadius: 0,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              digit,
-              style: TextStyle(
-                fontFamily: BrandTypography.fontFamily,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: hasDigit ? BrandColors.red : BrandColors.textPrimary,
-              ),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-}
-
 typedef PasscodeKeypad = DuoKeypad;
-typedef CodeDisplayDots = DuoCodeDisplayDots;
-
 
 /// Backward compatibility alias for existing code.
 typedef DuoKeypad = PinKeypad;
+
