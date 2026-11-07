@@ -1,9 +1,9 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | test/location_service_test.dart
 // OpenStreetMap (OSM) Services & Nominatim Verification Test Suite
 // ============================================================================
 
-import 'package:bloodnorms/core/services/location_service.dart';
+import 'package:bloodnorms/shared/services/location_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

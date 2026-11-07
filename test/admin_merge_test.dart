@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | admin_merge_test.dart
 // Milestone AM0 Verification: Merge Log Completeness & Permission Scaffolding
 // ============================================================================
@@ -6,7 +6,7 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bloodnorms/core/services/supabase_service.dart';
+import 'package:bloodnorms/shared/services/supabase_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | test/localization_budget_test.dart
 // Automated Design Check per 05-UI-UX-DESIGN-SYSTEM.md §14.3
 // Verifies string budget (<= 28 chars for UI strings) and en/te/hi parity
@@ -6,7 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloodnorms/core/i18n/app_localizations.dart';
+import 'package:bloodnorms/shared/i18n/app_localizations.dart';
 
 void main() {
   group('String Budget & Localization Parity Tests (§14.3)', () {

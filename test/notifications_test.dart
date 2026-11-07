@@ -1,11 +1,11 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | notifications_test.dart
 // Unit tests for Stage 5: In-App Notification Center
 // ============================================================================
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bloodnorms/core/services/supabase_service.dart';
+import 'package:bloodnorms/shared/services/supabase_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

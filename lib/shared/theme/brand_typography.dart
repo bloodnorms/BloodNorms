@@ -99,3 +99,4 @@ class BrandTypography {
 
 /// Backward compatibility alias for existing code.
 typedef DuoTypography = BrandTypography;
+

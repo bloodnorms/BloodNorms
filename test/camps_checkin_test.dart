@@ -1,11 +1,11 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | camps_checkin_test.dart
 // Unit tests for Stage 4: Camp Check-in & Attendance Counters
 // ============================================================================
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bloodnorms/core/services/supabase_service.dart';
+import 'package:bloodnorms/shared/services/supabase_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

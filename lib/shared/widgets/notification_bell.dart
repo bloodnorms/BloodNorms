@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | duo_notification_bell.dart
 // Realtime in-app notification bell with live badge and announcements sheet
 // Duolingo Feather Red Style, Arial font, 3D tactile styling
@@ -6,7 +6,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:bloodnorms/core/services/supabase_service.dart';
+import 'package:bloodnorms/shared/services/supabase_service.dart';
 import '../models/notification_model.dart';
 import '../theme/brand_colors.dart';
 import '../theme/brand_typography.dart';

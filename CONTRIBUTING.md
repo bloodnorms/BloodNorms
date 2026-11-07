@@ -60,3 +60,4 @@ Before submitting a Pull Request, verify all quality gates:
 1. Navigate to `voice-gateway/src/providers/`.
 2. Create `<provider-name>-adapter.ts` implementing the `SpeechProvider` interface from `types/index.ts`.
 3. Encapsulate all vendor-specific protocols so the rest of the gateway remains vendor-neutral.
+

@@ -17,3 +17,4 @@ Use Supabase managed PostgreSQL with PostGIS extensions as the primary relationa
 
 ### Neutral / Trade-offs
 - Connection pool limits during extreme traffic spikes require PgBouncer or direct pooler configuration.
+

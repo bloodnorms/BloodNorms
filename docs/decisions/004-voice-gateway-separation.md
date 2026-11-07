@@ -14,3 +14,4 @@ Separate the real-time audio pipeline into an independent containerized microser
 - Strict isolation of sensitive database credentials: the Voice Gateway holds **zero database credentials or service role keys**.
 - Sub-second audio latency and native barge-in (caller interruption) support.
 - Encapsulation of telephony and AI vendor protocols behind common interfaces.
+

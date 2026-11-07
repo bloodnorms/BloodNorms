@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | review_send_screen.dart
 // Review & Send screen — Duolingo Feather Red Style
 // 3D paper summary card, safety notice, 3D primary send CTA, Material
@@ -6,14 +6,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/i18n/app_localizations.dart';
-import '../../../core/services/supabase_service.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_blood_tile.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
+import '../../../shared/constants/app_constants.dart';
+import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/blood_group_tile.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
 import '../providers/request_flow_provider.dart';
 
 class ReviewSendScreen extends StatefulWidget {

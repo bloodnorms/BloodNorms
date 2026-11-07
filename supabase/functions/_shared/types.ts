@@ -41,3 +41,4 @@ export interface MessageEvent {
   status: string;
   payload_meta?: Record<string, unknown>;
 }
+

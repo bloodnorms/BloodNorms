@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | donor_ticket_screen.dart
 // Donor Ticket Screen — Duolingo Feather Red Style
 // Physical 3D paper pass card, big 6-digit code box, Material Icons, Arial
@@ -10,12 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/constants/blood_groups.dart';
-import '../../../core/services/supabase_service.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
+import '../../../../../shared/constants/blood_groups.dart';
+import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
 
 class DonorTicketScreen extends StatefulWidget {
   final String? requestId;

@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | bank_console_screen.dart
 // Blood Bank Console — Duolingo Feather Red Style
 // Tabs: Stock, Confirm (Keypad), Donors (Expected), Camps, More
@@ -7,17 +7,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/blood_groups.dart';
-import '../../../core/services/supabase_service.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_blood_tile.dart';
-import '../../../core/widgets/duo_bottom_nav_bar.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
-import '../../../core/widgets/duo_keypad.dart';
-import '../../../core/widgets/duo_notification_bell.dart';
-import '../../../core/widgets/duo_segmented_control.dart';
+import '../../../../../shared/constants/blood_groups.dart';
+import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/blood_group_tile.dart';
+import '../../../shared/widgets/app_nav_bar.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/pin_keypad.dart';
+import '../../../shared/widgets/notification_bell.dart';
+import '../../../shared/widgets/segmented_picker.dart';
 
 class BankConsoleScreen extends StatefulWidget {
   const BankConsoleScreen({super.key});

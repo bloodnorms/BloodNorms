@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | test/admin_am2_maintenance_test.dart
 // Milestone AM2 Verification Suite: Maintenance Mode & Scoped Switches
 // Verifies MNT-1 to MNT-10 requirements:
@@ -11,7 +11,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bloodnorms/core/services/supabase_service.dart';
+import 'package:bloodnorms/shared/services/supabase_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

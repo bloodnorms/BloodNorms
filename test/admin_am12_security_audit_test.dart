@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | test/admin_am12_security_audit_test.dart
 // Milestone AM12: Security Audit, Hardening & Final Acceptance
 // Rigorous verification of Section 0.3 Hard Privacy Lines and Governance:
@@ -12,9 +12,9 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bloodnorms/core/services/supabase_service.dart';
-import 'package:bloodnorms/core/theme/duo_typography.dart';
-import 'package:bloodnorms/core/theme/duo_colors.dart';
+import 'package:bloodnorms/shared/services/supabase_service.dart';
+import 'package:bloodnorms/shared/theme/brand_typography.dart';
+import 'package:bloodnorms/shared/theme/brand_colors.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

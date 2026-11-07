@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | home_screen.dart
 // Requester Home Screen — Original, Clean & Human-Centered Healthcare Design
 // Designed for crisis clarity: Low cognitive load, immediate reassurance
@@ -18,10 +18,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/i18n/app_localizations.dart';
-import '../../../core/services/supabase_service.dart';
-import '../../../core/theme/duo_typography.dart';
+import '../../../shared/constants/app_constants.dart';
+import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_typography.dart';
 import '../providers/request_flow_provider.dart';
 
 class HomeScreen extends StatefulWidget {

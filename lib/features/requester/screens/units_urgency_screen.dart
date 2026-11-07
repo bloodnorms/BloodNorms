@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | units_urgency_screen.dart
 // Units, Urgency & Component selector — Duolingo Feather Red Style
 // 3D Pushable Steppers, 3D Segmented Control, Mascot speech bubble, Material
@@ -6,14 +6,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/blood_groups.dart';
-import '../../../core/i18n/app_localizations.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
-import '../../../core/widgets/duo_segmented_control.dart';
-import '../../../core/widgets/duo_stepper.dart';
+import '../../../../../shared/constants/blood_groups.dart';
+import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/segmented_picker.dart';
+import '../../../shared/widgets/quantity_stepper.dart';
 import '../providers/request_flow_provider.dart';
 
 class UnitsUrgencyScreen extends StatefulWidget {

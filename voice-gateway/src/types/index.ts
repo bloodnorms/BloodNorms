@@ -28,3 +28,4 @@ export interface SpeechProvider {
   close(): void;
   readonly isConnected: boolean;
 }
+

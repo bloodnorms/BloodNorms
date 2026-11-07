@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | lib/core/services/whatsapp_service.dart
 // Meta WhatsApp Cloud API Service: Direct Dispatch, Test Bench, & Webhook Helper
 // ============================================================================
@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:bloodnorms/core/services/supabase_service.dart';
+import 'package:bloodnorms/shared/services/supabase_service.dart';
 
 class WhatsAppConfigSummary {
   final String phoneNumberId;

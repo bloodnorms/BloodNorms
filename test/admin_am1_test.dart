@@ -1,11 +1,11 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | admin_am1_test.dart
 // Milestone AM1 Verification: Four-Eyes Approvals, Step-Up & Session Security
 // ============================================================================
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bloodnorms/core/services/supabase_service.dart';
+import 'package:bloodnorms/shared/services/supabase_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

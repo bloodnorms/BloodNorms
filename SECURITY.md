@@ -45,3 +45,4 @@ If you discover a security vulnerability or leaked credential within this projec
 - **Row Level Security (RLS):**
   - RLS is enabled on all tables containing user or donor records.
   - Donors can only view and mutate their own profile and availability records.
+

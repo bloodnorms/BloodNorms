@@ -114,3 +114,4 @@ The matching engine expands outward in 14 concentric geographical rings per Rule
 
 - **Wave Multiplier:** 3x needed units are contacted per wave (BR-05).
 - **Safety Cap:** Maximum 30 contacts per request to protect volunteer donors from notification fatigue.
+

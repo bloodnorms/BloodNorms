@@ -10,3 +10,4 @@ export const corsHeaders: Record<string, string> = {
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
+

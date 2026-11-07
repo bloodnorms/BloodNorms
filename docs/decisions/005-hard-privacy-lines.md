@@ -14,3 +14,4 @@ Establish six irreversible architectural privacy boundaries:
 4. Four-eyes maker-checker governance enforces that the initiator of high-impact mutations cannot be the approver.
 5. High-risk data exports (Tier 3) require explicit Four-Eyes approval tokens and cryptographic watermarking.
 6. Formula injection attacks in CSV exports are neutralized by prepending `'` to `=`, `+`, `-`, and `@` characters.
+

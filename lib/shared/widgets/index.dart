@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | shared/widgets/index.dart
 //
 // Public barrel file for reusable shared UI components.
@@ -17,3 +17,4 @@ export 'progress_meter.dart';
 export 'quantity_stepper.dart';
 export 'screen_header.dart';
 export 'segmented_picker.dart';
+

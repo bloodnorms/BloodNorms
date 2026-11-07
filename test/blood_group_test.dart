@@ -1,10 +1,10 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | test/blood_group_test.dart
 // Unit tests for BloodGroup compatibility per BR-04
 // ============================================================================
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloodnorms/core/constants/blood_groups.dart';
+import 'package:bloodnorms/shared/constants/blood_groups.dart';
 
 void main() {
   group('BloodGroup Compatibility Tests (BR-04)', () {

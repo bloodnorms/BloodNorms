@@ -65,3 +65,4 @@ lib/
 - **Health Question Protection:** Never query or display raw donor medical questionnaire responses.
 - **Audio Protection:** Never log, store, or serialize caller audio streams or conversational speech transcripts.
 - **Audit Logs:** Never execute `UPDATE` or `DELETE` on the `audit_logs` table.
+

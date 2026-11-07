@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | banks_list_screen.dart
 // Nearest Blood Banks list with Interactive Map — Duolingo Feather Red Style
 // Interactive OpenStreetMap with bank markers, 3D paper cards, 3D call buttons
@@ -9,13 +9,13 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/i18n/app_localizations.dart';
-import '../../../core/services/supabase_service.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
-import '../../../core/widgets/duo_meter.dart';
+import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/progress_meter.dart';
 import '../providers/request_flow_provider.dart';
 
 class BanksListScreen extends StatefulWidget {

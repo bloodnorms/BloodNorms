@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | donor_onboarding_screen.dart
 // Resumable 8-stage Donor Onboarding Wizard — Duolingo Feather Red Style
 // DuoProgressBar, 3D DuoTextFields, Material switches, strict Arial font
@@ -7,16 +7,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/constants/blood_groups.dart';
-import '../../../core/services/supabase_service.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_blood_tile.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
-import '../../../core/widgets/duo_meter.dart';
-import '../../../core/widgets/duo_text_field.dart';
+import '../../../shared/constants/app_constants.dart';
+import '../../../../../shared/constants/blood_groups.dart';
+import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/blood_group_tile.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/progress_meter.dart';
+import '../../../shared/widgets/app_text_field.dart';
 
 class DonorOnboardingScreen extends StatefulWidget {
   const DonorOnboardingScreen({super.key});

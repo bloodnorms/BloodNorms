@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | donor_home_screen.dart
 // Donor Home Dashboard — Duolingo Feather Red Style
 // DuoBottomNavBar, streak flame, hearts, 3D paper cards, Material Icons
@@ -7,14 +7,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/i18n/app_localizations.dart';
-import '../../../core/services/supabase_service.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_bottom_nav_bar.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
-import '../../../core/widgets/duo_meter.dart';
+import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_nav_bar.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/progress_meter.dart';
 import 'donor_alerts_screen.dart';
 import 'donor_camps_screen.dart';
 import 'donor_profile_screen.dart';

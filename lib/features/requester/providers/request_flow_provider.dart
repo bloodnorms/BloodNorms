@@ -1,12 +1,12 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | request_flow_provider.dart
 // State management for Requester wizard flow
 // ============================================================================
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/constants/blood_groups.dart';
+import '../../../shared/constants/app_constants.dart';
+import '../../../../../shared/constants/blood_groups.dart';
 
 class RequestFlowState {
   final BloodGroup? bloodGroup;

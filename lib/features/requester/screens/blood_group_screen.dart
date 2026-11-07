@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | blood_group_screen.dart
 // Blood Group selector screen — Duolingo Feather Red Style
 // 4x2 Tactile 3D Tiles, Mascot speech bubble, Material Icons, Arial
@@ -6,13 +6,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/blood_groups.dart';
-import '../../../core/i18n/app_localizations.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_blood_tile.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
+import '../../../../../shared/constants/blood_groups.dart';
+import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/blood_group_tile.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
 import '../providers/request_flow_provider.dart';
 
 class BloodGroupScreen extends StatefulWidget {

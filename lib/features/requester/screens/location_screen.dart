@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | location_screen.dart
 // Location selection screen — Duolingo Feather Red Style
 // Interactive OpenStreetMap, 3D GPS button, landmark chips, Material
@@ -8,13 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
-import '../../../core/i18n/app_localizations.dart';
-import '../../../core/services/location_service.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
-import '../../../core/widgets/duo_text_field.dart';
+import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/services/location_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/app_text_field.dart';
 import '../providers/request_flow_provider.dart';
 
 class LocationPickerScreen extends StatefulWidget {

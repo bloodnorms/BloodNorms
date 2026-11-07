@@ -1,9 +1,9 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | test/whatsapp_integration_test.dart
 // Meta WhatsApp Cloud API Service & Test Bench Test Suite
 // ============================================================================
 
-import 'package:bloodnorms/core/services/whatsapp_service.dart';
+import 'package:bloodnorms/shared/services/messaging_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

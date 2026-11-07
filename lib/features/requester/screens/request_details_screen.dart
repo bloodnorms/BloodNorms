@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | request_details_screen.dart
 // Requester Details Screen — Duolingo Feather Red Style
 // Functional 3D DuoTextField inputs, Material switch, privacy bubble
@@ -6,13 +6,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/i18n/app_localizations.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_button.dart';
-import '../../../core/widgets/duo_header_bar.dart';
-import '../../../core/widgets/duo_text_field.dart';
+import '../../../shared/constants/app_constants.dart';
+import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/app_text_field.dart';
 import '../providers/request_flow_provider.dart';
 
 class RequestDetailsScreen extends StatefulWidget {

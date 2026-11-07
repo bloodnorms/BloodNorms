@@ -47,3 +47,4 @@ class BrandColors {
 
 /// Backward compatibility alias for existing code.
 typedef DuoColors = BrandColors;
+

@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | admin_console_screen.dart
 // Executive Operations & Superhero Admin Command Center
 // Faithful Untitled UI Expandable Nested Sidebar Architecture:
@@ -19,12 +19,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/services/supabase_service.dart';
-import '../../../core/services/whatsapp_service.dart';
-import '../../../core/theme/duo_colors.dart';
-import '../../../core/theme/duo_typography.dart';
-import '../../../core/widgets/duo_meter.dart';
+import '../../../shared/constants/app_constants.dart';
+import '../../../shared/services/supabase_service.dart';
+import '../../../shared/services/messaging_service.dart';
+import '../../../shared/theme/brand_colors.dart';
+import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/progress_meter.dart';
 
 class AdminConsoleScreen extends StatefulWidget {
   const AdminConsoleScreen({super.key});

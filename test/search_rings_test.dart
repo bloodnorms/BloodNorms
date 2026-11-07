@@ -1,10 +1,10 @@
-// ============================================================================
+﻿// ============================================================================
 // BloodNorms | test/search_rings_test.dart
 // Unit tests for search rings, gates, and wave durations per BR-06..08
 // ============================================================================
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloodnorms/core/constants/rings.dart';
+import 'package:bloodnorms/shared/constants/rings.dart';
 
 void main() {
   group('Search Rings & Gates Tests (BR-06, BR-07, BR-08)', () {

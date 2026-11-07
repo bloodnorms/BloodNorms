@@ -16,3 +16,4 @@ BloodNorms exclusively uses OpenStreetMap (OSM) vector and raster tiles with `fl
 
 ### Neutral / Trade-offs
 - Nominatim public API enforces fair use rate limits (1 req/sec); client caches search results and delays typing debouncing to 400ms.
+

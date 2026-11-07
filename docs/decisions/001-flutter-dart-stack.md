@@ -18,3 +18,4 @@ Adopt Flutter 3 (Dart 3) as the single unified frontend engineering framework ac
 ### Neutral / Trade-offs
 - Web bundle size requires standard PWA caching techniques.
 - Native background services require platform channels when needed.
+
