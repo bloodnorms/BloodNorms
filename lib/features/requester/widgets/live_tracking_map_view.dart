@@ -170,3 +170,4 @@ class LiveTrackingMapView extends StatelessWidget {
     );
   }
 }
+

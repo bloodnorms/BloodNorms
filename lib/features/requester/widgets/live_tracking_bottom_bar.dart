@@ -65,3 +65,4 @@ class LiveTrackingBottomBar extends StatelessWidget {
     );
   }
 }
+

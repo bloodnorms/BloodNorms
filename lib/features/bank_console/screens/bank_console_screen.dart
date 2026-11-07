@@ -6,10 +6,8 @@
 
 import 'package:flutter/material.dart';
 import '../../../../../shared/constants/blood_groups.dart';
-import '../../../shared/models/camp_model.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
-import '../../../shared/widgets/app_nav_bar.dart';
 import '../widgets/index.dart';
 
 class BankConsoleScreen extends StatefulWidget {
@@ -30,14 +28,7 @@ class _BankConsoleScreenState extends State<BankConsoleScreen> {
   // Stock State (8 groups x units)
   BloodComponentType _selectedComponent = BloodComponentType.wholeBlood;
   final Map<BloodGroup, int> _stock = {
-    BloodGroup.aPositive: 0,
-    BloodGroup.aNegative: 0,
-    BloodGroup.bPositive: 0,
-    BloodGroup.bNegative: 0,
-    BloodGroup.abPositive: 0,
-    BloodGroup.abNegative: 0,
-    BloodGroup.oPositive: 0,
-    BloodGroup.oNegative: 0,
+    for (final bg in BloodGroup.values) bg: 0,
   };
   bool _isSavingStock = false;
 

@@ -155,3 +155,4 @@ class BanksMapWidget extends StatelessWidget {
     );
   }
 }
+

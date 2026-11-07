@@ -116,3 +116,4 @@ class LocationMapView extends StatelessWidget {
     );
   }
 }
+

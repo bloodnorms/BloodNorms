@@ -333,3 +333,4 @@ class DonorProfileBadgesSection extends StatelessWidget {
     );
   }
 }
+

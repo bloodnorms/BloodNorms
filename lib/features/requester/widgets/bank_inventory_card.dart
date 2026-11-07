@@ -120,3 +120,4 @@ class BankInventoryCard extends StatelessWidget {
     );
   }
 }
+

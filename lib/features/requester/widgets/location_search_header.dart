@@ -95,3 +95,4 @@ class LocationSearchHeader extends StatelessWidget {
     );
   }
 }
+

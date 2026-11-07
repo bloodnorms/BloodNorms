@@ -55,3 +55,4 @@ class OnboardingSuccessStep extends StatelessWidget {
     );
   }
 }
+

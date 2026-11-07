@@ -60,3 +60,4 @@ class BloodComponentSelectorCard extends StatelessWidget {
     );
   }
 }
+

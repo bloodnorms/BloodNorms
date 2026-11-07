@@ -31,3 +31,4 @@ class BankConsoleNavBar extends StatelessWidget {
     );
   }
 }
+
