@@ -480,3 +480,4 @@ Each step ends with `flutter test` + `flutter analyze` before proceeding.
 | `globalRequestFlow` removal breaks screen state | Medium | High | Add provider, update all 7+ screen consumers before deleting the global |
 | Admin console split introduces visual regression | Medium | High | Do widget-level extraction only (no logic change); no DB calls move |
 | `.env` already in git history (F-001) | Confirmed | Critical | Rotate first; history purge is owner's responsibility |
+

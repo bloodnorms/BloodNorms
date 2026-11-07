@@ -442,3 +442,4 @@ Developer working notes are mixed with documentation. These should be moved to `
 | F-021 | 🟡 MEDIUM | Dual `.env` files, assets/.env ships in binary | **Verify now** |
 | F-022 | 🟢 LOW | 45 `avoid_print` lint issues in CLI script | Phase 0 |
 | F-023 | 🟢 LOW | Working notes mixed with docs | Phase 2 |
+
