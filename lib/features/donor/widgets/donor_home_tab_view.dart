@@ -5,12 +5,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/action_button.dart';
-import '../../../shared/widgets/progress_meter.dart';
 import '../../../shared/widgets/screen_header.dart';
+import 'donor_impact_badges_row.dart';
+import 'donor_status_availability_card.dart';
 
 class DonorHomeTabView extends StatelessWidget {
   final String donorName;
@@ -38,20 +38,18 @@ class DonorHomeTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-
     return Scaffold(
-      backgroundColor: DuoColors.bgGrouped,
-      appBar: DuoHeaderBar(
+      backgroundColor: BrandColors.bgGrouped,
+      appBar: ScreenHeader(
         title: 'Donor Portal',
         showBackButton: true,
         trailing: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: DuoColors.redTint,
+              color: BrandColors.redTint,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: DuoColors.redShadow, width: 1.5),
+              border: Border.all(color: BrandColors.redShadow, width: 1.5),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -61,8 +59,8 @@ class DonorHomeTabView extends StatelessWidget {
                 Text(
                   '$donationsCount',
                   style: const TextStyle(
-                    fontFamily: DuoTypography.fontFamily,
-                    color: DuoColors.red,
+                    fontFamily: BrandTypography.fontFamily,
+                    color: BrandColors.red,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
@@ -76,7 +74,7 @@ class DonorHomeTabView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           children: [
-            DuoSpeechBubble(
+            SpeechBubble(
               emoji: '🩸',
               text:
                   'Welcome back, $donorName! You are currently ${isAvailable ? "active and ready to save lives" : "paused"} in Rajahmundry.',
@@ -84,198 +82,22 @@ class DonorHomeTabView extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               'Hi, $donorName',
-              style: DuoTypography.title1(color: DuoColors.textPrimary),
+              style: BrandTypography.title1(color: BrandColors.textPrimary),
             ),
             const SizedBox(height: 4),
             Text(
               'Verified BloodNorms Donor ($donorGroup)',
-              style: DuoTypography.subhead(color: DuoColors.textSecondary),
+              style: BrandTypography.subhead(color: BrandColors.textSecondary),
             ),
             const SizedBox(height: 20),
-
-            // Status & Availability 3D Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: DuoColors.border, width: 2.0),
-                boxShadow: const [
-                  BoxShadow(
-                    color: DuoColors.border,
-                    offset: Offset(0, 4),
-                    blurRadius: 0,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            loc.t('donor.available'),
-                            style: DuoTypography.title2(
-                                color: DuoColors.textPrimary),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            isAvailable
-                                ? 'Ready for emergency alerts'
-                                : 'Paused in Supabase',
-                            style: DuoTypography.caption(
-                                color: DuoColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                      Switch(
-                        value: isAvailable,
-                        activeThumbColor: DuoColors.green,
-                        onChanged: (val) {
-                          if (!val) {
-                            _showPauseModal(context);
-                          } else {
-                            onToggleAvailability(true);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(
-                      height: 2, thickness: 2, color: DuoColors.border),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: [
-                          DuoMeter(
-                            value: 1.0,
-                            color: DuoColors.green,
-                            centerText: '✓',
-                            subText: loc.t('donor.active'),
-                            size: 80,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Status',
-                            style: DuoTypography.caption(
-                                color: DuoColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          const DuoMeter(
-                            value: 0.8,
-                            color: DuoColors.red,
-                            centerText: '14',
-                            subText: 'days',
-                            size: 80,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            loc.t('donor.next'),
-                            style: DuoTypography.caption(
-                                color: DuoColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            DonorStatusAvailabilityCard(
+              isAvailable: isAvailable,
+              onToggleAvailability: onToggleAvailability,
             ),
             const SizedBox(height: 24),
-
-            // Gamified Impact Badges Row
-            Text('Your Impact',
-                style: DuoTypography.title3(color: DuoColors.textPrimary)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _buildDuoBadge(
-                  emoji: '🎖️',
-                  title: 'Proven Donor',
-                  subtitle: '$donationsCount Donations',
-                  color: DuoColors.red,
-                  bgColor: DuoColors.redTint,
-                  shadowColor: DuoColors.redShadow,
-                ),
-                const SizedBox(width: 12),
-                _buildDuoBadge(
-                  emoji: '⭐',
-                  title: 'Reliable',
-                  subtitle: '100% answer',
-                  color: DuoColors.textPrimary,
-                  bgColor: const Color(0xFFF7F7F7),
-                  shadowColor: DuoColors.border,
-                ),
-                const SizedBox(width: 12),
-                _buildDuoBadge(
-                  emoji: '🎁',
-                  title: 'Kit Eligible',
-                  subtitle: 'Claimed',
-                  color: DuoColors.green,
-                  bgColor: DuoColors.greenTint,
-                  shadowColor: DuoColors.greenShadow,
-                ),
-              ],
-            ),
+            DonorImpactBadgesRow(donationsCount: donationsCount),
             const SizedBox(height: 24),
-
-            // Active alert banner shortcut
-            GestureDetector(
-              onTap: () {
-                if (latestRequestId != null) {
-                  context.push('/donor/ticket/$latestRequestId');
-                } else {
-                  onOpenTab(1);
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: DuoColors.redTint,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: DuoColors.redShadow, width: 2.0),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: DuoColors.redShadow,
-                      offset: Offset(0, 4),
-                      blurRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const Text('🎫', style: TextStyle(fontSize: 30)),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Active Donation Pass',
-                              style: DuoTypography.headline(
-                                  color: DuoColors.red)),
-                          const SizedBox(height: 2),
-                          Text(
-                              '$latestRequestHospital · $latestRequestGroup Whole blood',
-                              style: DuoTypography.caption(
-                                  color: DuoColors.textPrimary)),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right_rounded,
-                        color: DuoColors.red, size: 24),
-                  ],
-                ),
-              ),
-            ),
+            _buildPassShortcut(context),
             const SizedBox(height: 20),
           ],
         ),
@@ -283,107 +105,53 @@ class DonorHomeTabView extends StatelessWidget {
     );
   }
 
-  Widget _buildDuoBadge({
-    required String emoji,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required Color bgColor,
-    required Color shadowColor,
-  }) {
-    return Expanded(
+  Widget _buildPassShortcut(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (latestRequestId != null) {
+          context.push('/donor/ticket/$latestRequestId');
+        } else {
+          onOpenTab(1);
+        }
+      },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: shadowColor, width: 2.0),
-          boxShadow: [
+          color: BrandColors.redTint,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: BrandColors.redShadow, width: 2.0),
+          boxShadow: const [
             BoxShadow(
-              color: shadowColor,
-              offset: const Offset(0, 3),
+              color: BrandColors.redShadow,
+              offset: Offset(0, 4),
               blurRadius: 0,
             ),
           ],
         ),
-        child: Column(
+        child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 22)),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: TextStyle(
-                fontFamily: DuoTypography.fontFamily,
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
+            const Text('🎫', style: TextStyle(fontSize: 30)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Active Donation Pass',
+                    style: BrandTypography.headline(color: BrandColors.red),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$latestRequestHospital · $latestRequestGroup Whole blood',
+                    style: BrandTypography.caption(color: BrandColors.textPrimary),
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
             ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontFamily: DuoTypography.fontFamily,
-                color: DuoColors.textSecondary,
-                fontSize: 10,
-                fontWeight: FontWeight.normal,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showPauseModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Pause Emergency Alerts',
-                style: DuoTypography.title2(color: DuoColors.textPrimary)),
-            const SizedBox(height: 8),
-            Text(
-                'You will not be contacted for emergency requests during this period.',
-                style: DuoTypography.body(color: DuoColors.textSecondary)),
-            const SizedBox(height: 20),
-            DuoButton(
-              label: 'Pause for 7 days',
-              variant: DuoButtonVariant.secondary,
-              height: 48,
-              onPressed: () {
-                onToggleAvailability(false);
-                Navigator.pop(ctx);
-              },
-            ),
-            const SizedBox(height: 10),
-            DuoButton(
-              label: 'Pause for 30 days',
-              variant: DuoButtonVariant.secondary,
-              height: 48,
-              onPressed: () {
-                onToggleAvailability(false);
-                Navigator.pop(ctx);
-              },
-            ),
-            const SizedBox(height: 10),
-            DuoButton(
-              label: 'CANCEL',
-              variant: DuoButtonVariant.plain,
-              height: 44,
-              onPressed: () => Navigator.pop(ctx),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: BrandColors.red,
+              size: 24,
             ),
           ],
         ),

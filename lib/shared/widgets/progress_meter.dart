@@ -1,13 +1,14 @@
 // ============================================================================
-// BloodNorms | duo_meter.dart
-// Duolingo Feather Tactile Status Ring & Meter Component
-// Candy 3D progress ring with glossy track and bold Arial centered stats
+// BloodNorms | progress_meter.dart
+// 3D tactile status ring & meter component with bold centered metrics
 // ============================================================================
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/brand_colors.dart';
 import '../theme/brand_typography.dart';
+
+export 'step_progress_bar.dart';
 
 class ProgressMeter extends StatelessWidget {
   final double value; // 0.0 to 1.0
@@ -45,21 +46,17 @@ class ProgressMeter extends StatelessWidget {
         break;
     }
 
-    return DuoMeter(
+    return ProgressMeter(
       value: units > 0 ? 1.0 : 0.0,
       color: ringColor,
       centerText: '$units',
       subText: 'units',
       size: size,
-      strokeWidth: 8.0,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    const trackColor = Color(0xFFE5E5E5);
-    const textColor = BrandColors.textPrimary;
-
     return SizedBox(
       width: size,
       height: size,
@@ -68,53 +65,52 @@ class ProgressMeter extends StatelessWidget {
         children: [
           CustomPaint(
             size: Size(size, size),
-            painter: _DuoRingPainter(
+            painter: _RingPainter(
               value: value,
               color: color,
-              trackColor: trackColor,
+              trackColor: const Color(0xFFE5E5E5),
               strokeWidth: strokeWidth,
             ),
           ),
-          if (centerText != null)
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (centerText != null)
                 Text(
                   centerText!,
                   style: TextStyle(
                     fontFamily: BrandTypography.fontFamily,
-                    fontSize: 20,
+                    color: color,
                     fontWeight: FontWeight.bold,
-                    color: textColor,
+                    fontSize: size * 0.28,
                     height: 1.0,
                   ),
                 ),
-                if (subText != null)
-                  Text(
-                    subText!,
-                    style: TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: BrandColors.textSecondary,
-                      height: 1.1,
-                    ),
+              if (subText != null)
+                Text(
+                  subText!,
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    color: BrandColors.textSecondary,
+                    fontSize: size * 0.14,
+                    fontWeight: FontWeight.normal,
                   ),
-              ],
-            ),
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _DuoRingPainter extends CustomPainter {
+class _RingPainter extends CustomPainter {
   final double value;
   final Color color;
   final Color trackColor;
   final double strokeWidth;
 
-  _DuoRingPainter({
+  _RingPainter({
     required this.value,
     required this.color,
     required this.trackColor,
@@ -126,7 +122,6 @@ class _DuoRingPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
 
-    // Background track
     final trackPaint = Paint()
       ..color = trackColor
       ..strokeWidth = strokeWidth
@@ -135,7 +130,6 @@ class _DuoRingPainter extends CustomPainter {
 
     canvas.drawCircle(center, radius, trackPaint);
 
-    // Active progress arc
     if (value > 0.0) {
       final activePaint = Paint()
         ..color = color
@@ -154,72 +148,13 @@ class _DuoRingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _DuoRingPainter oldDelegate) {
+  bool shouldRepaint(covariant _RingPainter oldDelegate) {
     return oldDelegate.value != value ||
         oldDelegate.color != color ||
         oldDelegate.trackColor != trackColor;
   }
 }
 
-// Duolingo Candy Progress Bar (with 4px glossy reflection line)
-class DuoProgressBar extends StatelessWidget {
-  final double progress; // 0.0 to 1.0
-  final Color fillColor;
-  final double height;
-
-  const DuoProgressBar({
-    super.key,
-    required this.progress,
-    this.fillColor = BrandColors.green,
-    this.height = 16.0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final clamped = progress.clamp(0.0, 1.0);
-
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE5E5E5),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final barWidth = constraints.maxWidth * clamped;
-          if (barWidth <= 0) return const SizedBox.shrink();
-
-          return Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              width: barWidth,
-              height: height,
-              decoration: BoxDecoration(
-                color: fillColor,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 2, left: 6, right: 6),
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-typedef StatusRing = DuoMeter;
-typedef StepProgressBar = DuoProgressBar;
-
-
 /// Backward compatibility alias for existing code.
 typedef DuoMeter = ProgressMeter;
+typedef StatusRing = ProgressMeter;
