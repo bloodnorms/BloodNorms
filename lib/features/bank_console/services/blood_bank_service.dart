@@ -3,19 +3,16 @@
 // Blood bank operations: stock queries, verification, nearby search, and caching
 // ============================================================================
 
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/blood_bank_model.dart';
 import '../../../shared/services/supabase_service.dart';
+import 'blood_bank_cache.dart';
 
 class BloodBankService {
   static final BloodBankService _instance = BloodBankService._internal();
   factory BloodBankService() => _instance;
   BloodBankService._internal();
-
-  static const String _cachedBanksKey = 'cached_blood_banks_list';
 
   SupabaseClient? get _client => SupabaseService().client;
 
@@ -94,49 +91,11 @@ class BloodBankService {
     return [];
   }
 
-  /// Offline local cache persistence for blood banks
-  Future<void> cacheBloodBanks(List<BloodBankModel> banks) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final list = banks
-          .map((b) => {
-                'id': b.id,
-                'name': b.name,
-                'address': b.address,
-                'city': b.city,
-                'phones': b.phones,
-                'is_24x7': b.is24x7,
-                'distance_km': b.distanceKm,
-                'stock_units': b.stockUnits,
-                'stock_freshness': b.stockFreshness,
-                'trust_score': b.trustScore,
-                'trust_label': b.trustLabel,
-                'lat': b.latitude,
-                'lng': b.longitude,
-              })
-          .toList();
-      await prefs.setString(_cachedBanksKey, jsonEncode(list));
-    } catch (e) {
-      debugPrint('cacheBloodBanks error: $e');
-    }
-  }
+  Future<void> cacheBloodBanks(List<BloodBankModel> banks) =>
+      BloodBankCache.cache(banks);
 
-  Future<List<BloodBankModel>> getCachedBloodBanks() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString(_cachedBanksKey);
-      if (raw != null && raw.isNotEmpty) {
-        final decoded = jsonDecode(raw) as List;
-        return decoded
-            .map((item) =>
-                BloodBankModel.fromJson(Map<String, dynamic>.from(item)))
-            .toList();
-      }
-    } catch (e) {
-      debugPrint('getCachedBloodBanks error: $e');
-    }
-    return [];
-  }
+  Future<List<BloodBankModel>> getCachedBloodBanks() =>
+      BloodBankCache.get();
 
   /// Get blood bank stock by component
   Future<Map<String, int>> getBankStock({
