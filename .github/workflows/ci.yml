@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  flutter-test:
+  flutter-quality-gate:
     name: Flutter Lint & Tests
     runs-on: ubuntu-latest
 
@@ -31,20 +31,42 @@ jobs:
       - name: Run Tests
         run: flutter test --coverage
 
+  voice-gateway-quality-gate:
+    name: Voice Gateway Build & Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: voice-gateway/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: voice-gateway
+        run: npm ci
+
+      - name: Typecheck & Build
+        working-directory: voice-gateway
+        run: npm run build
+
   database-lint:
-    name: SQL Migrations Check
+    name: SQL Migrations Integrity Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Verify SQL Files Present
+      - name: Verify All 17 Migrations Present
         run: |
-          test -f supabase/migrations/0001_init.sql
-          test -f supabase/migrations/0002_cron.sql
-          test -f supabase/migrations/0003_storage.sql
-          test -f supabase/migrations/0004_inbound.sql
-          test -f supabase/migrations/0005_bank_console.sql
-          test -f supabase/migrations/0006_roles.sql
-          echo "All 6 SQL migrations present."
-
+          count=$(ls -1 supabase/migrations/0*.sql | wc -l)
+          echo "Found $count SQL migration files."
+          if [ "$count" -lt 17 ]; then
+            echo "Error: Expected at least 17 migrations, found $count"
+            exit 1
+          fi
+          echo "All 17 SQL migrations verified."
