@@ -10,29 +10,68 @@ import http from "node:http";
 import { WebSocket } from "ws";
 import { GatewayServer } from "../dist/server/http-server.js";
 
-function makeRequest(port: number, path: string): Promise<{ statusCode: number; body: string }> {
+function makeRequest(
+  port: number,
+  path: string,
+  headers: Record<string, string> = {}
+): Promise<{ statusCode: number; headers: http.IncomingHttpHeaders; body: string }> {
   return new Promise((resolve, reject) => {
-    http.get(`http://127.0.0.1:${port}${path}`, (res) => {
+    http.get(`http://127.0.0.1:${port}${path}`, { headers }, (res) => {
       let body = "";
       res.on("data", (chunk) => (body += chunk));
-      res.on("end", () => resolve({ statusCode: res.statusCode || 0, body }));
+      res.on("end", () => resolve({ statusCode: res.statusCode || 0, headers: res.headers, body }));
       res.on("error", reject);
     });
   });
 }
 
-test("GatewayServer: GET /health returns 200 OK and health telemetry", async () => {
+test("GatewayServer: GET /health returns 200 OK and health telemetry with X-Request-Id", async () => {
   const server = new GatewayServer();
   await new Promise<void>((resolve) => server.listen(0, resolve));
   const port = server.getPort();
 
   try {
-    const res = await makeRequest(port, "/health");
+    const res = await makeRequest(port, "/health", { "x-request-id": "test-req-12345" });
     assert.equal(res.statusCode, 200);
+    assert.equal(res.headers["x-request-id"], "test-req-12345");
     const data = JSON.parse(res.body);
     assert.equal(data.status, "healthy");
     assert.equal(typeof data.uptime_seconds, "number");
     assert.equal(data.active_calls, 0);
+  } finally {
+    await new Promise<void>((resolve) => server.close(resolve));
+  }
+});
+
+test("GatewayServer: GET /livez and /readyz return 200 OK probes", async () => {
+  const server = new GatewayServer();
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  const port = server.getPort();
+
+  try {
+    const livez = await makeRequest(port, "/livez");
+    assert.equal(livez.statusCode, 200);
+    assert.equal(livez.body, "OK");
+
+    const readyz = await makeRequest(port, "/readyz");
+    assert.equal(readyz.statusCode, 200);
+    assert.equal(readyz.body, "READY");
+  } finally {
+    await new Promise<void>((resolve) => server.close(resolve));
+  }
+});
+
+test("GatewayServer: GET /metrics returns Prometheus exposition format", async () => {
+  const server = new GatewayServer();
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  const port = server.getPort();
+
+  try {
+    const res = await makeRequest(port, "/metrics");
+    assert.equal(res.statusCode, 200);
+    assert.ok(res.body.includes("voice_gateway_uptime_seconds"));
+    assert.ok(res.body.includes("voice_calls_active"));
+    assert.ok(res.body.includes("voice_calls_total"));
   } finally {
     await new Promise<void>((resolve) => server.close(resolve));
   }
