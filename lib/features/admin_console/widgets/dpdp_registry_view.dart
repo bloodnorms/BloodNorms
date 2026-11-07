@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | dpdp_registry_view.dart
-// DPDP Act Right-to-be-Forgotten & Erasure Requests Desk
+// Modern Minimal DPDP Act Right-to-be-Forgotten & Erasure Requests Desk
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -18,50 +18,102 @@ class DPDPRegistryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Digital Personal Data Protection (DPDP) Erasure Requests',
+            'DPDP erasure requests',
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: BrandColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 10),
-          ...dpdpRequests.map((d) => ListTile(
-                dense: true,
-                leading: const Icon(Icons.person_off_rounded, color: BrandColors.red),
-                title: Text(
-                  'Right-to-be-Forgotten (#${d['id']?.toString().substring(0, 6)})',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
+          const SizedBox(height: 2),
+          const Text(
+            'Digital Personal Data Protection Act compliance and right-to-be-forgotten audit registry',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontSize: 13,
+              color: BrandColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...dpdpRequests.map((d) => Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                 ),
-                subtitle: Text('Phone: ${d['phone_masked']} · Channel: ${d['request_type']}'),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: BrandColors.greenTint,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Text(
-                    'PROCESSED',
-                    style: TextStyle(
-                      color: BrandColors.green,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: BrandColors.statusErrorTint,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.person_off_outlined,
+                            size: 16,
+                            color: BrandColors.statusError,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Right-to-be-forgotten (#${d['id']?.toString().substring(0, 6)})',
+                              style: const TextStyle(
+                                fontFamily: BrandTypography.fontFamily,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: BrandColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Phone: ${d['phone_masked']} · Channel: ${d['request_type']}',
+                              style: const TextStyle(
+                                fontFamily: BrandTypography.fontFamily,
+                                fontSize: 12,
+                                color: BrandColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: BrandColors.statusSuccessTint,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                      ),
+                      child: const Text(
+                        'Processed',
+                        style: TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          color: BrandColors.statusSuccess,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               )),
         ],

@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | audit_logs_view.dart
-// Cryptographically Logged Audit Feed View (DPDP Section 0.3 Compliance)
+// Modern Minimal Cryptographically Logged Audit Feed View
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -18,11 +18,11 @@ class AuditLogsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,58 +30,100 @@ class AuditLogsView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Cryptographically Logged Audit Feed',
-                style: TextStyle(
-                  fontFamily: BrandTypography.fontFamily,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Audit log ledger',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: BrandColors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Append-only cryptographic security audit trail',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontSize: 13,
+                      color: BrandColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                '${auditLogs.length} Events',
-                style: const TextStyle(
-                  fontFamily: BrandTypography.fontFamily,
-                  fontSize: 12,
-                  color: BrandColors.textSecondary,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: BrandColors.surfaceMuted,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                ),
+                child: Text(
+                  '${auditLogs.length} events',
+                  style: const TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: BrandColors.textSecondary,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          ...auditLogs.map((log) => ListTile(
-                dense: true,
-                leading: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    log['time'] ?? 'Recent',
-                    style: const TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: BrandColors.textSecondary,
+          const SizedBox(height: 16),
+          ...auditLogs.map((log) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: BrandColors.surfaceMuted,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                      ),
+                      child: Text(
+                        log['time'] ?? 'Recent',
+                        style: const TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: BrandColors.textSecondary,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                title: Text(
-                  log['action'] ?? 'action',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    color: BrandColors.red,
-                  ),
-                ),
-                subtitle: Text(
-                  log['detail'] ?? '',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontSize: 12,
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            log['action'] ?? 'action',
+                            style: const TextStyle(
+                              fontFamily: BrandTypography.fontFamily,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: BrandColors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            log['detail'] ?? '',
+                            style: const TextStyle(
+                              fontFamily: BrandTypography.fontFamily,
+                              fontSize: 12,
+                              color: BrandColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               )),
         ],

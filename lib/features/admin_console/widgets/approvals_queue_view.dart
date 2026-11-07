@@ -1,11 +1,13 @@
 // ============================================================================
 // BloodNorms | approvals_queue_view.dart
-// Four-Eyes Governance Approvals Queue View (Maker-Checker Separation)
+// Modern Minimal Four-Eyes Governance Approvals Queue View
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_empty_state.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class ApprovalsQueueView extends StatelessWidget {
   final List<Map<String, dynamic>> approvalRequests;
@@ -20,83 +22,103 @@ class ApprovalsQueueView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
-      child: approvalRequests.isEmpty
-          ? const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Text(
-                  'Zero pending Four-Eyes approval requests',
-                  style: TextStyle(color: BrandColors.textSecondary),
-                ),
-              ),
-            )
-          : ListView(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: approvalRequests.map((a) {
-                final id = a['id']?.toString() ?? '';
-                final action = a['action_type'] ?? 'broadcast.mass';
-                final reason = a['reason'] ?? 'Emergency mobilization';
-                final maker = a['maker_id'] ?? 'admin-01';
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '$action (#${id.substring(0, id.length > 8 ? 8 : id.length)})',
-                            style: const TextStyle(
-                              fontFamily: BrandTypography.fontFamily,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            'Maker: $maker · Reason: $reason',
-                            style: const TextStyle(
-                              fontFamily: BrandTypography.fontFamily,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () => onDecideApproval(id, true),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: BrandColors.green,
-                              foregroundColor: Colors.white,
-                            ),
-                            child: const Text('Approve (Checker)'),
-                          ),
-                          const SizedBox(width: 8),
-                          OutlinedButton(
-                            onPressed: () => onDecideApproval(id, false),
-                            child: const Text('Reject'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Four-eyes approvals queue',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: BrandColors.textPrimary,
             ),
+          ),
+          const SizedBox(height: 2),
+          const Text(
+            'High-impact actions requiring independent maker-checker verification',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontSize: 13,
+              color: BrandColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (approvalRequests.isEmpty)
+            const AppEmptyState(
+              icon: Icons.verified_user_outlined,
+              title: 'Queue is clear',
+              description: 'Zero pending approval requests. All governed operations are up to date.',
+            )
+          else
+            ...approvalRequests.map((a) {
+              final id = a['id']?.toString() ?? '';
+              final action = a['action_type'] ?? 'broadcast.mass';
+              final reason = a['reason'] ?? 'Emergency mobilization';
+              final maker = a['maker_id'] ?? 'admin-01';
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$action (#${id.substring(0, id.length > 8 ? 8 : id.length)})',
+                          style: const TextStyle(
+                            fontFamily: BrandTypography.fontFamily,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: BrandColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Requested by: $maker · Reason: $reason',
+                          style: const TextStyle(
+                            fontFamily: BrandTypography.fontFamily,
+                            fontSize: 12,
+                            color: BrandColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        AppPillButton(
+                          label: 'Approve request',
+                          icon: Icons.check_circle_outline_rounded,
+                          variant: AppPillButtonVariant.primary,
+                          onPressed: () => onDecideApproval(id, true),
+                        ),
+                        const SizedBox(width: 8),
+                        AppPillButton(
+                          label: 'Reject',
+                          variant: AppPillButtonVariant.secondary,
+                          onPressed: () => onDecideApproval(id, false),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | safety_desk_view.dart
-// Clinical Safety & Adverse Donor Incidents Desk
+// Modern Minimal Clinical Safety & Adverse Donor Incidents Desk
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -18,50 +18,102 @@ class SafetyDeskView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Clinical Safety & Adverse Donor Incidents Desk',
+            'Clinical safety and incident tracking',
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: BrandColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 10),
-          ...safetyIncidents.map((inc) => ListTile(
-                dense: true,
-                leading: const Icon(Icons.healing_rounded, color: BrandColors.red),
-                title: Text(
-                  '${inc['title']} (${inc['severity']})',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
+          const SizedBox(height: 2),
+          const Text(
+            'Adverse donor reaction monitoring and clinical escalation review',
+            style: TextStyle(
+              fontFamily: BrandTypography.fontFamily,
+              fontSize: 13,
+              color: BrandColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...safetyIncidents.map((inc) => Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                 ),
-                subtitle: Text('${inc['description']} · Status: ${inc['status']}'),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: BrandColors.greenTint,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'CLOSED',
-                    style: TextStyle(
-                      color: BrandColors.green,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: BrandColors.statusWarningTint,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.healing_outlined,
+                            size: 16,
+                            color: BrandColors.statusWarning,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${inc['title']} (${inc['severity']})',
+                              style: const TextStyle(
+                                fontFamily: BrandTypography.fontFamily,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: BrandColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${inc['description']} · Status: ${inc['status']}',
+                              style: const TextStyle(
+                                fontFamily: BrandTypography.fontFamily,
+                                fontSize: 12,
+                                color: BrandColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: BrandColors.statusSuccessTint,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                      ),
+                      child: const Text(
+                        'Closed',
+                        style: TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          color: BrandColors.statusSuccess,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               )),
         ],
