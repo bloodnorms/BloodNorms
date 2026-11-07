@@ -16,9 +16,13 @@ export class CallSession {
   private streamSid: string = "";
   private speechProvider: SpeechProvider;
 
-  constructor(private twilioWs: WebSocket) {
-    this.speechProvider = new GeminiLiveAdapter();
+  constructor(private twilioWs: WebSocket, provider?: SpeechProvider) {
+    this.speechProvider = provider || new GeminiLiveAdapter();
     this.setupTwilioListeners();
+  }
+
+  getStreamSid(): string {
+    return this.streamSid;
   }
 
   private setupTwilioListeners(): void {

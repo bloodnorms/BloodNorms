@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts"
+    "dev": "ts-node src/index.ts",
+    "test": "node --experimental-strip-types --test tests/call-session.test.ts tests/logger.test.ts tests/http-server.test.ts"
   },
   "dependencies": {
     "ws": "^8.18.0",

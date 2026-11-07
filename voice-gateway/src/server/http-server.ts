@@ -105,6 +105,15 @@ export class GatewayServer {
     this.server.listen(port, callback);
   }
 
+  getActiveCalls(): number {
+    return this.activeCalls;
+  }
+
+  getPort(): number {
+    const addr = this.server.address();
+    return addr && typeof addr === "object" ? addr.port : 0;
+  }
+
   close(callback?: () => void): void {
     this.wss.close();
     this.server.close(callback);
