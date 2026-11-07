@@ -356,3 +356,4 @@ end $$;
 
 grant execute on function public.preview_broadcast_audience(uuid, text, double precision, double precision, double precision, boolean, text, text) to authenticated, anon;
 grant execute on function public.dispatch_geo_broadcast(text, text, text, uuid, text, double precision, double precision, double precision, boolean, text, text, uuid) to authenticated, anon;
+

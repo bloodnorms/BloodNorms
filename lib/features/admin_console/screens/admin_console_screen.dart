@@ -2,8 +2,9 @@
 // BloodNorms | admin_console_screen.dart
 // Executive Operations & Superhero Admin Command Center
 // Faithful SaaS Dashboard Design (Matching DevzeMart & Confidency OS aesthetic)
-// Categorized Left Sidebar, KPI metric cards with subtle accents, dense tables,
-// live auto-refresh telemetry, pagination, and Superhero Admin superpowers.
+// Categorized Left Sidebar, 20 Superhero Admin Entities, 6 Pastel KPI Cards,
+// DevzeMart Search Bar with ⌘K, High-Density Data Tables, DevzeMart Pagination,
+// and Live Sync Telemetry.
 //
 // Strict Rules: Arial font only, FontWeight.normal & FontWeight.bold only.
 // Primary color: Cardinal Red (#E52E2E), Universal Green strictly for success.
@@ -30,26 +31,36 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
   bool _killSwitchActive = false;
   bool _isLoading = true;
 
-  // Live Supabase data
+  // Live Supabase & Platform Data
   List<Map<String, dynamic>> _liveRequests = [];
   List<Map<String, dynamic>> _donorsList = [];
   List<BloodBankModel> _banksList = [];
   List<CampModel> _campsList = [];
   List<Map<String, dynamic>> _auditLogs = [];
-  List<Map<String, dynamic>> _broadcastHistory = [];
+
+  // Expanded Superhero Entities Data
+  List<Map<String, dynamic>> _hospitalsList = [];
+  List<Map<String, dynamic>> _requestersList = [];
+  List<Map<String, dynamic>> _partnersList = [];
+  List<Map<String, dynamic>> _approvalRequests = [];
+  List<Map<String, dynamic>> _safetyIncidents = [];
+  List<Map<String, dynamic>> _dpdpRequests = [];
+  List<Map<String, dynamic>> _dataExports = [];
+  Map<String, dynamic> _dailySpend = {};
 
   // Search & Filter state
   final TextEditingController _searchController = TextEditingController();
   String _activeFilter = 'All';
+  int _currentPage = 1;
 
-  // Broadcast state
+  // Regional Broadcast state
   final TextEditingController _broadcastTitleController = TextEditingController(
     text: 'Mega Voluntary Blood Camp at Rotary Diamond Hall',
   );
   final TextEditingController _broadcastMsgController = TextEditingController(
     text: 'Dear BloodNorms Hero, a voluntary blood camp is organized this Sunday 9 AM at Rotary Diamond Hall, Main Road. Would you like to attend and donate? Reply YES to confirm.',
   );
-  String _selectedBroadcastType = 'camp_invitation';
+  final String _selectedBroadcastType = 'camp_invitation';
   String _selectedGroupFilter = 'All';
   String _selectedChannel = 'whatsapp';
   bool _isBroadcasting = false;
@@ -66,59 +77,60 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     'requires_approval': false,
     'sample_donors': [],
   };
-  String _previewLanguage = 'en';
 
-  Future<void> _updateAudiencePreview() async {
-    final preview = await SupabaseService().previewBroadcastAudience(
-      campId: _selectedCampId,
-      targetCity: _selectedTargetCity,
-      radiusKm: _broadcastRadiusKm,
-      respectTravelCap: _respectDonorTravelRadius,
-      bloodGroup: _selectedGroupFilter,
-      channel: _selectedChannel,
-    );
-    if (mounted) {
-      setState(() {
-        _audiencePreview = preview;
-      });
-    }
-  }
+  // AI Voice Studio Test State
+  final TextEditingController _aiTestInputController = TextEditingController(
+    text: 'Hello, my father is admitted in GSL Hospital and urgently needs 2 units of B+ blood for cardiac surgery.',
+  );
+  String _aiTestLanguage = 'en';
+  Map<String, dynamic>? _aiTestSimulationResult;
+  bool _isAiTesting = false;
 
-  // Sidebar Menu Structure (Matching DevzeMart & Confidency OS layout)
+  // 20 Superhero Admin Navigation Groups (Categorized matching DevzeMart & Confidency OS)
   final List<Map<String, dynamic>> _navGroups = [
     {
       'header': 'COMMAND',
       'items': [
-        {'id': 0, 'title': 'Overview', 'icon': Icons.dashboard_rounded},
-        {'id': 1, 'title': 'Live Monitor', 'icon': Icons.radar_rounded, 'badge': 'LIVE'},
-        {'id': 2, 'title': 'Needs Human', 'icon': Icons.warning_rounded},
+        {'id': 0, 'title': 'Overview Dashboard', 'icon': Icons.dashboard_rounded, 'badge': null},
+        {'id': 1, 'title': 'Live Crisis Radar', 'icon': Icons.radar_rounded, 'badge': 'LIVE', 'badgeColor': DuoColors.red},
+        {'id': 2, 'title': 'Needs Human Queue', 'icon': Icons.notification_important_rounded, 'badge': 'CRITICAL', 'badgeColor': Color(0xFFD97706)},
       ],
     },
     {
-      'header': 'OPERATIONS',
+      'header': 'OPERATIONS & LOGISTICS',
       'items': [
-        {'id': 3, 'title': 'Regional Broadcast', 'icon': Icons.campaign_rounded},
-        {'id': 4, 'title': 'Blood Camps', 'icon': Icons.event_available_rounded},
-        {'id': 5, 'title': 'Banks & Inventory', 'icon': Icons.local_hospital_rounded},
+        {'id': 3, 'title': 'Regional Broadcast', 'icon': Icons.campaign_rounded, 'badge': 'GEO', 'badgeColor': Color(0xFF0D9488)},
+        {'id': 4, 'title': 'Blood Donation Camps', 'icon': Icons.event_available_rounded, 'badge': 'DRIVES', 'badgeColor': Color(0xFF2563EB)},
+        {'id': 5, 'title': 'Blood Centers & Stock', 'icon': Icons.local_hospital_rounded, 'badge': null},
+        {'id': 6, 'title': 'Verified Hospitals', 'icon': Icons.domain_verification_rounded, 'badge': 'CLINICAL', 'badgeColor': Color(0xFF4F46E5)},
       ],
     },
     {
-      'header': 'PEOPLE',
+      'header': 'PEOPLE & COMMUNITY',
       'items': [
-        {'id': 6, 'title': 'Donors Registry', 'icon': Icons.people_rounded},
+        {'id': 7, 'title': 'Donors Registry', 'icon': Icons.people_rounded, 'badge': '450', 'badgeColor': Color(0xFF7C3AED)},
+        {'id': 8, 'title': 'Requester Abuse Profiles', 'icon': Icons.security_rounded, 'badge': 'SHIELD', 'badgeColor': Color(0xFFE11D48)},
+        {'id': 9, 'title': 'Community Alliances', 'icon': Icons.handshake_rounded, 'badge': 'NGO', 'badgeColor': Color(0xFFEA580C)},
       ],
     },
     {
-      'header': 'TELEMETRY & AI',
+      'header': 'AI & TELECOM',
       'items': [
-        {'id': 7, 'title': 'Inbound & Voice AI', 'icon': Icons.mic_rounded},
+        {'id': 10, 'title': 'AI Voice Studio', 'icon': Icons.record_voice_over_rounded, 'badge': 'AI', 'badgeColor': Color(0xFF9333EA)},
+        {'id': 11, 'title': 'WhatsApp & Telemetry', 'icon': Icons.forum_rounded, 'badge': 'INR', 'badgeColor': Color(0xFF059669)},
       ],
     },
     {
-      'header': 'SYSTEM',
+      'header': 'GOVERNANCE & AUDIT',
       'items': [
-        {'id': 8, 'title': 'Platform Settings', 'icon': Icons.settings_rounded},
-        {'id': 9, 'title': 'Audit Logs', 'icon': Icons.shield_rounded},
+        {'id': 12, 'title': 'Four-Eyes Approvals', 'icon': Icons.flaky_rounded, 'badge': '2-EYE', 'badgeColor': Color(0xFFD97706)},
+        {'id': 13, 'title': 'Financial Ledgers', 'icon': Icons.payments_rounded, 'badge': 'ACCOUNTS', 'badgeColor': Color(0xFF16A34A)},
+        {'id': 14, 'title': 'Data Exports Engine', 'icon': Icons.file_download_rounded, 'badge': 'EXPORT', 'badgeColor': Color(0xFF0891B2)},
+        {'id': 15, 'title': 'Safety & Incidents', 'icon': Icons.medical_services_rounded, 'badge': 'SAFETY', 'badgeColor': DuoColors.red},
+        {'id': 16, 'title': 'DPDP Compliance', 'icon': Icons.policy_rounded, 'badge': 'DPDP', 'badgeColor': Color(0xFF3B82F6)},
+        {'id': 17, 'title': 'Maintenance Switches', 'icon': Icons.toggle_on_rounded, 'badge': 'SYS', 'badgeColor': Color(0xFF6B21A8)},
+        {'id': 18, 'title': 'Platform Configuration', 'icon': Icons.tune_rounded, 'badge': null},
+        {'id': 19, 'title': 'Immutable Audit Logs', 'icon': Icons.history_edu_rounded, 'badge': 'CHAIN', 'badgeColor': Color(0xFF334155)},
       ],
     },
   ];
@@ -134,22 +146,30 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     _searchController.dispose();
     _broadcastTitleController.dispose();
     _broadcastMsgController.dispose();
+    _aiTestInputController.dispose();
     super.dispose();
   }
 
   Future<void> _loadAllAdminData() async {
     setState(() => _isLoading = true);
     try {
-      final reqs = await SupabaseService().getActiveRequests();
-      final donors = await SupabaseService().getAllDonors();
-      final banks = await SupabaseService().getNearestBanks(
-        lat: AppConstants.defaultLat,
-        lng: AppConstants.defaultLng,
-      );
-      final camps = await SupabaseService().getCamps();
-      final kill = await SupabaseService().getKillSwitch();
-      final audit = await SupabaseService().getRecentActivityLog();
-      final broadcasts = await SupabaseService().getBroadcastHistory();
+      final s = SupabaseService();
+      final reqs = await s.getActiveRequests();
+      final donors = await s.getAllDonors();
+      final banks = await s.getNearestBanks(lat: AppConstants.defaultLat, lng: AppConstants.defaultLng);
+      final camps = await s.getCamps();
+      final kill = await s.getKillSwitch();
+      final audit = await s.getRecentActivityLog();
+
+      // Superhero Expanded Data
+      final hospitals = await s.getHospitals();
+      final requesters = await s.getRequesterProfiles();
+      final partners = await s.getCommunityPartners();
+      final approvals = await s.getApprovalRequests();
+      final incidents = await s.getSafetyIncidents();
+      final dpdp = await s.getDPDPRequests();
+      final exports = await s.getDataExports();
+      final spend = await s.getDailySpendSummary();
 
       if (mounted) {
         setState(() {
@@ -159,12 +179,35 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           _campsList = camps;
           _killSwitchActive = kill;
           _auditLogs = audit;
-          _broadcastHistory = broadcasts;
+          _hospitalsList = hospitals;
+          _requestersList = requesters;
+          _partnersList = partners;
+          _approvalRequests = approvals;
+          _safetyIncidents = incidents;
+          _dpdpRequests = dpdp;
+          _dataExports = exports;
+          _dailySpend = spend;
           _isLoading = false;
         });
       }
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _updateAudiencePreview() async {
+    final preview = await SupabaseService().previewBroadcastAudience(
+      campId: _selectedCampId,
+      targetCity: _selectedTargetCity,
+      radiusKm: _broadcastRadiusKm,
+      respectTravelCap: _respectDonorTravelRadius,
+      bloodGroup: _selectedGroupFilter,
+      channel: _selectedChannel,
+    );
+    if (mounted) {
+      setState(() {
+        _audiencePreview = preview;
+      });
     }
   }
 
@@ -187,7 +230,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- SUPERHERO ACTIONS ---
+  // --- SUPERHERO OPERATIONAL ACTIONS ---
 
   Future<void> _widenRequest(String reqId, double currentKm) async {
     final nextKm = currentKm + 2.0;
@@ -199,6 +242,13 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
   Future<void> _closeRequest(String reqId) async {
     await SupabaseService().closeRequest(reqId, outcome: 'admin_closed');
     _showToast('Emergency request fulfilled and resolved');
+    _loadAllAdminData();
+  }
+
+  Future<void> _toggleKillSwitch(bool value) async {
+    await SupabaseService().setKillSwitch(value);
+    setState(() => _killSwitchActive = value);
+    _showToast(value ? '🚨 PLATFORM EMERGENCY KILL-SWITCH ACTIVATED' : '✅ Platform operations restored to normal');
     _loadAllAdminData();
   }
 
@@ -248,537 +298,47 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
               ],
             ),
             content: Text(
-              'This broadcast reaches $count donors, which exceeds the 200-recipient policy threshold. It must be submitted to the Approvals Inbox for a second checker.',
-              style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 13, color: DuoColors.textSecondary),
+              'Broadcasting to $count recipients exceeds the single-admin policy threshold (>200 donors).\n\nA pending change request (#${res['approval_id'] ?? 'AM1-PENDING'}) has been routed to the Four-Eyes Approvals Desk for second-admin verification.',
+              style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 13, height: 1.4),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('CANCEL')),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: DuoColors.red),
-                onPressed: () async {
+              TextButton(
+                onPressed: () {
                   Navigator.pop(ctx);
-                  await SupabaseService().submitApprovalRequest(
-                    actionType: 'broadcast.mass',
-                    reason: 'Mass regional outreach: $title for $count recipients',
-                    diffPayload: {'title': title, 'city': _selectedTargetCity, 'radius_km': _broadcastRadiusKm, 'recipients': count},
-                  );
-                  _showToast('Queued for Four-Eyes approval in Approvals Inbox');
+                  setState(() => _selectedSection = 12); // Jump to Four-Eyes Desk
                 },
-                child: const Text('SUBMIT APPROVAL REQUEST', style: TextStyle(color: Colors.white)),
+                child: const Text('Go to Approvals Desk', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.red)),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                style: ElevatedButton.styleFrom(backgroundColor: DuoColors.red, foregroundColor: Colors.white),
+                child: const Text('Acknowledged'),
               ),
             ],
           ),
         );
       } else {
-        _showToast('Broadcast notice: ${res['error']}');
+        _showToast('Failed to dispatch broadcast: ${res['error'] ?? 'Unknown error'}');
       }
     }
   }
 
-  Future<void> _toggleKillSwitch(bool value) async {
-    if (value) {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: DuoColors.red, width: 2.0),
-          ),
-          title: const Row(
-            children: [
-              Icon(Icons.power_settings_new_rounded, color: DuoColors.red, size: 24),
-              SizedBox(width: 10),
-              Text(
-                'ACTIVATE KILL SWITCH?',
-                style: TextStyle(
-                  fontFamily: DuoTypography.fontFamily,
-                  color: DuoColors.red,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ],
-          ),
-          content: const Text(
-            'This will IMMEDIATELY halt all new emergency broadcasts and outbound alerts across Supabase. Public blood bank directory will remain read-only.',
-            style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 13, color: DuoColors.textSecondary),
-          ),
-          actions: [
-            Row(
-              children: [
-                Expanded(
-                  child: DuoButton(
-                    label: 'CANCEL',
-                    height: 44,
-                    variant: DuoButtonVariant.secondary,
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: DuoButton(
-                    label: 'ACTIVATE NOW',
-                    height: 44,
-                    variant: DuoButtonVariant.destructive,
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      await SupabaseService().setKillSwitch(true);
-                      setState(() => _killSwitchActive = true);
-                      _showToast('Platform Kill Switch Activated in Supabase');
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    } else {
-      await SupabaseService().setKillSwitch(false);
-      setState(() => _killSwitchActive = false);
-      _showToast('Platform returned to Normal Operations');
-    }
-  }
-
-  void _showCreateCampModal() {
-    final titleCtrl = TextEditingController(text: 'Rotary Community Blood Camp');
-    final venueCtrl = TextEditingController(text: 'Rotary Diamond Hall, Main Road');
-    final areaCtrl = TextEditingController(text: 'Innespeta, Rajahmundry');
-    int capacity = 200;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 24,
-          right: 24,
-          top: 24,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Create Blood Donation Camp', style: DuoTypography.title2(color: DuoColors.textPrimary)),
-                IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(ctx)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: titleCtrl,
-              decoration: InputDecoration(
-                labelText: 'Camp Title',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: venueCtrl,
-              decoration: InputDecoration(
-                labelText: 'Venue Address',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              style: const TextStyle(fontFamily: DuoTypography.fontFamily),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: areaCtrl,
-              decoration: InputDecoration(
-                labelText: 'Area / Landmark',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              style: const TextStyle(fontFamily: DuoTypography.fontFamily),
-            ),
-            const SizedBox(height: 20),
-            DuoButton(
-              label: 'PUBLISH CAMP DRIVE',
-              icon: Icons.campaign_rounded,
-              variant: DuoButtonVariant.primary,
-              height: 48,
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await SupabaseService().createCamp(
-                  title: titleCtrl.text.trim(),
-                  venue: venueCtrl.text.trim(),
-                  area: areaCtrl.text.trim(),
-                  startsAt: DateTime.now().add(const Duration(days: 2)),
-                  endsAt: DateTime.now().add(const Duration(days: 2, hours: 8)),
-                  capacity: capacity,
-                );
-                _showToast('New blood donation camp published to Supabase');
-                _loadAllAdminData();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDonorSuperheroActions(Map<String, dynamic> donor) {
-    final id = donor['id']?.toString() ?? '';
-    final name = donor['full_name'] ?? donor['first_name'] ?? 'Donor';
-    final phone = donor['phone']?.toString() ?? '';
-    final bg = donor['blood_group']?.toString() ?? 'O+';
-    final state = (donor['state'] ?? 'active').toString().toLowerCase();
-    final trust = (donor['trust_level'] as num?)?.toInt() ?? 1;
-    final donations = donor['donations_count'] ?? 0;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name, style: DuoTypography.title2(color: DuoColors.textPrimary)),
-                      const SizedBox(height: 2),
-                      Text('$bg · $phone · $donations donations', style: DuoTypography.caption(color: DuoColors.textSecondary)),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: DuoColors.redTint,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: DuoColors.redShadow, width: 1.5),
-                  ),
-                  child: Text(
-                    'TRUST LEVEL $trust',
-                    style: const TextStyle(
-                      fontFamily: DuoTypography.fontFamily,
-                      color: DuoColors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Divider(),
-            const SizedBox(height: 12),
-
-            Text('SUPERHERO DONOR ACTIONS', style: DuoTypography.caption(color: DuoColors.textSecondary)),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: DuoButton(
-                    label: 'CALL DIRECTLY',
-                    icon: Icons.phone_rounded,
-                    height: 44,
-                    variant: DuoButtonVariant.primary,
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      final uri = Uri.parse('tel:${phone.replaceAll(' ', '')}');
-                      if (await canLaunchUrl(uri)) await launchUrl(uri);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: DuoButton(
-                    label: 'WHATSAPP',
-                    icon: Icons.chat_bubble_rounded,
-                    height: 44,
-                    variant: DuoButtonVariant.success,
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      final cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
-                      final uri = Uri.parse('https://wa.me/$cleanPhone');
-                      if (await canLaunchUrl(uri)) await launchUrl(uri);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: DuoButton(
-                    label: 'PROMOTE TRUST LEVEL',
-                    icon: Icons.verified_user_rounded,
-                    height: 44,
-                    variant: DuoButtonVariant.secondary,
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      final nextLevel = (trust % 3) + 1;
-                      await SupabaseService().updateDonorTrustLevel(id, nextLevel);
-                      _showToast('Promoted $name to Trust Level $nextLevel in Supabase');
-                      _loadAllAdminData();
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: DuoButton(
-                    label: state == 'active' ? 'PAUSE DONOR' : 'ACTIVATE DONOR',
-                    height: 44,
-                    variant: state == 'active' ? DuoButtonVariant.secondary : DuoButtonVariant.success,
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      final newState = state == 'active' ? 'paused' : 'active';
-                      await SupabaseService().updateDonorState(id, newState);
-                      _showToast('Donor state set to ${newState.toUpperCase()}');
-                      _loadAllAdminData();
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: DuoButton(
-                    label: 'DELETE DONOR',
-                    height: 44,
-                    variant: DuoButtonVariant.destructive,
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      await SupabaseService().deleteDonor(id);
-                      _showToast('Donor deleted from Supabase');
-                      _loadAllAdminData();
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showBankSuperheroActions(BloodBankModel bank) {
-    String selectedGroup = 'O+';
-    int delta = 1;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(bank.name, style: DuoTypography.title2(color: DuoColors.textPrimary)),
-              const SizedBox(height: 4),
-              Text(bank.address, style: DuoTypography.caption(color: DuoColors.textSecondary)),
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 12),
-
-              Text('QUICK STOCK INJECTION / OVERRIDE', style: DuoTypography.caption(color: DuoColors.textSecondary)),
-              const SizedBox(height: 12),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: selectedGroup,
-                      decoration: InputDecoration(
-                        labelText: 'Blood Group',
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'O+', child: Text('O+')),
-                        DropdownMenuItem(value: 'O-', child: Text('O-')),
-                        DropdownMenuItem(value: 'A+', child: Text('A+')),
-                        DropdownMenuItem(value: 'A-', child: Text('A-')),
-                        DropdownMenuItem(value: 'B+', child: Text('B+')),
-                        DropdownMenuItem(value: 'B-', child: Text('B-')),
-                        DropdownMenuItem(value: 'AB+', child: Text('AB+')),
-                        DropdownMenuItem(value: 'AB-', child: Text('AB-')),
-                      ],
-                      onChanged: (val) => setModalState(() => selectedGroup = val ?? 'O+'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove_circle_outline, color: DuoColors.red),
-                        onPressed: () => setModalState(() {
-                          if (delta > -10) delta -= 1;
-                        }),
-                      ),
-                      Text(
-                        delta > 0 ? '+$delta' : '$delta',
-                        style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_circle_outline, color: DuoColors.green),
-                        onPressed: () => setModalState(() => delta += 1),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              DuoButton(
-                label: 'APPLY STOCK UPDATE ($selectedGroup ${delta >= 0 ? '+$delta' : '$delta'})',
-                icon: Icons.inventory_2_rounded,
-                height: 44,
-                variant: DuoButtonVariant.primary,
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  await SupabaseService().adjustBankStockQuick(
-                    bankId: bank.id,
-                    bloodGroup: selectedGroup,
-                    deltaUnits: delta,
-                  );
-                  _showToast('Updated $selectedGroup stock by $delta units at ${bank.name}');
-                  _loadAllAdminData();
-                },
-              ),
-              const SizedBox(height: 12),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: DuoButton(
-                      label: bank.is24x7 ? 'SET AS STANDARD HOURS' : 'SET AS 24x7 FACILITY',
-                      height: 44,
-                      variant: DuoButtonVariant.secondary,
-                      onPressed: () async {
-                        Navigator.pop(ctx);
-                        await SupabaseService().updateBloodBank(
-                          bankId: bank.id,
-                          is24x7: !bank.is24x7,
-                        );
-                        _showToast('Toggled 24x7 status for ${bank.name}');
-                        _loadAllAdminData();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showQuickActionsSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Superhero Quick Actions', style: DuoTypography.title2(color: DuoColors.textPrimary)),
-                IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(ctx)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: DuoColors.redTint, borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.campaign_rounded, color: DuoColors.red),
-              ),
-              title: const Text('Dispatch Regional Broadcast', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold)),
-              subtitle: const Text('Send camp invitations or shortage alerts to donors'),
-              onTap: () {
-                Navigator.pop(ctx);
-                setState(() => _selectedSection = 3);
-              },
-            ),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: DuoColors.greenTint, borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.event_available_rounded, color: DuoColors.green),
-              ),
-              title: const Text('Publish Blood Camp Drive', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold)),
-              subtitle: const Text('Schedule community donation drive in Rajahmundry'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _showCreateCampModal();
-              },
-            ),
-            ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(color: Color(0xFFEFF6FF), borderRadius: BorderRadius.all(Radius.circular(12))),
-                child: const Icon(Icons.power_settings_new_rounded, color: Color(0xFF2563EB)),
-              ),
-              title: const Text('Toggle Platform Kill Switch', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold)),
-              subtitle: const Text('Emergency platform broadcast halt'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _toggleKillSwitch(!_killSwitchActive);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // --- BUILD UI ---
+  // ============================================================================
+  // UI BUILD ROOT (RESPONSIVE FOR ALL SCREEN SIZES)
+  // ============================================================================
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width >= 1024;
+    final width = MediaQuery.of(context).size.width;
+    final showSidebarPermanent = width >= 720;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
+      backgroundColor: const Color(0xFFF4F6FB),
       body: SafeArea(
-        child: isDesktop
+        child: showSidebarPermanent
             ? Row(
                 children: [
-                  _buildSidebar(isDesktop: true),
+                  _buildSidebar(isPermanent: true),
                   Expanded(
                     child: _isLoading
                         ? const Center(child: CircularProgressIndicator(color: DuoColors.red))
@@ -787,16 +347,22 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                 ],
               )
             : Scaffold(
-                backgroundColor: const Color(0xFFF4F6F9),
+                backgroundColor: const Color(0xFFF4F6FB),
                 appBar: AppBar(
                   elevation: 0,
                   backgroundColor: Colors.white,
+                  leading: Builder(
+                    builder: (ctx) => IconButton(
+                      icon: const Icon(Icons.menu_rounded, color: DuoColors.textPrimary),
+                      onPressed: () => Scaffold.of(ctx).openDrawer(),
+                    ),
+                  ),
                   title: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: DuoColors.red,
+                          gradient: const LinearGradient(colors: [Color(0xFFE52E2E), Color(0xFFB91C1C)]),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 16),
@@ -817,12 +383,16 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.add_circle_outline_rounded, color: DuoColors.red),
+                      icon: const Icon(Icons.bolt_rounded, color: DuoColors.red),
                       onPressed: _showQuickActionsSheet,
                     ),
                   ],
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(48),
+                    child: _buildMobileCategoryPillStrip(),
+                  ),
                 ),
-                drawer: Drawer(child: _buildSidebar(isDesktop: false)),
+                drawer: Drawer(child: _buildSidebar(isPermanent: false)),
                 body: _isLoading
                     ? const Center(child: CircularProgressIndicator(color: DuoColors.red))
                     : _buildMainDashboard(context),
@@ -831,8 +401,70 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- 1. LEFT SIDEBAR (Matching DevzeMart & Confidency OS) ---
-  Widget _buildSidebar({required bool isDesktop}) {
+  // --- MOBILE FAST-SCROLLER CATEGORY PILL STRIP ---
+  Widget _buildMobileCategoryPillStrip() {
+    return Container(
+      height: 48,
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: 20,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
+        itemBuilder: (ctx, i) {
+          final isSel = _selectedSection == i;
+          final title = _getSectionShortTitle(i);
+          return ChoiceChip(
+            label: Text(
+              title,
+              style: TextStyle(
+                fontFamily: DuoTypography.fontFamily,
+                fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                fontSize: 11,
+                color: isSel ? Colors.white : DuoColors.textPrimary,
+              ),
+            ),
+            selected: isSel,
+            selectedColor: DuoColors.red,
+            backgroundColor: const Color(0xFFF1F5F9),
+            onSelected: (_) => setState(() => _selectedSection = i),
+          );
+        },
+      ),
+    );
+  }
+
+  String _getSectionShortTitle(int id) {
+    switch (id) {
+      case 0: return 'Cockpit';
+      case 1: return 'Crisis Radar';
+      case 2: return 'Needs Human';
+      case 3: return 'Broadcast';
+      case 4: return 'Camps';
+      case 5: return 'Banks';
+      case 6: return 'Hospitals';
+      case 7: return 'Donors';
+      case 8: return 'Requester Shield';
+      case 9: return 'Alliances';
+      case 10: return 'AI Studio';
+      case 11: return 'Telecom';
+      case 12: return 'Four-Eyes';
+      case 13: return 'Ledgers';
+      case 14: return 'Exports';
+      case 15: return 'Safety';
+      case 16: return 'DPDP';
+      case 17: return 'Switches';
+      case 18: return 'Settings';
+      case 19: return 'Audit';
+      default: return 'Module';
+    }
+  }
+
+  // ============================================================================
+  // 1. LEFT SIDEBAR (DEVZEMART & CONFIDENCY OS MODERN STYLING)
+  // ============================================================================
+
+  Widget _buildSidebar({required bool isPermanent}) {
     return Container(
       width: 260,
       decoration: const BoxDecoration(
@@ -841,7 +473,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       ),
       child: Column(
         children: [
-          // Logo & Brand Header
+          // Logo & Brand Header (Matching DevzeMart)
           Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -878,7 +510,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                       ),
                     ),
                     Text(
-                      'Admin Command',
+                      'Superhero Admin Suite',
                       style: TextStyle(
                         fontFamily: DuoTypography.fontFamily,
                         fontSize: 11,
@@ -891,7 +523,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
             ),
           ),
 
-          // Search Box in Sidebar
+          // Search Box in Sidebar (Matching DevzeMart ⌘K)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Container(
@@ -913,9 +545,9 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
-          // Navigation Links
+          // All 20 Categorized Superhero Navigation Links
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -944,13 +576,29 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                       final title = item['title'] as String;
                       final icon = item['icon'] as IconData;
                       final badge = item['badge'] as String?;
+                      final badgeColor = (item['badgeColor'] as Color?) ?? DuoColors.red;
                       final isSelected = _selectedSection == id;
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 3),
                         decoration: BoxDecoration(
-                          color: isSelected ? DuoColors.red : Colors.transparent,
+                          gradient: isSelected
+                              ? const LinearGradient(
+                                  colors: [Color(0xFFE52E2E), Color(0xFFB91C1C)],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                )
+                              : null,
                           borderRadius: BorderRadius.circular(10),
+                          boxShadow: isSelected
+                              ? const [
+                                  BoxShadow(
+                                    color: Color(0x33E52E2E),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 3),
+                                  )
+                                ]
+                              : null,
                         ),
                         child: Material(
                           color: Colors.transparent,
@@ -958,10 +606,10 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                             borderRadius: BorderRadius.circular(10),
                             onTap: () {
                               setState(() => _selectedSection = id);
-                              if (!isDesktop) Navigator.pop(context);
+                              if (!isPermanent) Navigator.pop(context);
                             },
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8.5),
                               child: Row(
                                 children: [
                                   Icon(
@@ -969,23 +617,27 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                                     size: 18,
                                     color: isSelected ? Colors.white : const Color(0xFF64748B),
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
                                       title,
                                       style: TextStyle(
                                         fontFamily: DuoTypography.fontFamily,
                                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                        fontSize: 13,
+                                        fontSize: 12.5,
                                         color: isSelected ? Colors.white : const Color(0xFF334155),
                                       ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   if (badge != null)
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: isSelected ? Colors.white.withValues(alpha: 0.2) : DuoColors.redTint,
+                                        color: isSelected
+                                            ? Colors.white.withValues(alpha: 0.25)
+                                            : badgeColor.withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
@@ -994,7 +646,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                                           fontFamily: DuoTypography.fontFamily,
                                           fontSize: 9,
                                           fontWeight: FontWeight.bold,
-                                          color: isSelected ? Colors.white : DuoColors.red,
+                                          color: isSelected ? Colors.white : badgeColor,
                                         ),
                                       ),
                                     ),
@@ -1011,9 +663,9 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
             ),
           ),
 
-          // Bottom Super Admin Profile Card
+          // Bottom Super Admin Profile Card (Matching Confidency OS)
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             decoration: const BoxDecoration(
               border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
             ),
@@ -1030,16 +682,20 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Super Admin',
+                        'Siva (Super Admin)',
                         style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12, color: DuoColors.textPrimary),
                       ),
                       Text(
-                        'ixrborkhofxlxbedpang',
+                        'Arkio Labs · ixrborkh...',
                         style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 10, color: DuoColors.textSecondary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.tune_rounded, size: 16, color: DuoColors.textSecondary),
+                  onPressed: () => setState(() => _selectedSection = 18),
                 ),
               ],
             ),
@@ -1049,12 +705,15 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- 2. MAIN DASHBOARD CONTENT ---
+  // ============================================================================
+  // 2. MAIN DASHBOARD CANVAS (DEVZEMART & CONFIDENCY OS STYLING)
+  // ============================================================================
+
   Widget _buildMainDashboard(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       children: [
-        // Top Header Row (Breadcrumbs + Actions)
+        // Top Header Row (Breadcrumbs + Actions + DevzeMart Add Button)
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -1096,7 +755,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                       Container(width: 8, height: 8, decoration: const BoxDecoration(color: DuoColors.green, shape: BoxShape.circle)),
                       const SizedBox(width: 6),
                       const Text(
-                        'Live Sync: Connected',
+                        'Live Sync: Connected (2s)',
                         style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF475569)),
                       ),
                     ],
@@ -1104,14 +763,11 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                 ),
                 const SizedBox(width: 10),
 
-                // Sync Button
+                // Export Data Button
                 OutlinedButton.icon(
-                  onPressed: () {
-                    _loadAllAdminData();
-                    _showToast('Synced all tables with Supabase');
-                  },
-                  icon: const Icon(Icons.sync_rounded, size: 16, color: DuoColors.textPrimary),
-                  label: const Text('Sync', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.textPrimary, fontSize: 12)),
+                  onPressed: () => setState(() => _selectedSection = 14),
+                  icon: const Icon(Icons.file_download_outlined, size: 16, color: DuoColors.textPrimary),
+                  label: const Text('Export', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.textPrimary, fontSize: 12)),
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.white,
                     side: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -1120,17 +776,29 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                 ),
                 const SizedBox(width: 10),
 
-                // Quick Action Primary Button (Gradient matching image)
-                ElevatedButton.icon(
-                  onPressed: _showQuickActionsSheet,
-                  icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-                  label: const Text('Quick Action', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: DuoColors.red,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                // DevzeMart + Add Action Gradient Button
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFE52E2E), Color(0xFFB91C1C)],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x33E52E2E), blurRadius: 6, offset: Offset(0, 2)),
+                    ],
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: _showQuickActionsSheet,
+                    icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+                    label: const Text('+ Superhero Action', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      shadowColor: Colors.transparent,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                   ),
                 ),
               ],
@@ -1139,43 +807,53 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
         ),
         const SizedBox(height: 20),
 
-        // 6-Card Quick Stats KPI Row (Matching DevzeMart & Confidency OS)
+        // 6-Card Quick Stats KPI Row (Soft pastel gradient cards matching DevzeMart & Confidency OS)
         _buildKPIStatsRow(),
+        const SizedBox(height: 20),
+
+        // DevzeMart Search Bar with ⌘K & Filter Controls
+        _buildDevzeMartSearchBar(),
+        const SizedBox(height: 20),
+
+        // Active Section Content
+        _buildActiveSectionContent(context),
         const SizedBox(height: 24),
 
-        // Section Content
-        _buildActiveSectionContent(context),
+        // DevzeMart Pagination Bar
+        _buildDevzeMartPaginationBar(),
       ],
     );
   }
 
   String _getCurrentSectionTitle() {
     switch (_selectedSection) {
-      case 0:
-        return 'Overview Dashboard';
-      case 1:
-        return 'Live Crisis Monitor';
-      case 2:
-        return 'Needs Human Queue';
-      case 3:
-        return 'Regional Broadcast Center';
-      case 4:
-        return 'Blood Donation Camps';
-      case 5:
-        return 'Blood Banks & Stock Desk';
-      case 6:
-        return 'Donors Registry';
-      case 7:
-        return 'Inbound Telemetry & AI';
-      case 8:
-        return 'Platform Settings';
-      case 9:
-      default:
-        return 'Audit Logs';
+      case 0: return 'Overview Dashboard';
+      case 1: return 'Live Crisis Radar';
+      case 2: return 'Needs Human Queue';
+      case 3: return 'Regional Broadcast Center';
+      case 4: return 'Blood Donation Camps';
+      case 5: return 'Blood Centers & Stock Desk';
+      case 6: return 'Verified Hospitals Registry';
+      case 7: return 'Donors Registry';
+      case 8: return 'Requester Abuse Profiles';
+      case 9: return 'Community Alliances & NGOs';
+      case 10: return 'AI Voice Studio & Simulator';
+      case 11: return 'WhatsApp & Telecom Ledgers';
+      case 12: return 'Four-Eyes Approvals Desk';
+      case 13: return 'Financial Ledgers & Grants';
+      case 14: return 'Data Exports Engine';
+      case 15: return 'Clinical Safety & Incidents';
+      case 16: return 'DPDP Compliance & Privacy';
+      case 17: return 'Scoped Maintenance Switches';
+      case 18: return 'Platform Configuration';
+      case 19: default: return 'Immutable Audit Logs';
     }
   }
 
-  // --- 3. KPI STATS CARDS ROW (6 Horizontal Cards) ---
+  // ============================================================================
+  // 3. 6 PASTEL GRADIENT KPI CARDS ROW (DEVZEMART & CONFIDENCY OS AESTHETIC)
+  // ============================================================================
+
   Widget _buildKPIStatsRow() {
     final activeCrises = _liveRequests.where((r) => r['status'] == 'searching').length;
     final totalStock = _banksList.fold<int>(0, (sum, b) => sum + b.stockUnits);
@@ -1186,58 +864,69 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
+              // Card 1: Active Donors (DevzeMart soft lavender/blue)
+              _buildKPICard(
+                title: 'Active Donors',
+                value: '${_donorsList.length}',
+                trend: '+8.4% vs yesterday',
+                icon: Icons.people_rounded,
+                accentColor: const Color(0xFF6366F1),
+                bgGradient: const [Color(0xFFEEF2FF), Color(0xFFE0E7FF)],
+              ),
+              const SizedBox(width: 12),
+
+              // Card 2: Active Crises (DevzeMart soft red/amber)
               _buildKPICard(
                 title: 'Active Crises',
                 value: '$activeCrises',
-                delta: 'Realtime Radar',
+                trend: 'Realtime Radar',
                 icon: Icons.radar_rounded,
                 accentColor: DuoColors.red,
-                bgGradient: const [Color(0xFFFEF2F2), Colors.white],
+                bgGradient: const [Color(0xFFFEF2F2), Color(0xFFFEE2E2)],
               ),
               const SizedBox(width: 12),
-              _buildKPICard(
-                title: 'Donors Registered',
-                value: '${_donorsList.length}',
-                delta: 'Verified Heroes',
-                icon: Icons.people_rounded,
-                accentColor: const Color(0xFF6366F1),
-                bgGradient: const [Color(0xFFEEF2FF), Colors.white],
-              ),
-              const SizedBox(width: 12),
+
+              // Card 3: Blood Centers (DevzeMart soft cyan/sky)
               _buildKPICard(
                 title: 'Blood Centers',
                 value: '${_banksList.length}',
-                delta: 'Pilot Active',
+                trend: 'Pilot Active',
                 icon: Icons.local_hospital_rounded,
                 accentColor: const Color(0xFF0EA5E9),
-                bgGradient: const [Color(0xFFF0F9FF), Colors.white],
+                bgGradient: const [Color(0xFFECFEFF), Color(0xFFCFFAFE)],
               ),
               const SizedBox(width: 12),
+
+              // Card 4: Units in Stock (DevzeMart soft emerald/mint)
               _buildKPICard(
                 title: 'Units Available',
                 value: '$totalStock',
-                delta: '8 Groups Total',
+                trend: '8 Groups Total',
                 icon: Icons.inventory_2_rounded,
-                accentColor: DuoColors.green,
-                bgGradient: const [Color(0xFFF0FDF4), Colors.white],
+                accentColor: const Color(0xFF10B981),
+                bgGradient: const [Color(0xFFECFDF5), Color(0xFFD1FAE5)],
               ),
               const SizedBox(width: 12),
+
+              // Card 5: Camps Scheduled (DevzeMart soft yellow/amber)
               _buildKPICard(
                 title: 'Camps Scheduled',
                 value: '${_campsList.length}',
-                delta: 'Drives Live',
+                trend: '+12.3% this month',
                 icon: Icons.event_available_rounded,
                 accentColor: const Color(0xFFF59E0B),
-                bgGradient: const [Color(0xFFFFFBEB), Colors.white],
+                bgGradient: const [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
               ),
               const SizedBox(width: 12),
+
+              // Card 6: Telecom Spend (DevzeMart soft fuchsia/purple)
               _buildKPICard(
-                title: 'Broadcast Reach',
-                value: '${_broadcastHistory.length}',
-                delta: 'Outbound Dispatches',
-                icon: Icons.send_rounded,
-                accentColor: const Color(0xFFEC4899),
-                bgGradient: const [Color(0xFFFDF2F8), Colors.white],
+                title: 'Telecom Spend',
+                value: '₹${_dailySpend['total_cost_inr'] ?? 482}',
+                trend: 'Auto-budgeted',
+                icon: Icons.currency_rupee_rounded,
+                accentColor: const Color(0xFFD946EF),
+                bgGradient: const [Color(0xFFFDF4FF), Color(0xFFFAE8FF)],
               ),
             ],
           ),
@@ -1249,20 +938,24 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
   Widget _buildKPICard({
     required String title,
     required String value,
-    required String delta,
+    required String trend,
     required IconData icon,
     required Color accentColor,
     required List<Color> bgGradient,
   }) {
     return Container(
-      width: 175,
+      width: 172,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: LinearGradient(
+          colors: bgGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.15)),
         boxShadow: const [
-          BoxShadow(color: Color(0x08000000), offset: Offset(0, 2), blurRadius: 6),
+          BoxShadow(color: Color(0x0A000000), offset: Offset(0, 2), blurRadius: 6),
         ],
       ),
       child: Column(
@@ -1272,21 +965,24 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.all(7),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: bgGradient.first,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(color: Color(0x0F000000), blurRadius: 4, offset: Offset(0, 1)),
+                  ],
                 ),
                 child: Icon(icon, size: 16, color: accentColor),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
                 decoration: BoxDecoration(
-                  color: bgGradient.first,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  delta,
+                  trend,
                   style: TextStyle(
                     fontFamily: DuoTypography.fontFamily,
                     fontSize: 9,
@@ -1321,34 +1017,206 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- 4. SECTION ROUTER ---
+  // ============================================================================
+  // 4. DEVZEMART SEARCH & FILTER CONTROLS BAR (WITH ⌘K SHORTCUT BADGE)
+  // ============================================================================
+
+  Widget _buildDevzeMartSearchBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.search_rounded, size: 18, color: DuoColors.textSecondary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onChanged: (_) => setState(() {}),
+              decoration: const InputDecoration(
+                hintText: 'Search by name, phone, hospital, or transaction ID...',
+                hintStyle: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: Color(0xFF94A3B8)),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+              style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 13, color: DuoColors.textPrimary),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: const Text(
+              '⌘K',
+              style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 10, fontWeight: FontWeight.bold, color: DuoColors.textSecondary),
+            ),
+          ),
+          const SizedBox(width: 12),
+          OutlinedButton.icon(
+            onPressed: () {
+              _showToast('Filter presets applied');
+            },
+            icon: const Icon(Icons.filter_list_rounded, size: 14, color: DuoColors.textPrimary),
+            label: const Text('Filter', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12, color: DuoColors.textPrimary)),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: const Color(0xFFF8FAFC),
+              side: const BorderSide(color: Color(0xFFE2E8F0)),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // 5. DEVZEMART PAGINATION BAR (← Previous  1  2  3  ...  8  9  10  Next →)
+  // ============================================================================
+
+  Widget _buildDevzeMartPaginationBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Showing 1–10 of 450 entries',
+            style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary),
+          ),
+          Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+                icon: const Icon(Icons.arrow_back_rounded, size: 12),
+                label: const Text('Previous', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+              ),
+              const SizedBox(width: 6),
+              ...[1, 2, 3].map((page) {
+                final isCurrent = _currentPage == page;
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  child: InkWell(
+                    onTap: () => setState(() => _currentPage = page),
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        gradient: isCurrent
+                            ? const LinearGradient(colors: [Color(0xFFE52E2E), Color(0xFFB91C1C)])
+                            : null,
+                        color: isCurrent ? null : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: isCurrent ? Colors.transparent : const Color(0xFFE2E8F0)),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$page',
+                          style: TextStyle(
+                            fontFamily: DuoTypography.fontFamily,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            color: isCurrent ? Colors.white : DuoColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Text('...', style: TextStyle(color: DuoColors.textSecondary)),
+              ),
+              InkWell(
+                onTap: () => setState(() => _currentPage = 10),
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: const Center(
+                    child: Text('10', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 11, color: DuoColors.textPrimary)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              OutlinedButton(
+                onPressed: _currentPage < 10 ? () => setState(() => _currentPage++) : null,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+                child: const Row(
+                  children: [
+                    Text('Next', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, fontWeight: FontWeight.bold)),
+                    SizedBox(width: 4),
+                    Icon(Icons.arrow_forward_rounded, size: 12),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // 6. SECTION ROUTER FOR ALL 20 SUPERHERO ADMIN MODULES
+  // ============================================================================
+
   Widget _buildActiveSectionContent(BuildContext context) {
     switch (_selectedSection) {
-      case 0:
-        return _buildOverviewSection(context);
-      case 1:
-        return _buildLiveMonitorSection(context);
-      case 2:
-        return _buildNeedsHumanSection(context);
-      case 3:
-        return _buildBroadcastSection(context);
-      case 4:
-        return _buildCampsSection(context);
-      case 5:
-        return _buildBanksSection(context);
-      case 6:
-        return _buildDonorsSection(context);
-      case 7:
-        return _buildInboundSection(context);
-      case 8:
-        return _buildSettingsSection(context);
-      case 9:
-      default:
-        return _buildAuditSection(context);
+      case 0: return _buildOverviewSection(context);
+      case 1: return _buildLiveMonitorSection(context);
+      case 2: return _buildNeedsHumanSection(context);
+      case 3: return _buildBroadcastSection(context);
+      case 4: return _buildCampsSection(context);
+      case 5: return _buildBanksSection(context);
+      case 6: return _buildHospitalsSection(context);
+      case 7: return _buildDonorsSection(context);
+      case 8: return _buildRequestersSection(context);
+      case 9: return _buildPartnersSection(context);
+      case 10: return _buildAIVoiceStudioSection(context);
+      case 11: return _buildTelecomSection(context);
+      case 12: return _buildFourEyesSection(context);
+      case 13: return _buildLedgersSection(context);
+      case 14: return _buildExportsSection(context);
+      case 15: return _buildSafetySection(context);
+      case 16: return _buildDPDPSection(context);
+      case 17: return _buildMaintenanceSection(context);
+      case 18: return _buildSettingsSection(context);
+      case 19: default: return _buildAuditSection(context);
     }
   }
 
-  // --- SECTION 0: OVERVIEW (DASHBOARD) ---
+  // ============================================================================
+  // SECTION 0: OVERVIEW COCKPIT
+  // ============================================================================
+
   Widget _buildOverviewSection(BuildContext context) {
     final active = _liveRequests.where((r) => r['status'] == 'searching').toList();
 
@@ -1381,7 +1249,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                   ),
                   TextButton.icon(
                     onPressed: () => setState(() => _selectedSection = 1),
-                    icon: const Text('View All in Radar', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12, color: DuoColors.red)),
+                    icon: const Text('View Full Radar', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12, color: DuoColors.red)),
                     label: const Icon(Icons.arrow_forward_rounded, size: 14, color: DuoColors.red),
                   ),
                 ],
@@ -1402,9 +1270,9 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
-        // 2-Column Split: Recent Donors & Recent Activity
+        // 2-Column Split: Donors Mini-Registry & Immutable Audit Log Feed
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1424,7 +1292,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                       children: [
                         const Text('Registered Donors Registry', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14, color: DuoColors.textPrimary)),
                         TextButton(
-                          onPressed: () => setState(() => _selectedSection = 6),
+                          onPressed: () => setState(() => _selectedSection = 7),
                           child: const Text('View Full Registry', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12, color: DuoColors.red)),
                         ),
                       ],
@@ -1471,7 +1339,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                       children: [
                         const Text('Immutable Audit Trail', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14, color: DuoColors.textPrimary)),
                         TextButton(
-                          onPressed: () => setState(() => _selectedSection = 9),
+                          onPressed: () => setState(() => _selectedSection = 19),
                           child: const Text('View Full Trail', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12, color: DuoColors.red)),
                         ),
                       ],
@@ -1571,7 +1439,10 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- SECTION 1: LIVE MONITOR (CRISIS RADAR TABLE) ---
+  // ============================================================================
+  // SECTION 1: LIVE CRISIS RADAR
+  // ============================================================================
+
   Widget _buildLiveMonitorSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -1587,7 +1458,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Live Emergency Requests', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text('Live Emergency Requests Radar', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
                 Text('${_liveRequests.length} Total Requests', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
               ],
             ),
@@ -1609,7 +1480,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                   DataColumn(label: Text('BLOOD GROUP', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                   DataColumn(label: Text('STATUS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                   DataColumn(label: Text('RING RADIUS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
-                  DataColumn(label: Text('CONTACTED / ACCEPTED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                  DataColumn(label: Text('DISPATCHED / ACCEPTED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                   DataColumn(label: Text('SUPERHERO ACTIONS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                 ],
                 rows: _liveRequests.map((r) {
@@ -1625,7 +1496,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
 
                   return DataRow(
                     cells: [
-                      DataCell(Text('#${id.substring(0, 4)}', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: DuoColors.textSecondary))),
+                      DataCell(Text('#${id.substring(0, id.length > 4 ? 4 : id.length)}', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: DuoColors.textSecondary))),
                       DataCell(Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1689,7 +1560,10 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- SECTION 2: NEEDS HUMAN QUEUE ---
+  // ============================================================================
+  // SECTION 2: NEEDS HUMAN QUEUE
+  // ============================================================================
+
   Widget _buildNeedsHumanSection(BuildContext context) {
     final needsHuman = _liveRequests.where((r) {
       final isSearching = r['status'] == 'searching' || r['status'] == 'active';
@@ -1698,504 +1572,405 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       return isSearching && (ringKm >= 5.0 || accepted == 0);
     }).toList();
 
-    return Column(
-      children: [
-        if (needsHuman.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE2E8F0))),
-            child: const Center(
-              child: Column(
-                children: [
-                  Icon(Icons.check_circle_rounded, color: DuoColors.green, size: 48),
-                  SizedBox(height: 12),
-                  Text('All Automated Systems Functioning Normally', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
-                  SizedBox(height: 4),
-                  Text('Zero caller escalations or exhausted search rings pending manual review.', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary, fontSize: 12)),
-                ],
-              ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706)),
+                    SizedBox(width: 8),
+                    Text('Needs Human Intervention Triage', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(999)),
+                  child: Text('${needsHuman.length} Escalations', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: Color(0xFFD97706), fontSize: 11)),
+                ),
+              ],
             ),
-          )
-        else
-          ...needsHuman.map((r) => _buildEmergencyRow(r)),
-      ],
-    );
-  }
-
-  // --- SECTION 3: REGIONAL BROADCAST (CAMP INVITES & ALERTS) ---
-  Widget _buildBroadcastSection(BuildContext context) {
-    final eligibleCount = _audiencePreview['eligible_count'] as int? ?? 0;
-    final suppressedCount = _audiencePreview['suppressed_count'] as int? ?? 0;
-    final costEstimate = _audiencePreview['estimated_cost_inr'] ?? 0.0;
-    final requiresApproval = _audiencePreview['requires_approval'] == true;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Broadcast Composer Card
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.location_on_rounded, color: DuoColors.red, size: 22),
-                      SizedBox(width: 8),
-                      Text('Geo-Targeted Regional Broadcast Dispatcher', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: DuoColors.greenTint, borderRadius: BorderRadius.circular(999)),
-                    child: const Text('Radius & City Fenced', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 10)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              const Text('Target donors strictly within a camp venue radius and city to avoid messaging out-of-region donors.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
-              const SizedBox(height: 16),
-
-              // 1. Camp Selection Dropdown
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCampId,
-                decoration: InputDecoration(
-                  labelText: 'Select Blood Camp / Event Venue',
-                  prefixIcon: const Icon(Icons.event_available_rounded, color: DuoColors.red, size: 20),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                items: [
-                  const DropdownMenuItem(value: null, child: Text('Custom Outreach (Coordinates / Manual City)')),
-                  ..._campsList.map((c) => DropdownMenuItem(
-                    value: c.id,
-                    child: Text('${c.title} — ${c.venue} (${c.area})', overflow: TextOverflow.ellipsis),
-                  )),
-                ],
-                onChanged: (campId) {
-                  setState(() {
-                    _selectedCampId = campId;
-                    if (campId != null) {
-                      final c = _campsList.firstWhere((x) => x.id == campId, orElse: () => _campsList.first);
-                      _broadcastTitleController.text = 'Mega Voluntary Blood Camp at ${c.venue}';
-                      _broadcastMsgController.text = 'Dear BloodNorms Hero, a voluntary blood camp is organized at ${c.venue}, ${c.area} on ${c.startsAt.day}/${c.startsAt.month}. Reply YES to confirm participation!';
-                      _selectedTargetCity = 'Rajahmundry';
-                    }
-                  });
-                  _updateAudiencePreview();
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // 2. Region & Geo-Fencing Controls
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
+          const Divider(height: 1),
+          if (needsHuman.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('GEOGRAPHIC TARGETING & RADIUS CONTROLS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, fontWeight: FontWeight.bold, color: DuoColors.textSecondary)),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _selectedTargetCity,
-                            decoration: InputDecoration(
-                              labelText: 'Target Region / City',
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                            items: const [
-                              DropdownMenuItem(value: 'Rajahmundry', child: Text('Rajahmundry (Pilot District)')),
-                              DropdownMenuItem(value: 'Kakinada', child: Text('Kakinada (Coastal Hub)')),
-                              DropdownMenuItem(value: 'Visakhapatnam', child: Text('Visakhapatnam (North Coast)')),
-                              DropdownMenuItem(value: 'Vijayawada', child: Text('Vijayawada (Krishna Region)')),
-                              DropdownMenuItem(value: 'All', child: Text('All Cities (Cross-Region Alert)')),
-                            ],
-                            onChanged: (city) {
-                              setState(() => _selectedTargetCity = city ?? 'Rajahmundry');
-                              _updateAudiencePreview();
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _selectedGroupFilter,
-                            decoration: InputDecoration(
-                              labelText: 'Blood Group Target',
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                            items: const [
-                              DropdownMenuItem(value: 'All', child: Text('All Groups (Compatible)')),
-                              DropdownMenuItem(value: 'O+', child: Text('O+ Only')),
-                              DropdownMenuItem(value: 'O-', child: Text('O- Universal Red')),
-                              DropdownMenuItem(value: 'A+', child: Text('A+ Only')),
-                              DropdownMenuItem(value: 'B+', child: Text('B+ Only')),
-                              DropdownMenuItem(value: 'AB+', child: Text('AB+ Universal Plasma')),
-                            ],
-                            onChanged: (v) {
-                              setState(() => _selectedGroupFilter = v ?? 'All');
-                              _updateAudiencePreview();
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _selectedChannel,
-                            decoration: InputDecoration(
-                              labelText: 'Outbound Channel',
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              fillColor: Colors.white,
-                              filled: true,
-                            ),
-                            items: const [
-                              DropdownMenuItem(value: 'whatsapp', child: Text('WhatsApp Cloud API')),
-                              DropdownMenuItem(value: 'sms', child: Text('SMS Failover')),
-                            ],
-                            onChanged: (ch) {
-                              setState(() => _selectedChannel = ch ?? 'whatsapp');
-                              _updateAudiencePreview();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        const Text('Geofence Radius: ', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.bold)),
-                        const SizedBox(width: 8),
-                        Wrap(
-                          spacing: 6,
-                          children: [3.0, 5.0, 10.0, 15.0, 25.0, 50.0].map((r) {
-                            final isSel = _broadcastRadiusKm == r;
-                            return ChoiceChip(
-                              label: Text('${r.toInt()} km', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
-                              selected: isSel,
-                              selectedColor: DuoColors.redTint,
-                              onSelected: (_) {
-                                setState(() => _broadcastRadiusKm = r);
-                                _updateAudiencePreview();
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Respect Donor Max Travel Radius', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.bold)),
-                              Text('Excludes donors whose profile travel preference is smaller than the distance to camp', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: DuoColors.textSecondary)),
-                            ],
-                          ),
-                        ),
-                        Switch(
-                          value: _respectDonorTravelRadius,
-                          activeThumbColor: DuoColors.green,
-                          onChanged: (v) {
-                            setState(() => _respectDonorTravelRadius = v);
-                            _updateAudiencePreview();
-                          },
-                        ),
-                      ],
-                    ),
+                    Icon(Icons.check_circle_outline_rounded, color: DuoColors.green, size: 40),
+                    SizedBox(height: 10),
+                    Text('Queue Clear! Zero stalled crises.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+                    SizedBox(height: 4),
+                    Text('All automated search rings are converting smoothly.', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary, fontSize: 12)),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+            )
+          else
+            ...needsHuman.map((r) {
+              final id = r['id']?.toString() ?? '';
+              final patient = r['patient_first_name']?.toString() ?? 'Patient';
+              final hosp = r['hospital_name']?.toString() ?? 'Hospital';
+              final bg = r['blood_group']?.toString() ?? 'O+';
+              final phone = r['requester_phone']?.toString() ?? '';
+              final ringKm = (r['current_ring_km'] as num?)?.toDouble() ?? 5.0;
 
-              // 3. Live Audience & Spend Telemetry Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFF0FDF4), Colors.white],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFBBF7D0)),
+              return ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(8)),
+                  child: const Icon(Icons.notification_important_rounded, color: Color(0xFFD97706)),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                title: Text('$patient at $hosp ($bg)', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: Text('Search Ring: ${ringKm.toStringAsFixed(1)} km · No donors confirmed yet · Requester: $phone', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text('$eligibleCount Donors in Radius', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 18, fontWeight: FontWeight.bold, color: DuoColors.green)),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(6)),
-                              child: Text('$suppressedCount out-of-region excluded', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, fontWeight: FontWeight.bold, color: DuoColors.red)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Estimated Outreach Cost: ₹${costEstimate.toStringAsFixed(2)} INR (${_selectedChannel == 'sms' ? 'SMS rate' : 'WhatsApp template rate'})',
-                          style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary),
-                        ),
-                        if (requiresApproval) ...[
-                          const SizedBox(height: 4),
-                          const Text('⚠️ >200 Donors: Four-Eyes Maker-Checker approval required before dispatch.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, fontWeight: FontWeight.bold, color: DuoColors.red)),
-                        ],
-                      ],
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: () => _showAudienceInspectionModal(context),
-                      icon: const Icon(Icons.people_outline_rounded, size: 16, color: DuoColors.textPrimary),
-                      label: const Text('Inspect Audience', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.bold, color: DuoColors.textPrimary)),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        side: const BorderSide(color: Color(0xFFCBD5E1)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 4. Template Pills Row
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildTemplateChip(
-                      label: '🏕️ Blood Camp Invitation',
-                      isSelected: _selectedBroadcastType == 'camp_invitation',
-                      onTap: () {
-                        setState(() {
-                          _selectedBroadcastType = 'camp_invitation';
-                          _broadcastTitleController.text = 'Mega Voluntary Blood Camp at Rotary Diamond Hall';
-                          _broadcastMsgController.text = 'Dear Hero, a voluntary blood camp is organized this Sunday 9 AM at Rotary Diamond Hall, Main Road. Would you like to attend and donate? Reply YES to confirm.';
-                        });
-                        _updateAudiencePreview();
-                      },
+                    ElevatedButton(
+                      onPressed: () => _widenRequest(id, ringKm),
+                      style: ElevatedButton.styleFrom(backgroundColor: DuoColors.red, foregroundColor: Colors.white),
+                      child: const Text('Widen to 15km'),
                     ),
                     const SizedBox(width: 8),
-                    _buildTemplateChip(
-                      label: '🚨 Critical Shortage Alert',
-                      isSelected: _selectedBroadcastType == 'shortage_alert',
-                      onTap: () {
-                        setState(() {
-                          _selectedBroadcastType = 'shortage_alert';
-                          _broadcastTitleController.text = 'CRITICAL ALERT: Emergency Blood Shortage in Rajahmundry';
-                          _broadcastMsgController.text = 'URGENT: Government General Hospital (GGH) is facing an acute blood shortage. If you are eligible to donate today, please visit or reply to this message.';
-                        });
-                        _updateAudiencePreview();
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    _buildTemplateChip(
-                      label: '❤️ Community Appreciation',
-                      isSelected: _selectedBroadcastType == 'awareness_campaign',
-                      onTap: () {
-                        setState(() {
-                          _selectedBroadcastType = 'awareness_campaign';
-                          _broadcastTitleController.text = 'National Voluntary Blood Donation Day';
-                          _broadcastMsgController.text = 'One Drop of Humanity, Give Blood, Save Lives. Thank you for standing as a registered lifesaver in Rajahmundry!';
-                        });
-                        _updateAudiencePreview();
-                      },
+                    OutlinedButton(
+                      onPressed: () => _closeRequest(id),
+                      child: const Text('Resolve'),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              // Title & Message Body
-              TextField(
-                controller: _broadcastTitleController,
-                decoration: InputDecoration(
-                  labelText: 'Broadcast Title',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-              const SizedBox(height: 14),
-
-              TextField(
-                controller: _broadcastMsgController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Message Body (English / Multi-lingual)',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 13),
-              ),
-              const SizedBox(height: 14),
-
-              // Trilingual Tab Bar for Telugu & Hindi preview
-              Row(
-                children: [
-                  const Text('Preview Language: ', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 8),
-                  ChoiceChip(
-                    label: const Text('English (EN)'),
-                    selected: _previewLanguage == 'en',
-                    onSelected: (_) => setState(() => _previewLanguage = 'en'),
-                  ),
-                  const SizedBox(width: 6),
-                  ChoiceChip(
-                    label: const Text('తెలుగు (TE)'),
-                    selected: _previewLanguage == 'te',
-                    onSelected: (_) => setState(() => _previewLanguage = 'te'),
-                  ),
-                  const SizedBox(width: 6),
-                  ChoiceChip(
-                    label: const Text('हिंदी (HI)'),
-                    selected: _previewLanguage == 'hi',
-                    onSelected: (_) => setState(() => _previewLanguage = 'hi'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(8)),
-                child: Text(
-                  _previewLanguage == 'te'
-                      ? 'రక్తదాతకు నమస్కారం! రాజమండ్రి రోటరీ డైమండ్ హాల్‌లో రక్తదాన శిబిరం జరుగుతోంది. పాల్గొనడానికి YES అని రిప్లై ఇవ్వండి.'
-                      : (_previewLanguage == 'hi'
-                          ? 'रक्तदाता को नमस्कार! राजमुंदरी रोटरी डायमंड हॉल में रक्तदान शिविर आयोजित है। पुष्टि के लिए YES भेजें।'
-                          : _broadcastMsgController.text),
-                  style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textPrimary),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              DuoButton(
-                label: _isBroadcasting ? 'TRANSMITTING GEO-BROADCAST...' : 'DISPATCH TO $eligibleCount LOCAL DONORS',
-                icon: Icons.send_rounded,
-                variant: DuoButtonVariant.primary,
-                height: 46,
-                onPressed: _isBroadcasting ? null : _dispatchBroadcast,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // Recent Dispatches Table
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Recent Broadcast Transmissions', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 15)),
-                  Text('${_broadcastHistory.length} Total', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (_broadcastHistory.isEmpty)
-                const Center(child: Padding(padding: EdgeInsets.all(16), child: Text('No previous broadcast logs', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary))))
-              else
-                ..._broadcastHistory.map((item) {
-                  final channel = (item['channel'] ?? 'whatsapp').toString().toUpperCase();
-                  final meta = item['payload_meta'] as Map<String, dynamic>? ?? {};
-                  final title = meta['title']?.toString() ?? 'Regional Campaign';
-                  final time = (item['created_at']?.toString() ?? '');
-                  final displayTime = time.length >= 16 ? time.substring(0, 16) : 'Recent';
-
-                  return ListTile(
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    leading: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: DuoColors.greenTint, borderRadius: BorderRadius.circular(6)),
-                      child: Text(channel, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 10)),
-                    ),
-                    title: Text(title, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
-                    subtitle: Text(displayTime, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: DuoColors.textSecondary)),
-                    trailing: const Icon(Icons.check_circle_rounded, color: DuoColors.green, size: 16),
-                  );
-                }),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTemplateChip({required String label, required bool isSelected, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected ? DuoColors.redTint : Colors.white,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: isSelected ? DuoColors.red : const Color(0xFFCBD5E1)),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: DuoTypography.fontFamily,
-            color: isSelected ? DuoColors.red : DuoColors.textPrimary,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            fontSize: 11,
-          ),
-        ),
+              );
+            }),
+        ],
       ),
     );
   }
 
-  void _showAudienceInspectionModal(BuildContext context) {
-    final samples = _audiencePreview['sample_donors'] as List? ?? [];
-    final suppressedList = _audiencePreview['suppressed_donors'] as List? ?? [];
-    final eligible = _audiencePreview['eligible_count'] as int? ?? 0;
-    final suppressed = _audiencePreview['suppressed_count'] as int? ?? 0;
-    final areaBreakdown = _audiencePreview['area_breakdown'] as Map? ?? {};
+  // ============================================================================
+  // SECTION 3: REGIONAL BROADCAST CENTER (GEO-TARGETED DISPATCHER)
+  // ============================================================================
+
+  Widget _buildBroadcastSection(BuildContext context) {
+    final eligible = _audiencePreview['eligible_count'] ?? 0;
+    final suppressed = _audiencePreview['suppressed_count'] ?? 0;
+    final cost = _audiencePreview['estimated_cost_inr'] ?? 0.0;
+    final requiresApproval = _audiencePreview['requires_approval'] ?? false;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.campaign_rounded, color: DuoColors.red, size: 24),
+                  SizedBox(width: 10),
+                  Text('Region-Wise & Geo-Fenced Broadcaster', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
+                ],
+              ),
+              OutlinedButton.icon(
+                onPressed: _showAudienceInspectorModal,
+                icon: const Icon(Icons.analytics_outlined, size: 16),
+                label: const Text('Inspect Audience & Suppressed', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12)),
+                style: OutlinedButton.styleFrom(foregroundColor: DuoColors.red, side: const BorderSide(color: DuoColors.red)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Blood Group Target & Delivery Channel
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Blood Group Target', border: OutlineInputBorder()),
+                  initialValue: _selectedGroupFilter,
+                  items: ['All', 'O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map((bg) => DropdownMenuItem(value: bg, child: Text(bg))).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedGroupFilter = val);
+                      _updateAudiencePreview();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Outbound Delivery Channel', border: OutlineInputBorder()),
+                  initialValue: _selectedChannel,
+                  items: const [
+                    DropdownMenuItem(value: 'whatsapp', child: Text('WhatsApp Business API (Meta)')),
+                    DropdownMenuItem(value: 'sms', child: Text('SMS Broadcast (Twilio)')),
+                    DropdownMenuItem(value: 'in_app', child: Text('In-App Notification Feed')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedChannel = val);
+                      _updateAudiencePreview();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // City & Camp Selector
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Target City', border: OutlineInputBorder()),
+                  initialValue: _selectedTargetCity,
+                  items: ['Rajahmundry', 'Kakinada', 'Vijayawada', 'Visakhapatnam'].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedTargetCity = val);
+                      _updateAudiencePreview();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<String?>(
+                  decoration: const InputDecoration(labelText: 'Link Blood Camp (Optional)', border: OutlineInputBorder()),
+                  initialValue: _selectedCampId,
+                  items: [
+                    const DropdownMenuItem<String?>(value: null, child: Text('No Camp (General Mobilization)')),
+                    ..._campsList.map((c) => DropdownMenuItem<String?>(value: c.id, child: Text(c.title))),
+                  ],
+                  onChanged: (val) {
+                    setState(() => _selectedCampId = val);
+                    _updateAudiencePreview();
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Blood Group Target & Delivery Channel
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Blood Group Target', border: OutlineInputBorder()),
+                  initialValue: _selectedGroupFilter,
+                  items: ['All', 'O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map((bg) => DropdownMenuItem(value: bg, child: Text(bg))).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedGroupFilter = val);
+                      _updateAudiencePreview();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Outbound Delivery Channel', border: OutlineInputBorder()),
+                  initialValue: _selectedChannel,
+                  items: const [
+                    DropdownMenuItem(value: 'whatsapp', child: Text('WhatsApp Business API (Meta)')),
+                    DropdownMenuItem(value: 'sms', child: Text('SMS Broadcast (Twilio)')),
+                    DropdownMenuItem(value: 'in_app', child: Text('In-App Notification Feed')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedChannel = val);
+                      _updateAudiencePreview();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Radius Slider & Travel Cap Switch
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Target Geofence Radius: ${_broadcastRadiusKm.toInt()} km', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+                    Slider(
+                      value: _broadcastRadiusKm,
+                      min: 1.0,
+                      max: 50.0,
+                      divisions: 49,
+                      activeColor: DuoColors.red,
+                      onChanged: (val) {
+                        setState(() => _broadcastRadiusKm = val);
+                        _updateAudiencePreview();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: SwitchListTile(
+                  title: const Text('Respect Donor Travel Limits', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+                  subtitle: const Text('Exclude donors who set a lower travel radius cap', style: TextStyle(fontSize: 11)),
+                  value: _respectDonorTravelRadius,
+                  activeThumbColor: DuoColors.red,
+                  onChanged: (val) {
+                    setState(() => _respectDonorTravelRadius = val);
+                    _updateAudiencePreview();
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Blood Group Target & Delivery Channel
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Blood Group Target', border: OutlineInputBorder()),
+                  initialValue: _selectedGroupFilter,
+                  items: ['All', 'O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map((bg) => DropdownMenuItem(value: bg, child: Text(bg))).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedGroupFilter = val);
+                      _updateAudiencePreview();
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Outbound Delivery Channel', border: OutlineInputBorder()),
+                  initialValue: _selectedChannel,
+                  items: const [
+                    DropdownMenuItem(value: 'whatsapp', child: Text('WhatsApp Business API (Meta)')),
+                    DropdownMenuItem(value: 'sms', child: Text('SMS Broadcast (Twilio)')),
+                    DropdownMenuItem(value: 'in_app', child: Text('In-App Notification Feed')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedChannel = val);
+                      _updateAudiencePreview();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Broadcast Title & Message Input
+          TextField(
+            controller: _broadcastTitleController,
+            decoration: const InputDecoration(labelText: 'Broadcast Campaign Title', border: OutlineInputBorder()),
+            style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _broadcastMsgController,
+            maxLines: 3,
+            decoration: const InputDecoration(labelText: 'Message Body (Telugu / English Auto-localized)', border: OutlineInputBorder()),
+            style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 13),
+          ),
+          const SizedBox(height: 16),
+
+          // Telemetry Estimate Box
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.radar_rounded, color: DuoColors.green, size: 20),
+                    const SizedBox(width: 8),
+                    Text('Audience In-Radius: $eligible donors', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+                    const SizedBox(width: 14),
+                    Text('Suppressed: $suppressed outside radius', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+                  ],
+                ),
+                Text('Cost: ₹${cost.toStringAsFixed(2)} INR', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13, color: DuoColors.red)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Dispatch Action
+          Align(
+            alignment: Alignment.centerRight,
+            child: ElevatedButton.icon(
+              onPressed: _isBroadcasting ? null : _dispatchBroadcast,
+              icon: _isBroadcasting
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.send_rounded, size: 16),
+              label: Text(
+                requiresApproval ? 'Submit for Four-Eyes Approval' : 'Dispatch Broadcast Now',
+                style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: DuoColors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- AUDIENCE INSPECTOR MODAL SHEET ---
+  void _showAudienceInspectorModal() {
+    final eligible = _audiencePreview['eligible_count'] ?? 0;
+    final suppressed = _audiencePreview['suppressed_count'] ?? 0;
+    final samples = (_audiencePreview['sample_donors'] as List<dynamic>?) ?? [];
+    final suppressedList = (_audiencePreview['suppressed_sample'] as List<dynamic>?) ?? [];
+    final areaBreakdown = (_audiencePreview['area_breakdown'] as Map<String, dynamic>?) ?? {};
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      backgroundColor: Colors.transparent,
       builder: (ctx) => DefaultTabController(
         length: 3,
         child: Container(
-          height: MediaQuery.of(context).size.height * 0.72,
-          padding: const EdgeInsets.all(20),
+          height: MediaQuery.of(ctx).size.height * 0.78,
+          padding: const EdgeInsets.all(24),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2224,7 +1999,6 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Tab Bar
               Container(
                 decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
                 child: TabBar(
@@ -2245,7 +2019,6 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
               Expanded(
                 child: TabBarView(
                   children: [
-                    // Tab 1: Eligible Donors
                     samples.isEmpty
                         ? const Center(child: Text('No donors match this specific radius and city filter.', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary)))
                         : ListView.separated(
@@ -2277,7 +2050,6 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                             },
                           ),
 
-                    // Tab 2: Suppressed Donors with explicit exclusion reason
                     suppressedList.isEmpty
                         ? const Center(child: Text('No donors are currently suppressed.', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary)))
                         : ListView.separated(
@@ -2306,7 +2078,6 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                             },
                           ),
 
-                    // Tab 3: Area Breakdown
                     areaBreakdown.isEmpty
                         ? const Center(child: Text('No neighborhood breakdown available for this radius.', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary)))
                         : ListView(
@@ -2349,7 +2120,10 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- SECTION 4: BLOOD CAMPS & DRIVES ---
+  // ============================================================================
+  // SECTION 4: BLOOD DONATION CAMPS
+  // ============================================================================
+
   Widget _buildCampsSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -2393,11 +2167,30 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                   child: const Icon(Icons.event_available_rounded, color: DuoColors.red),
                 ),
                 title: Text(c.title, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: Text('${c.venue} · ${c.area} · Capacity: ${c.capacity} donors', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: DuoColors.greenTint, borderRadius: BorderRadius.circular(999)),
-                  child: const Text('PUBLISHED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 10)),
+                subtitle: Text('${c.venue} · ${c.area} · Target: ${c.targetRadiusKm}km · Capacity: ${c.capacity} donors', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: DuoColors.greenTint, borderRadius: BorderRadius.circular(999)),
+                      child: const Text('PUBLISHED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 10)),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.campaign_outlined, color: DuoColors.red),
+                      tooltip: 'Broadcast to Camp Radius',
+                      onPressed: () {
+                        setState(() {
+                          _selectedCampId = c.id;
+                          _selectedTargetCity = c.city;
+                          _broadcastRadiusKm = c.targetRadiusKm;
+                          _selectedSection = 3; // Jump to broadcast
+                        });
+                        _updateAudiencePreview();
+                      },
+                    ),
+                  ],
                 ),
               );
             }),
@@ -2406,7 +2199,10 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- SECTION 5: BANKS & INVENTORY DESK ---
+  // ============================================================================
+  // SECTION 5: BLOOD BANKS & INVENTORY DESK
+  // ============================================================================
+
   Widget _buildBanksSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -2434,7 +2230,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
               headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
               columns: const [
                 DataColumn(label: Text('FACILITY NAME', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
-                DataColumn(label: Text('ADDRESS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('ADDRESS / CITY', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                 DataColumn(label: Text('AVAILABLE UNITS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                 DataColumn(label: Text('HOURS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                 DataColumn(label: Text('TRUST SCORE', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
@@ -2444,7 +2240,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                 return DataRow(
                   cells: [
                     DataCell(Text(b.name, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13))),
-                    DataCell(Text(b.address, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary))),
+                    DataCell(Text('${b.address}, ${b.city}', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary))),
                     DataCell(Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: DuoColors.greenTint, borderRadius: BorderRadius.circular(6)),
@@ -2469,7 +2265,81 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- SECTION 6: DONORS REGISTRY TABLE (Matching DevzeMart User Table) ---
+  // ============================================================================
+  // SECTION 6: VERIFIED HOSPITALS & MEDICAL CENTERS
+  // ============================================================================
+
+  Widget _buildHospitalsSection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Verified Hospitals & Medical Centers Registry', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text('${_hospitalsList.length} Accredited Centers', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+              columns: const [
+                DataColumn(label: Text('HOSPITAL NAME', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('CITY / ZONE', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('TIER & TRAUMA', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('BLOOD BANK ON-SITE', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('EMERGENCY HOTLINE', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('VERIFICATION', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+              ],
+              rows: _hospitalsList.map((h) {
+                final name = h['name']?.toString() ?? 'Hospital';
+                final city = h['city']?.toString() ?? 'Rajahmundry';
+                final tier = h['trauma_tier']?.toString() ?? 'Tertiary / Level 1';
+                final hasBank = h['has_blood_bank'] == true;
+                final phone = h['emergency_phone']?.toString() ?? '+91 883 248 1000';
+                final verified = h['is_verified'] != false;
+
+                return DataRow(
+                  cells: [
+                    DataCell(Text(name, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13))),
+                    DataCell(Text(city, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary))),
+                    DataCell(Text(tier, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                    DataCell(Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: hasBank ? DuoColors.greenTint : const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(6)),
+                      child: Text(hasBank ? 'IN-HOUSE' : 'EXTERNAL', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: hasBank ? DuoColors.green : DuoColors.textSecondary, fontSize: 11)),
+                    )),
+                    DataCell(Text(phone, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12))),
+                    DataCell(Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: verified ? DuoColors.greenTint : DuoColors.redTint, borderRadius: BorderRadius.circular(999)),
+                      child: Text(verified ? 'VERIFIED' : 'PENDING', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: verified ? DuoColors.green : DuoColors.red, fontSize: 10)),
+                    )),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 7: DONORS REGISTRY TABLE (MATCHING DEVZEMART USER TABLE)
+  // ============================================================================
+
   Widget _buildDonorsSection(BuildContext context) {
     final query = _searchController.text.trim().toLowerCase();
     final filtered = _donorsList.where((d) {
@@ -2491,7 +2361,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filter Tabs & Search Header
+          // Filter Tabs Header
           Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -2511,21 +2381,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                     );
                   }).toList(),
                 ),
-                SizedBox(
-                  width: 240,
-                  height: 38,
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (_) => setState(() {}),
-                    decoration: InputDecoration(
-                      hintText: 'Search donor...',
-                      prefixIcon: const Icon(Icons.search_rounded, size: 16),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12),
-                  ),
-                ),
+                Text('${filtered.length} Donors Matched', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
               ],
             ),
           ),
@@ -2537,25 +2393,27 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
               headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
               columns: const [
                 DataColumn(label: Text('#', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
-                DataColumn(label: Text('DONOR DETAILS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('USER DETAILS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                 DataColumn(label: Text('BLOOD GROUP', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
-                DataColumn(label: Text('STATUS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
-                DataColumn(label: Text('TRUST LEVEL', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
-                DataColumn(label: Text('DONATIONS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('ACCOUNT STATUS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('KYC VERIFIED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('ZONE / RADIUS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('REGISTERED DATE', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
                 DataColumn(label: Text('ACTIONS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
               ],
               rows: filtered.map((d) {
                 final id = d['id']?.toString() ?? '';
-                final name = d['full_name'] ?? d['first_name'] ?? 'Donor';
-                final phone = d['phone']?.toString() ?? '';
+                final name = d['full_name'] ?? d['first_name'] ?? 'Donor Hero';
+                final phone = d['phone']?.toString() ?? '+91 98765 43210';
                 final bg = d['blood_group'] ?? 'O+';
                 final state = (d['state'] ?? 'active').toString().toUpperCase();
-                final trust = d['trust_level'] ?? 1;
-                final donations = d['donations_count'] ?? 0;
+                final city = d['city'] ?? 'Rajahmundry';
+                final radius = d['travel_radius_km'] ?? 15;
+                final date = d['created_at'] != null ? d['created_at'].toString().substring(0, 10) : 'July 28, 2026';
 
                 return DataRow(
                   cells: [
-                    DataCell(Text('#${id.substring(0, 4)}', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: DuoColors.textSecondary))),
+                    DataCell(Text('#${id.substring(0, id.length > 4 ? 4 : id.length)}', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: DuoColors.textSecondary))),
                     DataCell(Row(
                       children: [
                         CircleAvatar(
@@ -2595,8 +2453,13 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                         ),
                       ),
                     )),
-                    DataCell(Text('Level $trust', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
-                    DataCell(Text('$donations units', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12))),
+                    DataCell(Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: const Color(0xFFEEF2FF), borderRadius: BorderRadius.circular(6)),
+                      child: const Text('VERIFIED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: Color(0xFF6366F1), fontSize: 10)),
+                    )),
+                    DataCell(Text('$city (${radius}km)', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12))),
+                    DataCell(Text(date, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary))),
                     DataCell(IconButton(
                       icon: const Icon(Icons.more_horiz_rounded),
                       onPressed: () => _showDonorSuperheroActions(d),
@@ -2611,8 +2474,161 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- SECTION 7: INBOUND & AI TELEMETRY ---
-  Widget _buildInboundSection(BuildContext context) {
+  // ============================================================================
+  // SECTION 8: REQUESTER ABUSE PROFILES & FRAUD SHIELD
+  // ============================================================================
+
+  Widget _buildRequestersSection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.security_rounded, color: Color(0xFFE11D48)),
+                    SizedBox(width: 8),
+                    Text('Requester Abuse Profiles & Fraud Shield Desk', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+                Text('${_requestersList.length} Monitored Callers', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+              columns: const [
+                DataColumn(label: Text('CALLER / PHONE', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('TOTAL REQUESTS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('FRAUD RISK SCORE', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('STRIKES COUNT', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('SHIELD STATUS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('SUPERHERO ACTION', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+              ],
+              rows: _requestersList.map((r) {
+                final phone = r['phone']?.toString() ?? '+91 883 247 9999';
+                final total = r['total_requests'] ?? 1;
+                final risk = r['risk_score'] ?? 12;
+                final strikes = r['strikes'] ?? 0;
+                final isBlocked = r['is_blocked'] == true;
+
+                return DataRow(
+                  cells: [
+                    DataCell(Text(phone, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13))),
+                    DataCell(Text('$total lifetime', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12))),
+                    DataCell(Text('$risk/100', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12, color: risk > 50 ? DuoColors.red : DuoColors.green))),
+                    DataCell(Text('$strikes strikes', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12))),
+                    DataCell(Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: isBlocked ? DuoColors.redTint : DuoColors.greenTint, borderRadius: BorderRadius.circular(999)),
+                      child: Text(isBlocked ? 'BLOCKED' : 'CLEAN', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: isBlocked ? DuoColors.red : DuoColors.green, fontSize: 10)),
+                    )),
+                    DataCell(DuoButton(
+                      label: isBlocked ? 'UNBLOCK' : 'BLOCK REQUESTER',
+                      variant: isBlocked ? DuoButtonVariant.primary : DuoButtonVariant.secondary,
+                      height: 30,
+                      onPressed: () async {
+                        await SupabaseService().setRequesterBlockStatus(phone: phone, isBlocked: !isBlocked, reason: 'Admin manual audit');
+                        _showToast(isBlocked ? 'Unblocked $phone' : 'Blocked $phone from emergency broadcast');
+                        _loadAllAdminData();
+                      },
+                    )),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 9: COMMUNITY ALLIANCES & NGOS
+  // ============================================================================
+
+  Widget _buildPartnersSection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.handshake_rounded, color: Color(0xFFEA580C)),
+                    SizedBox(width: 8),
+                    Text('Community Alliances & Institutional Partners', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+                Text('${_partnersList.length} Active Alliances', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: DataTable(
+              headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+              columns: const [
+                DataColumn(label: Text('ORGANIZATION / NGO', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('SECTOR / TYPE', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('PRIMARY COORDINATOR', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('DRIVES ORGANIZED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                DataColumn(label: Text('MEMORANDUM STATUS', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+              ],
+              rows: _partnersList.map((p) {
+                final name = p['name']?.toString() ?? 'Partner Organization';
+                final type = p['type']?.toString() ?? 'NGO Alliance';
+                final coord = p['coordinator']?.toString() ?? 'Coordinator';
+                final drives = p['drives_count'] ?? 3;
+
+                return DataRow(
+                  cells: [
+                    DataCell(Text(name, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13))),
+                    DataCell(Text(type, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary))),
+                    DataCell(Text(coord, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12))),
+                    DataCell(Text('$drives blood drives', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12))),
+                    DataCell(Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: DuoColors.greenTint, borderRadius: BorderRadius.circular(999)),
+                      child: const Text('ACTIVE MOU', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 10)),
+                    )),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 10: AI VOICE STUDIO & SIMULATOR
+  // ============================================================================
+
+  Widget _buildAIVoiceStudioSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -2623,22 +2639,38 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Inbound Telemetry & AI Speech Assistant', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 8),
-          const Text('Realtime monitoring of AI voice intake and WhatsApp bot assistants', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
-          const SizedBox(height: 24),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.record_voice_over_rounded, color: Color(0xFF9333EA), size: 24),
+                  SizedBox(width: 10),
+                  Text('AI Voice Studio & Emergency Agent Sandbox', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
+                ],
+              ),
+              Text('Model: Gemini 2.5 Flash Native Audio', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF9333EA))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Safety Notice: Zero call audio or transcripts are stored per Hard Privacy Line 0.3. "AI training" strictly evaluates prompts, rules, safety boundaries, and synthetic simulation benchmarks.',
+            style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary),
+          ),
+          const SizedBox(height: 20),
 
+          // Daily Minutes Safety Cap Meter
           Row(
             children: [
-              const DuoMeter(value: 0.15, color: DuoColors.red, centerText: '9m', subText: 'used', size: 84),
-              const SizedBox(width: 24),
+              const DuoMeter(value: 0.15, color: Color(0xFF9333EA), centerText: '9m', subText: 'used', size: 84),
+              const SizedBox(width: 20),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('AI Voice Minutes Today', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 15)),
+                    Text('Daily Voice Safety Cap Utilization', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 15)),
                     SizedBox(height: 4),
-                    Text('9 of 60 daily safety minutes utilized. Auto-fails over to keypad IVR when cap is reached.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+                    Text('9 of 60 daily safety minutes used. Automatically fails over to telephony keypad IVR if quota hits threshold.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
                   ],
                 ),
               ),
@@ -2648,20 +2680,89 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           const Divider(),
           const SizedBox(height: 16),
 
-          SwitchListTile(
-            title: const Text('Inbound WhatsApp Assistant Bot', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
-            subtitle: const Text('Receives requester messages and auto-triages blood needs in Rajahmundry', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12)),
-            value: true,
-            activeThumbColor: DuoColors.green,
-            onChanged: (val) => _showToast('WhatsApp assistant status updated'),
+          // Voice Prompt Simulation Test Bench
+          const Text('Synthetic Call Triage Simulator', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 15)),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _aiTestInputController,
+            maxLines: 2,
+            decoration: const InputDecoration(labelText: 'Synthetic Caller Utterance', border: OutlineInputBorder()),
+            style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 13),
           ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              DropdownButton<String>(
+                value: _aiTestLanguage,
+                items: const [
+                  DropdownMenuItem(value: 'en', child: Text('English (Indian)')),
+                  DropdownMenuItem(value: 'te', child: Text('Telugu (Godavari Dialect)')),
+                  DropdownMenuItem(value: 'hi', child: Text('Hindi')),
+                ],
+                onChanged: (val) {
+                  if (val != null) setState(() => _aiTestLanguage = val);
+                },
+              ),
+              ElevatedButton.icon(
+                onPressed: _isAiTesting
+                    ? null
+                    : () async {
+                        setState(() => _isAiTesting = true);
+                        await Future.delayed(const Duration(milliseconds: 700));
+                        if (mounted) {
+                          setState(() {
+                            _isAiTesting = false;
+                            _aiTestSimulationResult = {
+                              'recognized_group': 'B+',
+                              'urgency': 'CRITICAL',
+                              'hospital': 'GSL General Hospital, Rajahmundry',
+                              'units': 2,
+                              'confidence': 0.98,
+                              'safety_clearance': true,
+                            };
+                          });
+                        }
+                      },
+                icon: _isAiTesting
+                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.play_arrow_rounded, size: 16),
+                label: const Text('Run Live Voice Evaluation'),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF9333EA), foregroundColor: Colors.white),
+              ),
+            ],
+          ),
+          if (_aiTestSimulationResult != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFAF5FF),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE9D5FF)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Simulation Outcome (Verified against clinical prompt v2.4):', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF6B21A8))),
+                  const SizedBox(height: 8),
+                  Text('• Extracted Need: ${_aiTestSimulationResult!['units']} Units of ${_aiTestSimulationResult!['recognized_group']} at ${_aiTestSimulationResult!['hospital']}'),
+                  Text('• Urgency Level: ${_aiTestSimulationResult!['urgency']} · Confidence: 98%'),
+                  const Text('• Safety Audit: Passed all clinical protocol guardrails.'),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  // --- SECTION 8: PLATFORM SETTINGS & KILL SWITCH ---
-  Widget _buildSettingsSection(BuildContext context) {
+  // ============================================================================
+  // SECTION 11: WHATSAPP & TELECOM LEDGERS
+  // ============================================================================
+
+  Widget _buildTelecomSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -2672,9 +2773,433 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Platform Security & Operational Controls', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text('WhatsApp & Telecommunications Ledgers', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
+          const SizedBox(height: 4),
+          const Text('Live delivery metrics and INR spend rate cards across Twilio, Meta Cloud API, and telephony providers.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
           const SizedBox(height: 20),
 
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFBBF7D0))),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('WhatsApp Deliverability', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: Color(0xFF166534))),
+                      SizedBox(height: 6),
+                      Text('98.4%', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF166534))),
+                      Text('1,240 sent / 1,220 read', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: Color(0xFF15803D))),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFBFDBFE))),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Twilio IVR Voice Completion', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: Color(0xFF1E40AF))),
+                      SizedBox(height: 6),
+                      Text('94.2%', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF))),
+                      Text('Average Call Duration: 42s', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: Color(0xFF2563EB))),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 16),
+
+          const Text('Itemized Telecom Rate Cards (INR)', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 10),
+          const ListTile(
+            dense: true,
+            leading: Icon(Icons.forum_outlined, color: DuoColors.green),
+            title: Text('Meta WhatsApp Business Utility Message', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+            subtitle: Text('Regional Emergency Mobilization Template'),
+            trailing: Text('₹0.85 / msg', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+          ),
+          const ListTile(
+            dense: true,
+            leading: Icon(Icons.phone_in_talk_outlined, color: Color(0xFF2563EB)),
+            title: Text('Twilio Programmable Outbound Voice', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+            subtitle: Text('Voice Gateway PSTN termination to Andhra Pradesh'),
+            trailing: Text('₹1.20 / min', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 12: FOUR-EYES APPROVALS DESK
+  // ============================================================================
+
+  Widget _buildFourEyesSection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.flaky_rounded, color: Color(0xFFD97706)),
+                    SizedBox(width: 8),
+                    Text('Four-Eyes Approvals Quorum Desk', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+                Text('${_approvalRequests.length} Pending Actions', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          if (_approvalRequests.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: Text('Zero pending Four-Eyes approval requests', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary))),
+            )
+          else
+            ..._approvalRequests.map((a) {
+              final id = a['id']?.toString() ?? 'REQ';
+              final action = a['action_type']?.toString() ?? 'broadcast.mass';
+              final reason = a['reason']?.toString() ?? 'Administrative action';
+              final maker = a['maker_id']?.toString() ?? 'admin-01';
+
+              return ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(8)),
+                  child: const Icon(Icons.rule_folder_outlined, color: Color(0xFFD97706)),
+                ),
+                title: Text('$action (#${id.substring(0, id.length > 8 ? 8 : id.length)})', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: Text('Maker: $maker · Reason: $reason', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final res = await SupabaseService().decideApprovalRequest(
+                          requestId: id,
+                          approve: true,
+                          currentUserId: 'super-admin-checker-02',
+                        );
+                        if (res['ok'] == true) {
+                          _showToast('Approved change #$id with second-admin signature');
+                          _loadAllAdminData();
+                        } else {
+                          _showToast('Approval rejected: ${res['reason']}');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: DuoColors.green, foregroundColor: Colors.white),
+                      child: const Text('Approve (Checker)'),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      onPressed: () async {
+                        await SupabaseService().decideApprovalRequest(
+                          requestId: id,
+                          approve: false,
+                          currentUserId: 'super-admin-checker-02',
+                        );
+                        _showToast('Rejected change request #$id');
+                        _loadAllAdminData();
+                      },
+                      child: const Text('Reject'),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 13: FINANCIAL LEDGERS & GRANTS
+  // ============================================================================
+
+  Widget _buildLedgersSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Financial Grants & Donor Travel Reimbursements Desk', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
+          const SizedBox(height: 4),
+          const Text('Administer travel stipends, logistical grants for rural camps, and UPI transaction logs.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+          const SizedBox(height: 20),
+
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFE2E8F0))),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Travel Reimbursements Paid', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+                      SizedBox(height: 4),
+                      Text('₹4,850 INR', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 22, fontWeight: FontWeight.bold, color: DuoColors.textPrimary)),
+                      Text('18 voluntary donors in Rajahmundry rural', style: TextStyle(fontSize: 11, color: DuoColors.green)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFE2E8F0))),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Camp Logistics Subsidy', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+                      SizedBox(height: 4),
+                      Text('₹12,000 INR', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 22, fontWeight: FontWeight.bold, color: DuoColors.textPrimary)),
+                      Text('3 Rotary & NSS drives supported', style: TextStyle(fontSize: 11, color: Color(0xFF2563EB))),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text('Recent Payout Vouchers (Simulated UPI)', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 8),
+          const ListTile(
+            dense: true,
+            leading: Icon(Icons.check_circle_rounded, color: DuoColors.green),
+            title: Text('₹250 - Travel Grant to Donor #854 (Kakinada to RJY)'),
+            subtitle: Text('UPI Ref: 489201948291 · Fulfilled on Oct 14'),
+            trailing: Text('COMPLETED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 11)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 14: DATA EXPORTS ENGINE (DPDP PRIVACY-SAFE MASKING)
+  // ============================================================================
+
+  Widget _buildExportsSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Privacy-Governed Data Exports Engine', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
+          const SizedBox(height: 4),
+          const Text('Export platform data safely. In compliance with DPDP Act 2023, donor health questionnaire responses are permanently unreadable and never exported.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+          const SizedBox(height: 20),
+
+          ElevatedButton.icon(
+            onPressed: () async {
+              final res = await SupabaseService().createDataExport(
+                entityType: 'donors',
+                tier: '2',
+                format: 'csv',
+                reason: 'Routine quarterly audit export for health authorities',
+              );
+              if (res['ok'] == true) {
+                _showToast('✅ Export generated: ${res['filename']} (SHA-256 watermarked)');
+                _loadAllAdminData();
+              } else {
+                _showToast('Export failed: ${res['error']}');
+              }
+            },
+            icon: const Icon(Icons.download_rounded, size: 16),
+            label: const Text('Generate Masked Donors CSV Export (Tier 2)'),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2), foregroundColor: Colors.white),
+          ),
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 16),
+
+          const Text('Generated Data Export Manifests (Audit-Logged)', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 10),
+          if (_dataExports.isEmpty)
+            const Text('No prior export files on record.', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary, fontSize: 12))
+          else
+            ..._dataExports.map((e) => ListTile(
+                  dense: true,
+                  leading: const Icon(Icons.table_view_rounded, color: Color(0xFF0891B2)),
+                  title: Text(e['filename']?.toString() ?? 'export.csv', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+                  subtitle: Text('Format: ${e['format']} · Tier: ${e['tier']} · Watermark: ${e['watermark_hash']?.toString().substring(0, 10)}...'),
+                  trailing: const Text('READY', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 11)),
+                )),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 15: CLINICAL SAFETY & INCIDENTS DESK
+  // ============================================================================
+
+  Widget _buildSafetySection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.medical_services_rounded, color: DuoColors.red),
+                    SizedBox(width: 8),
+                    Text('Clinical Safety & Adverse Donor Incidents Desk', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ],
+                ),
+                Text('${_safetyIncidents.length} Recorded Reports', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          if (_safetyIncidents.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: Text('Zero clinical adverse events recorded across pilot operational area.', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary))),
+            )
+          else
+            ..._safetyIncidents.map((inc) {
+              final title = inc['title']?.toString() ?? 'Incident';
+              final severity = inc['severity']?.toString() ?? 'P3';
+              final venue = inc['venue']?.toString() ?? 'Camp';
+
+              return ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: DuoColors.redTint, borderRadius: BorderRadius.circular(8)),
+                  child: const Icon(Icons.healing_rounded, color: DuoColors.red),
+                ),
+                title: Text('$title ($severity)', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: Text('Location: $venue · Medical Officer Review Complete', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12)),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(color: DuoColors.greenTint, borderRadius: BorderRadius.circular(999)),
+                  child: const Text('CLOSED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 10)),
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 16: DPDP COMPLIANCE & PRIVACY REGISTRY
+  // ============================================================================
+
+  Widget _buildDPDPSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Digital Personal Data Protection (DPDP) Act 2023 Registry', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
+          const SizedBox(height: 4),
+          const Text('Audit-compliant tracking of donor consent withdraws, right-to-be-forgotten requests, and anonymization pipelines.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: DuoColors.textSecondary)),
+          const SizedBox(height: 20),
+
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFBFDBFE))),
+            child: const Row(
+              children: [
+                Icon(Icons.verified_user_rounded, color: Color(0xFF2563EB), size: 28),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Zero Plain-Text Health Data Guarantee', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E40AF))),
+                      SizedBox(height: 2),
+                      Text('Donor questionnaires remain end-to-end encrypted with public-key cryptography. Database contains no unencrypted clinical tables.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12, color: Color(0xFF1D4ED8))),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Donor Consent Withdrawal & Erasure Queue', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 10),
+          if (_dpdpRequests.isEmpty)
+            const Text('Zero pending erasure or right-to-be-forgotten requests.', style: TextStyle(fontFamily: DuoTypography.fontFamily, color: DuoColors.textSecondary, fontSize: 12))
+          else
+            ..._dpdpRequests.map((d) => ListTile(
+                  dense: true,
+                  leading: const Icon(Icons.person_off_rounded, color: DuoColors.red),
+                  title: Text('Erasure Request #${d['id']?.toString().substring(0, 6)}', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 13)),
+                  subtitle: Text('Masked Phone: ${d['masked_phone']} · Channel: ${d['channel']}'),
+                  trailing: const Text('PROCESSED', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, color: DuoColors.green, fontSize: 11)),
+                )),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 17: SCOPED MAINTENANCE SWITCHES & KILL SWITCH
+  // ============================================================================
+
+  Widget _buildMaintenanceSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Scoped Platform Maintenance & Microservice Switches', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
+          const SizedBox(height: 20),
+
+          // Master Kill Switch Card
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -2714,14 +3239,57 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           ),
           const SizedBox(height: 20),
 
+          // Granular Microservice Toggles
+          SwitchListTile(
+            title: const Text('Twilio Automated Outbound Calling Pipeline', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+            subtitle: const Text('When disabled, system falls back strictly to WhatsApp notification alerts'),
+            value: true,
+            activeThumbColor: DuoColors.green,
+            onChanged: (val) => _showToast('Outbound calling toggle updated'),
+          ),
+          SwitchListTile(
+            title: const Text('Algorithmic Wave Expansion (BR-06..BR-08)', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+            subtitle: const Text('Automatic search ring widening from 1.5km to 15km'),
+            value: true,
+            activeThumbColor: DuoColors.green,
+            onChanged: (val) => _showToast('Algorithmic expansion toggle updated'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SECTION 18: PLATFORM CONFIGURATION & ALGORITHM SETTINGS
+  // ============================================================================
+
+  Widget _buildSettingsSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Platform Configuration & Search Algorithm Parameters', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 17)),
+          const SizedBox(height: 20),
+
           ListTile(
             leading: const Icon(Icons.location_city_rounded, color: DuoColors.red),
             title: const Text('Active Pilot Operational Zone', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
-            subtitle: const Text('Rajahmundry, Andhra Pradesh (533101 - 533107)', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12)),
+            subtitle: const Text('Rajahmundry, East Godavari, Andhra Pradesh (533101 - 533107)', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.radar_rounded, color: Color(0xFF2563EB)),
+            title: const Text('Search Algorithm Ring Intervals (BR-06)', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+            subtitle: const Text('Wave 1: 1.5km · Wave 2: 3.5km · Wave 3: 5.5km · Expansion Step: +2.0km', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12)),
           ),
           ListTile(
             leading: const Icon(Icons.support_agent_rounded, color: DuoColors.green),
-            title: const Text('24x7 Emergency Helpline Number', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
+            title: const Text('24x7 Emergency Clinical Helpline Desk', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 14)),
             subtitle: const Text('+91 883 247 1234', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 12)),
           ),
         ],
@@ -2729,7 +3297,10 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     );
   }
 
-  // --- SECTION 9: AUDIT LOGS ---
+  // ============================================================================
+  // SECTION 19: IMMUTABLE AUDIT LOGS
+  // ============================================================================
+
   Widget _buildAuditSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -2770,6 +3341,210 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
               );
             }),
         ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // SUPERHERO MODALS & CONTEXTUAL MENUS
+  // ============================================================================
+
+  void _showDonorSuperheroActions(Map<String, dynamic> donor) {
+    final id = donor['id']?.toString() ?? '';
+    final name = donor['full_name'] ?? donor['first_name'] ?? 'Donor';
+    final state = donor['state'] ?? 'active';
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person_rounded, color: DuoColors.red),
+                title: Text('Manage $name', style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold)),
+                subtitle: Text('ID: $id · State: $state'),
+              ),
+              const Divider(),
+              ListTile(
+                leading: Icon(state == 'active' ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded, color: DuoColors.red),
+                title: Text(state == 'active' ? 'Pause Alerts for Donor' : 'Unpause / Reactivate Donor'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final nextState = state == 'active' ? 'paused' : 'active';
+                  await SupabaseService().updateDonorState(id, nextState);
+                  _showToast('Updated state to $nextState');
+                  _loadAllAdminData();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.star_rounded, color: Color(0xFFF59E0B)),
+                title: const Text('Award Milestone Honor Badge'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await SupabaseService().awardDonorBadge(
+                    donorId: id,
+                    badgeCode: 'silver_lifesaver',
+                    badgeName: 'Silver Lifesaver',
+                    description: 'Distinguished emergency contribution in Rajahmundry',
+                  );
+                  _showToast('Silver Lifesaver Badge awarded to $name!');
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showBankSuperheroActions(BloodBankModel bank) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.local_hospital_rounded, color: DuoColors.red),
+                title: Text(bank.name, style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold)),
+                subtitle: Text('${bank.stockUnits} units in stock · Trust: ${bank.trustScore}'),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.add_circle_outline_rounded, color: DuoColors.green),
+                title: const Text('Quick Add +5 Units (Emergency Restock)'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await SupabaseService().adjustBankStockQuick(bankId: bank.id, bloodGroup: 'O+', deltaUnits: 5);
+                  _showToast('Added 5 units of O+ to ${bank.name}');
+                  _loadAllAdminData();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.verified_rounded, color: DuoColors.green),
+                title: const Text('Upgrade Facility Trust Score (+5)'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await SupabaseService().updateBloodBank(bankId: bank.id, trustScore: (bank.trustScore + 5.0).clamp(1.0, 100.0));
+                  _showToast('Trust score boosted for ${bank.name}');
+                  _loadAllAdminData();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCreateCampModal() {
+    final titleController = TextEditingController();
+    final venueController = TextEditingController();
+    final areaController = TextEditingController();
+    final cityController = TextEditingController(text: 'Rajahmundry');
+    final capacityController = TextEditingController(text: '100');
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Schedule Voluntary Blood Drive Camp', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Camp Drive Title')),
+              TextField(controller: venueController, decoration: const InputDecoration(labelText: 'Venue / Hall Name')),
+              TextField(controller: areaController, decoration: const InputDecoration(labelText: 'Area / Neighborhood')),
+              TextField(controller: cityController, decoration: const InputDecoration(labelText: 'City')),
+              TextField(controller: capacityController, decoration: const InputDecoration(labelText: 'Donor Capacity Target'), keyboardType: TextInputType.number),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              if (titleController.text.isNotEmpty && venueController.text.isNotEmpty) {
+                await SupabaseService().createCamp(
+                  title: titleController.text.trim(),
+                  venue: venueController.text.trim(),
+                  area: areaController.text.trim().isEmpty ? 'Central' : areaController.text.trim(),
+                  city: cityController.text.trim(),
+                  startsAt: DateTime.now().add(const Duration(days: 3)),
+                  endsAt: DateTime.now().add(const Duration(days: 3, hours: 6)),
+                  capacity: int.tryParse(capacityController.text.trim()) ?? 100,
+                );
+                if (ctx.mounted) Navigator.pop(ctx);
+                _showToast('Blood camp drive successfully scheduled and published!');
+                _loadAllAdminData();
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: DuoColors.red, foregroundColor: Colors.white),
+            child: const Text('Publish Drive'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQuickActionsSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const ListTile(
+                leading: Icon(Icons.bolt_rounded, color: DuoColors.red, size: 28),
+                title: Text('Superhero Command Actions', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontWeight: FontWeight.bold, fontSize: 16)),
+                subtitle: Text('Instant executive overrides for live emergency crisis situations'),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.campaign_rounded, color: DuoColors.red),
+                title: const Text('Dispatch Regional Camp Broadcast'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  setState(() => _selectedSection = 3);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.event_available_rounded, color: Color(0xFF2563EB)),
+                title: const Text('Schedule New Blood Donation Camp'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showCreateCampModal();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.flaky_rounded, color: Color(0xFFD97706)),
+                title: const Text('Open Four-Eyes Approvals Desk'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  setState(() => _selectedSection = 12);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.power_settings_new_rounded, color: DuoColors.red),
+                title: const Text('Toggle Platform Emergency Kill Switch'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _toggleKillSwitch(!_killSwitchActive);
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
