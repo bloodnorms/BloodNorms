@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | admin_console_screen.dart
-// Executive Operations & Superhero Admin Command Center Screen
+// Modern Minimal Operations Command Center Screen
 // Thin Screen Composing Modular Widgets, Sidebar, Header & Workspace Router
 // ============================================================================
 
@@ -41,14 +41,18 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           message,
           style: const TextStyle(
             fontFamily: BrandTypography.fontFamily,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: Colors.white,
+            fontSize: 13,
           ),
         ),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: BrandColors.textPrimary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: BrandColors.primaryAction,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       ),
     );
   }
@@ -70,7 +74,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       final suppressed = res['suppressed'] ?? 0;
       final cost = res['cost_inr'] ?? 0.0;
       _showToast(
-        '🚀 Broadcast sent to $count donors in ${_controller.selectedTargetCity} within ${_controller.broadcastRadiusKm.toInt()} km! ($suppressed suppressed, ₹$cost INR)',
+        'Broadcast sent to $count donors in ${_controller.selectedTargetCity} within ${_controller.broadcastRadiusKm.toInt()} km ($suppressed suppressed, ₹$cost INR)',
       );
     } else if (res['requires_approval'] == true) {
       showFourEyesApprovalDialog(
@@ -88,8 +92,8 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       onToggleKillswitch: () async {
         await _controller.toggleKillSwitch(!_controller.killSwitchActive);
         _showToast(_controller.killSwitchActive
-            ? '🚨 PLATFORM EMERGENCY KILL-SWITCH ACTIVATED'
-            : '✅ Platform operations restored to normal');
+            ? 'Emergency killswitch activated'
+            : 'Platform operations restored to normal');
       },
     );
   }
@@ -109,12 +113,12 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           onShowToast: _showToast,
         );
 
-        final loadingIndicator = const Center(
-          child: CircularProgressIndicator(color: BrandColors.red),
+        const loadingIndicator = Center(
+          child: CircularProgressIndicator(color: BrandColors.primaryAction),
         );
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF4F6FB),
+          backgroundColor: BrandColors.surfaceSoft,
           body: SafeArea(
             child: showPermanentSidebar
                 ? Row(
@@ -134,35 +138,41 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
                     ],
                   )
                 : Scaffold(
-                    backgroundColor: const Color(0xFFF4F6FB),
+                    backgroundColor: BrandColors.surfaceSoft,
                     appBar: AppBar(
                       elevation: 0,
-                      backgroundColor: const Color(0xFF121316),
-                      iconTheme: const IconThemeData(color: Colors.white),
+                      backgroundColor: BrandColors.background,
+                      foregroundColor: BrandColors.textPrimary,
+                      iconTheme: const IconThemeData(color: BrandColors.textPrimary),
+                      bottom: const PreferredSize(
+                        preferredSize: Size.fromHeight(1.0),
+                        child: Divider(height: 1, color: BrandColors.borderSubtle),
+                      ),
                       title: Text(
                         AdminHeader.getPageTitle(_controller.activePage),
                         style: const TextStyle(
                           fontFamily: BrandTypography.fontFamily,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          color: BrandColors.textPrimary,
                           fontSize: 15,
                         ),
                       ),
                       actions: [
                         IconButton(
-                          icon: const Icon(Icons.sync_rounded, color: Colors.white),
+                          icon: const Icon(Icons.sync_rounded, color: BrandColors.textSecondary),
                           onPressed: () {
                             _controller.loadAllAdminData();
-                            _showToast('Synced with Supabase');
+                            _showToast('Synced with database');
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Icons.bolt_rounded, color: BrandColors.red),
+                          icon: const Icon(Icons.bolt_rounded, color: BrandColors.accent),
                           onPressed: _openQuickActions,
                         ),
                       ],
                     ),
                     drawer: Drawer(
+                      backgroundColor: BrandColors.surfaceSoft,
                       child: AdminSidebar(
                         activePage: _controller.activePage,
                         isSidebarCompact: false,

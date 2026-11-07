@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | admin_sidebar_footer.dart
-// Admin Sidebar User Profile & Action Menu Footer
+// Modern Minimal Admin Sidebar User Profile & Action Menu Footer
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -20,22 +20,22 @@ class AdminSidebarFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFF22242B))),
+        border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
       ),
       child: Row(
         children: [
           const CircleAvatar(
-            radius: 17,
-            backgroundColor: BrandColors.redTint,
+            radius: 16,
+            backgroundColor: BrandColors.accentTint,
             child: Text(
               'SA',
               style: TextStyle(
                 fontFamily: BrandTypography.fontFamily,
-                fontWeight: FontWeight.bold,
-                color: BrandColors.red,
-                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: BrandColors.accent,
+                fontSize: 11,
               ),
             ),
           ),
@@ -46,20 +46,20 @@ class AdminSidebarFooter extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Siva (Super Admin)',
+                    'Siva (Lead Admin)',
                     style: TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       fontSize: 12,
-                      color: Colors.white,
+                      color: BrandColors.textPrimary,
                     ),
                   ),
                   Text(
                     'siva@arkiolabs.com',
                     style: TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      fontSize: 10,
-                      color: Color(0xFF9CA3AF),
+                      fontSize: 11,
+                      color: BrandColors.textSecondary,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -67,9 +67,17 @@ class AdminSidebarFooter extends StatelessWidget {
               ),
             ),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert_rounded,
-                  color: Color(0xFF9CA3AF), size: 18),
-              color: const Color(0xFF1E2028),
+              icon: const Icon(
+                Icons.more_vert_rounded,
+                color: BrandColors.textSecondary,
+                size: 18,
+              ),
+              color: BrandColors.background,
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(BrandColors.radiusInput),
+                side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
+              ),
               onSelected: (val) {
                 if (val == 'settings') onPageSelected('settings_algorithm');
                 if (val == 'killswitch') onPageSelected('settings_killswitch');
@@ -77,21 +85,37 @@ class AdminSidebarFooter extends StatelessWidget {
               itemBuilder: (ctx) => const [
                 PopupMenuItem(
                   value: 'profile',
-                  child: Text('View Profile (Super Admin)',
-                      style: TextStyle(color: Colors.white, fontSize: 12)),
+                  child: Text(
+                    'View Profile',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      color: BrandColors.textPrimary,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
                 PopupMenuItem(
                   value: 'settings',
-                  child: Text('Algorithm Settings',
-                      style: TextStyle(color: Colors.white, fontSize: 12)),
+                  child: Text(
+                    'Algorithm Settings',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      color: BrandColors.textPrimary,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
                 PopupMenuItem(
                   value: 'killswitch',
-                  child: Text('Master Killswitch',
-                      style: TextStyle(
-                          color: BrandColors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12)),
+                  child: Text(
+                    'Emergency Killswitch',
+                    style: TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      color: BrandColors.statusError,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
               ],
             ),

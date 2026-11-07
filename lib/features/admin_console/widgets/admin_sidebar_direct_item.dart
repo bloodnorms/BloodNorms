@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | admin_sidebar_direct_item.dart
-// Direct Navigation Item Tile for Admin Sidebar
+// Modern Minimal Direct Navigation Item Tile for Admin Sidebar
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -38,15 +38,15 @@ class AdminSidebarDirectItem extends StatelessWidget {
         message: title,
         preferBelow: false,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 2),
+          margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF1F222B) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            color: isSelected ? BrandColors.accentTint : Colors.transparent,
+            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
           ),
           child: IconButton(
             icon: Icon(
               icon,
-              color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+              color: isSelected ? BrandColors.accent : BrandColors.textSecondary,
               size: 18,
             ),
             onPressed: () {
@@ -58,55 +58,54 @@ class AdminSidebarDirectItem extends StatelessWidget {
       );
     }
 
+    final activeBg = isSelected ? BrandColors.accentTint : Colors.transparent;
+    final itemColor = isSelected ? BrandColors.accent : BrandColors.textSecondary;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 2),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF1F222B) : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
+        color: activeBg,
+        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(BrandColors.radiusPill),
           onTap: () {
             onSelected(id);
             if (!isPermanent) Navigator.pop(context);
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
             child: Row(
               children: [
-                Icon(
-                  icon,
-                  size: 17,
-                  color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
-                ),
+                Icon(icon, size: 18, color: itemColor),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 12.5,
-                      color: isSelected ? Colors.white : const Color(0xFFD1D5DB),
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontSize: 13,
+                      color: isSelected ? BrandColors.accent : BrandColors.textPrimary,
                     ),
                   ),
                 ),
                 if (badge != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
-                      color: (badgeColor ?? BrandColors.red).withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(4),
+                      color: (badgeColor ?? BrandColors.accent).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                     ),
                     child: Text(
                       badge!,
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        color: badgeColor ?? BrandColors.red,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: badgeColor ?? BrandColors.accent,
                       ),
                     ),
                   ),

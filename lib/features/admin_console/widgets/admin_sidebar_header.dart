@@ -1,9 +1,10 @@
 // ============================================================================
 // BloodNorms | admin_sidebar_header.dart
-// Admin Sidebar Top Brand Header & ⌘K Search Pill
+// Modern Minimal Admin Sidebar Top Brand Header & Search Pill
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 
 class AdminSidebarHeader extends StatelessWidget {
@@ -28,22 +29,15 @@ class AdminSidebarHeader extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFE52E2E), Color(0xFFB91C1C)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: BrandColors.primaryAction,
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x44E52E2E),
-                      blurRadius: 6,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: const Center(
-                  child: Icon(Icons.favorite_rounded, color: Colors.white, size: 20),
+                  child: Icon(
+                    Icons.favorite_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
               ),
               if (!isSidebarCompact) ...[
@@ -53,33 +47,34 @@ class AdminSidebarHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'BloodNorms OS',
+                        'BloodNorms',
                         style: TextStyle(
                           fontFamily: BrandTypography.fontFamily,
                           fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          color: BrandColors.textPrimary,
                         ),
                       ),
                       Text(
-                        'admin.bloodnorms.org',
+                        'Operations console',
                         style: TextStyle(
                           fontFamily: BrandTypography.fontFamily,
-                          fontSize: 10,
-                          color: Color(0xFF9CA3AF),
+                          fontSize: 11,
+                          color: BrandColors.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                InkWell(
-                  onTap: onToggleCompact,
-                  borderRadius: BorderRadius.circular(6),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    child: const Icon(Icons.unfold_more_rounded,
-                        color: Color(0xFF9CA3AF), size: 18),
+                IconButton(
+                  onPressed: onToggleCompact,
+                  icon: const Icon(
+                    Icons.keyboard_double_arrow_left_rounded,
+                    color: BrandColors.textSecondary,
+                    size: 18,
                   ),
+                  tooltip: 'Collapse sidebar',
+                  splashRadius: 18,
                 ),
               ],
             ],
@@ -89,23 +84,27 @@ class AdminSidebarHeader extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1C23),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF282B37)),
+                color: BrandColors.background,
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.search_rounded, size: 15, color: Color(0xFF9CA3AF)),
+                  Icon(
+                    Icons.search_rounded,
+                    size: 16,
+                    color: BrandColors.textSecondary,
+                  ),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Search actions...  ⌘K',
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
-                        fontSize: 11,
-                        color: Color(0xFF9CA3AF),
+                        fontSize: 12,
+                        color: BrandColors.textMuted,
                       ),
                     ),
                   ),

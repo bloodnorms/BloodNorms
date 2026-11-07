@@ -1,10 +1,11 @@
 // ============================================================================
 // BloodNorms | admin_sidebar.dart
-// Untitled UI Expandable Nested Sidebar Navigation (#121316 Deep Charcoal Dark)
+// Modern Minimal Light Sidebar Navigation (#F8F9FA Soft Surface)
 // Modular Widget Composing Header, Navigation Tree, and User Footer
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import '../../../shared/theme/brand_colors.dart';
 import 'admin_sidebar_footer.dart';
 import 'admin_sidebar_header.dart';
 import 'admin_sidebar_navigation_tree.dart';
@@ -39,8 +40,10 @@ class AdminSidebar extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       width: sidebarWidth,
       decoration: const BoxDecoration(
-        color: Color(0xFF121316),
-        border: Border(right: BorderSide(color: Color(0xFF22242B), width: 1.5)),
+        color: BrandColors.surfaceSoft,
+        border: Border(
+          right: BorderSide(color: BrandColors.borderSubtle, width: 1.0),
+        ),
       ),
       child: Column(
         children: [

@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | admin_sidebar_category_tile.dart
-// Expandable Category Accordion Tile for Admin Sidebar
+// Modern Minimal Expandable Category Accordion Tile for Admin Sidebar
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -46,15 +46,15 @@ class AdminSidebarCategoryTile extends StatelessWidget {
         message: categoryTitle,
         preferBelow: false,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 2),
+          margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
           decoration: BoxDecoration(
-            color: hasActiveChild ? const Color(0xFF1F222B) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            color: hasActiveChild ? BrandColors.accentTint : Colors.transparent,
+            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
           ),
           child: IconButton(
             icon: Icon(
               categoryIcon,
-              color: hasActiveChild ? Colors.white : const Color(0xFF9CA3AF),
+              color: hasActiveChild ? BrandColors.accent : BrandColors.textSecondary,
               size: 18,
             ),
             onPressed: () => onToggleCategory(categoryId),
@@ -66,64 +66,70 @@ class AdminSidebarCategoryTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => onToggleCategory(categoryId),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7.5),
-            child: Row(
-              children: [
-                Icon(
-                  categoryIcon,
-                  size: 17,
-                  color: hasActiveChild ? Colors.white : const Color(0xFF9CA3AF),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    categoryTitle,
-                    style: TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontWeight: hasActiveChild ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 12.5,
-                      color: hasActiveChild ? Colors.white : const Color(0xFFD1D5DB),
-                    ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+            onTap: () => onToggleCategory(categoryId),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    categoryIcon,
+                    size: 18,
+                    color: hasActiveChild ? BrandColors.accent : BrandColors.textSecondary,
                   ),
-                ),
-                if (badge != null)
-                  Container(
-                    margin: const EdgeInsets.only(right: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                    decoration: BoxDecoration(
-                      color: (badgeColor ?? BrandColors.red).withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                  const SizedBox(width: 10),
+                  Expanded(
                     child: Text(
-                      badge!,
+                      categoryTitle,
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
-                        fontSize: 8.5,
-                        fontWeight: FontWeight.bold,
-                        color: badgeColor ?? BrandColors.red,
+                        fontWeight: hasActiveChild ? FontWeight.w600 : FontWeight.w500,
+                        fontSize: 13,
+                        color: hasActiveChild ? BrandColors.accent : BrandColors.textPrimary,
                       ),
                     ),
                   ),
-                Icon(
-                  isExpanded
-                      ? Icons.keyboard_arrow_up_rounded
-                      : Icons.keyboard_arrow_down_rounded,
-                  size: 16,
-                  color: const Color(0xFF9CA3AF),
-                ),
-              ],
+                  if (badge != null)
+                    Container(
+                      margin: const EdgeInsets.only(right: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: (badgeColor ?? BrandColors.accent).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                      ),
+                      child: Text(
+                        badge!,
+                        style: TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: badgeColor ?? BrandColors.accent,
+                        ),
+                      ),
+                    ),
+                  Icon(
+                    isExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    size: 18,
+                    color: BrandColors.textSecondary,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
         if (isExpanded)
           Container(
-            margin: const EdgeInsets.only(left: 18),
+            margin: const EdgeInsets.only(left: 24, top: 2, bottom: 4),
+            padding: const EdgeInsets.only(left: 8),
             decoration: const BoxDecoration(
-              border: Border(left: BorderSide(color: Color(0xFF282B37), width: 1.5)),
+              border: Border(
+                left: BorderSide(color: BrandColors.borderSubtle, width: 1.5),
+              ),
             ),
             child: Column(
               children: children.map((child) {
@@ -132,47 +138,44 @@ class AdminSidebarCategoryTile extends StatelessWidget {
                 final isSelected = activePage == id;
 
                 return Container(
-                  margin: const EdgeInsets.only(left: 8, bottom: 2, top: 2),
+                  margin: const EdgeInsets.symmetric(vertical: 1.5),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF1F222B) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(6),
+                    color: isSelected ? BrandColors.accentTint : Colors.transparent,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                   ),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                       onTap: () {
                         onPageSelected(id);
                         if (!isPermanent) Navigator.pop(context);
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 6.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                         child: Row(
                           children: [
                             Container(
-                              width: 5,
-                              height: 5,
+                              width: 6,
+                              height: 6,
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? BrandColors.red
-                                    : Colors.transparent,
+                                    ? BrandColors.accent
+                                    : BrandColors.borderStrong,
                                 shape: BoxShape.circle,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 title,
                                 style: TextStyle(
                                   fontFamily: BrandTypography.fontFamily,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  fontSize: 11.5,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                  fontSize: 12.5,
                                   color: isSelected
-                                      ? Colors.white
-                                      : const Color(0xFF9CA3AF),
+                                      ? BrandColors.accent
+                                      : BrandColors.textSecondary,
                                 ),
                               ),
                             ),
