@@ -3,12 +3,14 @@
 // Barrel export for Admin Console widgets
 // ============================================================================
 
+export 'admin_four_eyes_dialog.dart';
 export 'admin_header.dart';
 export 'admin_sidebar.dart';
 export 'admin_sidebar_category_tile.dart';
 export 'admin_sidebar_direct_item.dart';
 export 'admin_sidebar_footer.dart';
 export 'admin_sidebar_header.dart';
+export 'admin_workspace_canvas.dart';
 export 'admin_workspace_router.dart';
 export 'algorithm_settings_view.dart';
 export 'approvals_queue_view.dart';
