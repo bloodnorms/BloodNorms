@@ -68,3 +68,4 @@ All design tokens are located in `lib/shared/theme/brand_colors.dart` and `lib/s
 - **NEVER** exceed the 200-line file limit. Extract sub-widgets immediately if approaching 200 lines.
 - **NEVER** place two primary black action pill buttons next to each other.
 - **NEVER** introduce dark theme variants or toggles.
+

@@ -67,3 +67,4 @@ Interactive elements provide instantaneous tactile feedback: buttons scale to 0.
 
 ### 18. Light Theme Strictness
 The platform is designed exclusively in Light Theme. Consistent high-contrast light surfaces ensure maximum readability in bright hospital emergency wards and outdoor blood drive tents.
+

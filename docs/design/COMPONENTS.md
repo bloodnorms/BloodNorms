@@ -148,3 +148,4 @@ A sliding segmented control pill with soft track and elevated white active indic
 | `items` | `List<SegmentItem<T>>` | Required | List of segment items (value, label, icon) |
 | `selectedValue` | `T` | Required | Currently active selection |
 | `onValueChanged` | `ValueChanged<T>` | Required | Selection change handler |
+

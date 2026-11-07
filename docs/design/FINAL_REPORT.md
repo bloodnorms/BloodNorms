@@ -125,3 +125,4 @@ All tokens are defined in `lib/shared/theme/brand_colors.dart` and `lib/shared/t
 15. **`docs/design/UX_PRINCIPLES.md`:** The 18 "3-Year-Old Simple" UX rules.
 16. **`docs/design/ADDING_A_NEW_SCREEN.md`:** Developer guide for creating new screens.
 17. **`AGENTS.md`:** Updated with Section 7 ("UI and UX Rules for Agents").
+
