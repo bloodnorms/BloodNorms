@@ -1,7 +1,57 @@
-# Miscellaneous
+# ==============================================================================
+# BloodNorms — .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. ENVIRONMENT FILES — NEVER commit real credentials
+# ------------------------------------------------------------------------------
+# All .env variants (root and assets)
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+assets/.env
+# Keep the template example files
+!.env.example
+!assets/.env.example
+
+# ------------------------------------------------------------------------------
+# 2. FLUTTER / DART / PUB
+# ------------------------------------------------------------------------------
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio build artifacts
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# ------------------------------------------------------------------------------
+# 3. PYTHON (scratch test scripts)
+# ------------------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ------------------------------------------------------------------------------
+# 4. MISCELLANEOUS OS / EDITOR
+# ------------------------------------------------------------------------------
 *.class
 *.log
-*.pyc
 *.swp
 .DS_Store
 .atom/
@@ -18,28 +68,20 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Keys and certificates
+*.pem
+*.p12
+*.key
+*.cer
+*.crt
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
+# Supabase local state
+.branches/
+.temp/
+supabase/.temp/
 
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Temp / scratch
+*.tmp
+*.bak
+*_OLD*
+*_BACKUP*
