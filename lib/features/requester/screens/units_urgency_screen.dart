@@ -1,7 +1,6 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | units_urgency_screen.dart
-// Units, Urgency & Component selector — Duolingo Feather Red Style
-// 3D Pushable Steppers, 3D Segmented Control, Mascot speech bubble, Material
+// Units & Urgency selection screen — Thin Screen Composing Stepper & Pickers
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -11,10 +10,12 @@ import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/quantity_stepper.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/segmented_picker.dart';
-import '../../../shared/widgets/quantity_stepper.dart';
 import '../providers/request_flow_provider.dart';
+import '../widgets/blood_component_selector_card.dart';
+import '../widgets/blood_component_sheet.dart';
 
 class UnitsUrgencyScreen extends StatefulWidget {
   const UnitsUrgencyScreen({super.key});
@@ -36,13 +37,24 @@ class _UnitsUrgencyScreenState extends State<UnitsUrgencyScreen> {
     _component = globalRequestFlow.state.component;
   }
 
+  void _showComponentModal(BuildContext context) {
+    showBloodComponentPickerSheet(
+      context: context,
+      selectedComponent: _component,
+      onSelected: (val) {
+        setState(() => _component = val);
+        globalRequestFlow.setComponent(val);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: DuoColors.bgGrouped,
-      appBar: DuoHeaderBar(
+      backgroundColor: BrandColors.bgGrouped,
+      appBar: ScreenHeader(
         title: loc.t('units.title'),
         showBackButton: true,
       ),
@@ -55,28 +67,25 @@ class _UnitsUrgencyScreenState extends State<UnitsUrgencyScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Duolingo Speech Bubble
-                    const DuoSpeechBubble(
+                    const SpeechBubble(
                       emoji: '⏱️',
                       text: 'Specify how many units you need and when the blood is required.',
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      loc.t('units.title'),
-                      style: DuoTypography.title1(color: DuoColors.textPrimary),
+                      'Units',
+                      style: BrandTypography.title1(color: BrandColors.textPrimary),
                     ),
                     const SizedBox(height: 16),
-
-                    // 3D Stepper in Duolingo Card
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: DuoColors.border, width: 2.0),
+                        border: Border.all(color: BrandColors.border, width: 2.0),
                         boxShadow: const [
                           BoxShadow(
-                            color: DuoColors.border,
+                            color: BrandColors.border,
                             offset: Offset(0, 4),
                             blurRadius: 0,
                           ),
@@ -84,9 +93,9 @@ class _UnitsUrgencyScreenState extends State<UnitsUrgencyScreen> {
                       ),
                       child: Column(
                         children: [
-                          Text('UNITS NEEDED', style: DuoTypography.caption(color: DuoColors.textSecondary)),
+                          Text('UNITS NEEDED', style: BrandTypography.caption(color: BrandColors.textSecondary)),
                           const SizedBox(height: 16),
-                          DuoStepper(
+                          QuantityStepper(
                             value: _units,
                             min: 1,
                             max: 10,
@@ -99,148 +108,65 @@ class _UnitsUrgencyScreenState extends State<UnitsUrgencyScreen> {
                       ),
                     ),
                     const SizedBox(height: 28),
-
-                    // Urgency 3D Segmented Control
                     Text(
                       'Urgency Level',
-                      style: DuoTypography.title3(color: DuoColors.textPrimary),
+                      style: BrandTypography.title3(color: BrandColors.textPrimary),
                     ),
                     const SizedBox(height: 12),
-                    DuoSegmentControl<RequestUrgencyLevel>(
+                    SegmentedPicker<RequestUrgencyLevel>(
                       items: const [
-                        DuoSegmentItem(
+                        SegmentItem(
                           value: RequestUrgencyLevel.now,
                           label: 'NOW',
                           icon: Icons.bolt_rounded,
                         ),
-                        DuoSegmentItem(
+                        SegmentItem(
                           value: RequestUrgencyLevel.within6h,
                           label: '6 HOURS',
                           icon: Icons.schedule_rounded,
                         ),
-                        DuoSegmentItem(
+                        SegmentItem(
                           value: RequestUrgencyLevel.within24h,
                           label: '24 HOURS',
                           icon: Icons.calendar_month_rounded,
                         ),
                       ],
                       selectedValue: _urgency,
-                      activeColor: DuoColors.red,
-                      activeShadowColor: DuoColors.redShadow,
+                      activeColor: BrandColors.red,
+                      activeShadowColor: BrandColors.redShadow,
                       onValueChanged: (val) {
                         setState(() => _urgency = val);
                         globalRequestFlow.setUrgency(val);
                       },
                     ),
                     const SizedBox(height: 28),
-
-                    // Blood Component 3D Card
                     Text(
                       'Blood Component',
-                      style: DuoTypography.title3(color: DuoColors.textPrimary),
+                      style: BrandTypography.title3(color: BrandColors.textPrimary),
                     ),
                     const SizedBox(height: 12),
-                    GestureDetector(
+                    BloodComponentSelectorCard(
+                      component: _component,
                       onTap: () => _showComponentModal(context),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: DuoColors.border, width: 2.0),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: DuoColors.border,
-                              offset: Offset(0, 3),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const Text('🩸', style: TextStyle(fontSize: 22)),
-                                const SizedBox(width: 12),
-                                Text(
-                                  _component.label,
-                                  style: DuoTypography.headline(color: DuoColors.textPrimary),
-                                ),
-                              ],
-                            ),
-                            const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              size: 24,
-                              color: DuoColors.textSecondary,
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ],
                 ),
               ),
             ),
-            // Sticky 3D Continue
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                border: Border(top: BorderSide(color: DuoColors.border, width: 2.0)),
+                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
               ),
               child: SizedBox(
                 width: double.infinity,
-                child: DuoButton(
+                child: ActionButton(
                   label: loc.t('cta.continue'),
-                  variant: DuoButtonVariant.primary,
+                  variant: ActionButtonVariant.primary,
                   onPressed: () => context.push('/location'),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showComponentModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Select Blood Component', style: DuoTypography.title2(color: DuoColors.textPrimary)),
-            const SizedBox(height: 16),
-            ...BloodComponentType.values.map((type) {
-              final isSelected = type == _component;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: DuoButton(
-                  label: type.label,
-                  variant: isSelected ? DuoButtonVariant.primary : DuoButtonVariant.secondary,
-                  height: 48,
-                  onPressed: () {
-                    setState(() => _component = type);
-                    globalRequestFlow.setComponent(type);
-                    Navigator.pop(ctx);
-                  },
-                ),
-              );
-            }),
-            const SizedBox(height: 8),
-            DuoButton(
-              label: 'CANCEL',
-              variant: DuoButtonVariant.plain,
-              height: 44,
-              onPressed: () => Navigator.pop(ctx),
             ),
           ],
         ),

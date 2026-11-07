@@ -1,7 +1,6 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | location_screen.dart
-// Location selection screen — Duolingo Feather Red Style
-// Interactive OpenStreetMap, 3D GPS button, landmark chips, Material
+// Location selection screen — Thin Screen Composing Map & Landmark Picker
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -14,8 +13,9 @@ import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/screen_header.dart';
-import '../../../shared/widgets/app_text_field.dart';
 import '../providers/request_flow_provider.dart';
+import '../widgets/location_map_view.dart';
+import '../widgets/location_search_header.dart';
 
 class LocationPickerScreen extends StatefulWidget {
   const LocationPickerScreen({super.key});
@@ -116,209 +116,68 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: DuoColors.bgGrouped,
-      appBar: DuoHeaderBar(
+      backgroundColor: BrandColors.bgGrouped,
+      appBar: ScreenHeader(
         title: loc.t('loc.use'),
         showBackButton: true,
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Search field & 3D chips in clean white container
-            Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
-                children: [
-                  DuoTextField(
-                    controller: _searchController,
-                    hintText: loc.t('loc.search'),
-                    prefixIcon: Icons.search_rounded,
-                    suffix: IconButton(
-                      icon: const Icon(Icons.arrow_forward_rounded, color: DuoColors.red),
-                      onPressed: () => _onSearchSubmitted(_searchController.text),
-                    ),
-                    onChanged: (val) {
-                      if (val.length > 3) {
-                        _onSearchSubmitted(val);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  // Quick landmark 3D chips
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: _quickLocations.map((q) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: GestureDetector(
-                            onTap: () => _selectQuickLocation(q),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(color: DuoColors.border, width: 2.0),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: DuoColors.border,
-                                    offset: Offset(0, 2),
-                                    blurRadius: 0,
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.near_me_rounded, size: 14, color: DuoColors.red),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    q['name'],
-                                    style: TextStyle(
-                                      fontFamily: DuoTypography.fontFamily,
-                                      color: DuoColors.textPrimary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ],
-              ),
+            LocationSearchHeader(
+              searchController: _searchController,
+              hintText: loc.t('loc.search'),
+              quickLocations: _quickLocations,
+              onSearchSubmitted: _onSearchSubmitted,
+              onSelectQuickLocation: _selectQuickLocation,
             ),
-            // Map Container
             Expanded(
-              child: Stack(
-                children: [
-                  FlutterMap(
-                    mapController: _mapController,
-                    options: MapOptions(
-                      initialCenter: _currentPoint,
-                      initialZoom: 13.0,
-                      onTap: (_, point) async {
-                        setState(() {
-                          _currentPoint = point;
-                          _placeLabel = 'Resolving OpenStreetMap address...';
-                        });
-                        final resolved = await LocationService.reverseGeocode(point.latitude, point.longitude);
-                        if (mounted) {
-                          setState(() {
-                            _placeLabel = resolved ?? 'Pinned: ${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}';
-                          });
-                          globalRequestFlow.setLocation(
-                            lat: point.latitude,
-                            lng: point.longitude,
-                            label: _placeLabel,
-                          );
-                        }
-                      },
-                    ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: LocationService.osmTileUrl,
-                        userAgentPackageName: 'org.bloodnorms.emergency',
-                      ),
-                      MarkerLayer(
-                        markers: [
-                          Marker(
-                            point: _currentPoint,
-                            width: 50,
-                            height: 50,
-                            child: const Icon(
-                              Icons.location_on_rounded,
-                              size: 44,
-                              color: DuoColors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  // Floating "My location" 3D button
-                  Positioned(
-                    bottom: 16,
-                    left: 20,
-                    right: 20,
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: _isLoadingGps ? null : _useMyLocation,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(color: DuoColors.redShadow, width: 2.0),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: DuoColors.redShadow,
-                                offset: Offset(0, 3),
-                                blurRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (_isLoadingGps)
-                                const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: DuoColors.red),
-                                )
-                              else
-                                const Icon(
-                                  Icons.my_location_rounded,
-                                  size: 18,
-                                  color: DuoColors.red,
-                                ),
-                              const SizedBox(width: 8),
-                              Text(
-                                loc.t('loc.use').toUpperCase(),
-                                style: TextStyle(
-                                  fontFamily: DuoTypography.fontFamily,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: DuoColors.red,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              child: LocationMapView(
+                mapController: _mapController,
+                currentPoint: _currentPoint,
+                isLoadingGps: _isLoadingGps,
+                gpsButtonLabel: loc.t('loc.use'),
+                onMapTap: (point) async {
+                  setState(() {
+                    _currentPoint = point;
+                    _placeLabel = 'Resolving OpenStreetMap address...';
+                  });
+                  final resolved = await LocationService.reverseGeocode(point.latitude, point.longitude);
+                  if (mounted) {
+                    setState(() {
+                      _placeLabel = resolved ?? 'Pinned: ${point.latitude.toStringAsFixed(4)}, ${point.longitude.toStringAsFixed(4)}';
+                    });
+                    globalRequestFlow.setLocation(
+                      lat: point.latitude,
+                      lng: point.longitude,
+                      label: _placeLabel,
+                    );
+                  }
+                },
+                onUseMyLocation: _useMyLocation,
               ),
             ),
-            // Bottom Selected Location Bar & Continue CTA
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                border: Border(top: BorderSide(color: DuoColors.border, width: 2.0)),
+                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.pin_drop_rounded, size: 20, color: DuoColors.red),
+                      const Icon(Icons.pin_drop_rounded, size: 20, color: BrandColors.red),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _placeLabel,
                           style: TextStyle(
-                            fontFamily: DuoTypography.fontFamily,
+                            fontFamily: BrandTypography.fontFamily,
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
-                            color: DuoColors.textPrimary,
+                            color: BrandColors.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -329,9 +188,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   const SizedBox(height: 14),
                   SizedBox(
                     width: double.infinity,
-                    child: DuoButton(
+                    child: ActionButton(
                       label: loc.t('cta.continue'),
-                      variant: DuoButtonVariant.primary,
+                      variant: ActionButtonVariant.primary,
                       onPressed: () => context.push('/banks'),
                     ),
                   ),
