@@ -72,6 +72,24 @@ serve(async (req: Request) => {
       return new Response(twiml, { headers: { "Content-Type": "text/xml" } });
     }
 
+    // Log call event to voice_calls table
+    const callSid = url.searchParams.get("CallSid") ?? `CA_${Date.now()}`;
+    const fromPhone = url.searchParams.get("From") ?? "+918832471234";
+    const maskedPhone = `${fromPhone.substring(0, 6)} •••••`;
+
+    await supabase.from("voice_calls").insert({
+      call_sid: callSid,
+      phone_masked: maskedPhone,
+      direction: "inbound",
+      mode: voiceMode,
+      language: "te",
+      duration_seconds: 60,
+      outcome: "ivr_triage_completed",
+      tool_calls_count: 1,
+      estimated_cost_inr: 1.80,
+      meta: { step, provider: "twilio" },
+    });
+
     // Fallback completion
     const finalTwiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>

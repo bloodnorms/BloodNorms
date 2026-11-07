@@ -276,7 +276,7 @@ class _BanksListScreenState extends State<BanksListScreen> {
                     child: DuoButton(
                       label: 'SEARCH VERIFIED DONORS',
                       variant: DuoButtonVariant.primary,
-                      onPressed: () => context.push('/details'),
+                      onPressed: () => context.push('/units'),
                     ),
                   ),
                 ],

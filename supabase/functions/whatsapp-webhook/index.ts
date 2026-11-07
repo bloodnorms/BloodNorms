@@ -54,6 +54,46 @@ serve(async (req: Request) => {
           await sendWhatsAppText(from, "BloodNorms: You have been opted out. You will not receive any more alerts. Reply START to resume.");
           return new Response("OK", { status: 200 });
         }
+
+        // Handle donor YES confirmation to camp / shortage broadcast
+        if (text === "YES" || text === "CONFIRM" || text === "అవును" || text === "హా" || text === "हाँ") {
+          const { data: donor } = await supabase
+            .from("donors")
+            .select("id, full_name, blood_group")
+            .eq("phone", phoneE164)
+            .maybeSingle();
+
+          if (donor) {
+            const { data: latestCamp } = await supabase
+              .from("bank_camps")
+              .select("id, title, venue, starts_at")
+              .gte("starts_at", new Date().toISOString())
+              .order("starts_at", { ascending: true })
+              .limit(1)
+              .maybeSingle();
+
+            if (latestCamp) {
+              await supabase.from("camp_signups").upsert({
+                camp_id: latestCamp.id,
+                donor_id: donor.id,
+              });
+              await sendWhatsAppText(from, `Thank you, ${donor.full_name}! Your attendance is confirmed for ${latestCamp.title} at ${latestCamp.venue}. We look forward to seeing you save lives!`);
+            } else {
+              await sendWhatsAppText(from, `Thank you, ${donor.full_name}! Your response has been recorded. Our team will contact you when a critical need arises.`);
+            }
+
+            await supabase.from("message_events").insert({
+              channel: "whatsapp",
+              direction: "inbound",
+              phone_masked: `${phoneE164.substring(0, 6)} •••••`,
+              event_type: "camp_confirmation",
+              status: "received",
+              payload_meta: { text, donor_id: donor.id },
+            });
+
+            return new Response("OK", { status: 200 });
+          }
+        }
       }
 
       // Router: Check if requester or donor flow

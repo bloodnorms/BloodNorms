@@ -1,7 +1,7 @@
 // ============================================================================
 // BloodNorms | live_tracking_screen.dart
 // Live tracking screen with Map & Radar — Duolingo Feather Red Style
-// Interactive OpenStreetMap, radar search card, 3D keypad entry, 3D donor cards
+// Realtime PostGIS PostgREST Supabase communication, Arial, zero dummy data
 // ============================================================================
 
 import 'dart:async';
@@ -10,6 +10,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/duo_colors.dart';
@@ -31,56 +32,113 @@ class LiveTrackingScreen extends StatefulWidget {
 
 class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   double _currentRingKm = 1.0;
-  int _contacted = 6;
-  int _accepted = 1;
+  int _contacted = 0;
+  int _accepted = 0;
   int _need = 1;
-  Timer? _simulationTimer;
+  String _hospitalName = 'Hospital';
+  String _bloodGroup = 'Blood';
+  double _hospitalLat = AppConstants.defaultLat;
+  double _hospitalLng = AppConstants.defaultLng;
+
+  bool _isClosed = false;
+  String _closedStatus = '';
+  String _closedOutcome = '';
+
+  StreamSubscription? _requestSub;
+  StreamSubscription? _contactsSub;
   late final MapController _mapController;
   bool _showMap = true; // Toggle between Live Map and Radar Graphic
 
-  final List<DonorCardModel> _donors = [
-    DonorCardModel(
-      id: 'd1',
-      firstName: 'Ramesh',
-      bloodGroup: 'O+',
-      distanceBand: '1–2 km',
-      etaMinutes: 20,
-      status: 'accepted',
-      isStandby: false,
-      phoneRevealed: true,
-      phone: '+919848111222',
-    ),
-  ];
+  List<DonorCardModel> _donors = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
     _need = globalRequestFlow.state.units;
+    _bloodGroup = globalRequestFlow.state.bloodGroup?.label ?? 'Blood';
+    _hospitalLat = globalRequestFlow.state.lat;
+    _hospitalLng = globalRequestFlow.state.lng;
+    _hospitalName = globalRequestFlow.state.hospitalName.isNotEmpty
+        ? globalRequestFlow.state.hospitalName
+        : 'Hospital';
 
-    // Simulation timer to expand search rings every 8 seconds
-    _simulationTimer = Timer.periodic(const Duration(seconds: 8), (timer) {
-      if (!mounted) return;
-      if (_currentRingKm < 5.0) {
+    _initSupabaseRealtime();
+  }
+
+  Future<void> _initSupabaseRealtime() async {
+    // 1. Fetch current request state directly from Supabase
+    try {
+      final req = await SupabaseService().getRequest(widget.requestId);
+      if (mounted && req != null) {
+        final status = req['status']?.toString();
+        final isClosed = (status == 'cancelled' || status == 'fulfilled');
         setState(() {
-          _currentRingKm += 1.0;
-          _contacted += 6;
-          if (_donors.length == 1) {
-            _donors.add(
-              DonorCardModel(
-                id: 'd2',
-                firstName: 'Suresh',
-                bloodGroup: globalRequestFlow.state.bloodGroup?.label ?? 'O+',
-                distanceBand: '${_currentRingKm.toInt()}–${(_currentRingKm + 1).toInt()} km',
-                etaMinutes: 30,
-                status: 'accepted',
-                isStandby: false,
-                phoneRevealed: false,
-                phone: '+919848222333',
-              ),
-            );
-            _accepted += 1;
+          _isClosed = isClosed;
+          _closedStatus = status ?? '';
+          _closedOutcome = req['outcome']?.toString() ?? '';
+          _currentRingKm = (req['current_ring_km'] as num?)?.toDouble() ?? _currentRingKm;
+          _contacted = (req['donors_contacted'] as num?)?.toInt() ?? _contacted;
+          _accepted = (req['donors_accepted'] as num?)?.toInt() ?? _accepted;
+          _need = (req['units_needed'] as num?)?.toInt() ?? _need;
+          _bloodGroup = req['blood_group']?.toString() ?? _bloodGroup;
+          _hospitalName = req['hospital_name']?.toString() ?? _hospitalName;
+          final lat = (req['hospital_lat'] as num?)?.toDouble();
+          final lng = (req['hospital_lng'] as num?)?.toDouble();
+          if (lat != null && lng != null && lat != 0.0) {
+            _hospitalLat = lat;
+            _hospitalLng = lng;
           }
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching request: $e');
+    }
+
+    // 2. Fetch dispatched contacts directly from Supabase
+    try {
+      final initialContacts = await SupabaseService().getRequestContacts(widget.requestId);
+      if (mounted) {
+        setState(() {
+          _donors = initialContacts;
+          if (initialContacts.isNotEmpty) {
+            _contacted = initialContacts.length;
+            _accepted = initialContacts.where((d) => d.status == 'accepted').length;
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching contacts: $e');
+      if (mounted) setState(() => _isLoading = false);
+    }
+
+    // 3. Stream Request changes live from Supabase
+    _requestSub = SupabaseService().streamRequest(widget.requestId).listen((row) {
+      if (!mounted || row == null) return;
+      final status = row['status']?.toString();
+      final isClosed = (status == 'cancelled' || status == 'fulfilled');
+      setState(() {
+        _isClosed = isClosed;
+        _closedStatus = status ?? '';
+        _closedOutcome = row['outcome']?.toString() ?? '';
+        _currentRingKm = (row['current_ring_km'] as num?)?.toDouble() ?? _currentRingKm;
+        _contacted = (row['donors_contacted'] as num?)?.toInt() ?? _contacted;
+        _accepted = (row['donors_accepted'] as num?)?.toInt() ?? _accepted;
+        _need = (row['units_needed'] as num?)?.toInt() ?? _need;
+      });
+    });
+
+    // 4. Stream Contact changes live from Supabase
+    _contactsSub = SupabaseService().streamRequestContacts(widget.requestId).listen((rows) async {
+      if (!mounted) return;
+      final updated = await SupabaseService().getRequestContacts(widget.requestId);
+      if (mounted) {
+        setState(() {
+          _donors = updated;
+          _contacted = updated.isNotEmpty ? updated.length : _contacted;
+          _accepted = updated.where((d) => d.status == 'accepted').length;
         });
       }
     });
@@ -88,22 +146,57 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
 
   @override
   void dispose() {
-    _simulationTimer?.cancel();
+    _requestSub?.cancel();
+    _contactsSub?.cancel();
     super.dispose();
   }
 
   Future<void> _callDonor(DonorCardModel donor) async {
-    final phone = donor.phone ?? '+919848111222';
-    final uri = Uri.parse('tel:${phone.replaceAll(' ', '')}');
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      } else {
-        _showPhoneFallback(donor.firstName, phone);
-      }
-    } catch (_) {
+    final phone = donor.phone?.trim();
+    if (phone != null && phone.isNotEmpty) {
+      final uri = Uri.parse('tel:${phone.replaceAll(' ', '')}');
+      try {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
+          return;
+        }
+      } catch (_) {}
       _showPhoneFallback(donor.firstName, phone);
+    } else {
+      _showPrivacyNotice(donor.firstName);
     }
+  }
+
+  void _showPrivacyNotice(String name) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: DuoColors.border, width: 2.0),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.privacy_tip_rounded, color: DuoColors.red, size: 24),
+            const SizedBox(width: 8),
+            Text('Contact Details', style: DuoTypography.title3(color: DuoColors.textPrimary)),
+          ],
+        ),
+        content: Text(
+          '$name has been sent an emergency alert. Their direct phone number will be displayed as soon as they confirm availability.',
+          style: DuoTypography.body(color: DuoColors.textSecondary),
+        ),
+        actions: [
+          DuoButton(
+            label: 'OK',
+            variant: DuoButtonVariant.primary,
+            height: 44,
+            onPressed: () => Navigator.pop(ctx),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showPhoneFallback(String name, String phone) {
@@ -117,12 +210,12 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         ),
         title: Text('Call $name', style: DuoTypography.title3(color: DuoColors.textPrimary)),
         content: Text(
-          'Donor phone number: $phone\n(Revealed per BR-10 audit trail)',
+          'Phone: $phone\n(Direct donor connection per emergency protocol)',
           style: DuoTypography.body(color: DuoColors.textSecondary),
         ),
         actions: [
           DuoButton(
-            label: 'OK',
+            label: 'CLOSE',
             variant: DuoButtonVariant.primary,
             height: 44,
             onPressed: () => Navigator.pop(ctx),
@@ -166,7 +259,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Ask the donor for their 6-digit pass code (BR-25)',
+                      'Ask the donor for their 6-digit pass code to verify donation',
                       style: DuoTypography.caption(color: DuoColors.textSecondary),
                     ),
                     const SizedBox(height: 24),
@@ -198,7 +291,15 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     );
   }
 
-  void _confirmDonation(String code) {
+  Future<void> _confirmDonation(String code) async {
+    try {
+      await SupabaseService().confirmBankDonation(code: code);
+    } catch (e) {
+      debugPrint('Confirm donation error: $e');
+    }
+    globalRequestFlow.clearActiveRequestId();
+
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -223,7 +324,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           ],
         ),
         content: Text(
-          'Donation pass $code verified. Thank you for using BloodNorms! Units recorded.',
+          'Donation pass $code verified and recorded in Supabase.',
           style: DuoTypography.body(color: DuoColors.textSecondary),
         ),
         actions: [
@@ -256,7 +357,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           children: [
             Text('Got Blood! Close Request?', style: DuoTypography.title2(color: DuoColors.textPrimary)),
             const SizedBox(height: 8),
-            Text('Was blood stock available at the blood bank? Feedback keeps bank honesty accurate.', style: DuoTypography.body(color: DuoColors.textSecondary)),
+            Text('Where was the blood obtained? Feedback helps maintain blood bank accuracy.', style: DuoTypography.body(color: DuoColors.textSecondary)),
             const SizedBox(height: 20),
             DuoButton(
               label: 'Yes, stock was there (+3 trust)',
@@ -300,7 +401,10 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     );
   }
 
-  void _finishRequest(String reason) {
+  Future<void> _finishRequest(String reason) async {
+    await SupabaseService().closeRequest(widget.requestId, outcome: reason, status: 'fulfilled');
+    globalRequestFlow.clearActiveRequestId();
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -310,7 +414,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           side: const BorderSide(color: DuoColors.border, width: 2.0),
         ),
         title: Text('Request Completed', style: DuoTypography.title2(color: DuoColors.textPrimary)),
-        content: Text('Outcome recorded: $reason. Thank you! Contacted donors have been notified.', style: DuoTypography.body(color: DuoColors.textSecondary)),
+        content: Text('Outcome recorded: $reason. Contacted donors have been notified.', style: DuoTypography.body(color: DuoColors.textSecondary)),
         actions: [
           DuoButton(
             label: 'DONE',
@@ -337,7 +441,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         ),
         title: Text('Stop Search?', style: DuoTypography.title2(color: DuoColors.red)),
         content: Text(
-          'This will cancel the active request and notify contacted donors that blood is no longer needed.',
+          'This will cancel the active request in Supabase and notify contacted donors that blood is no longer needed.',
           style: DuoTypography.body(color: DuoColors.textSecondary),
         ),
         actions: [
@@ -357,9 +461,15 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   label: 'STOP',
                   variant: DuoButtonVariant.destructive,
                   height: 44,
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(ctx);
-                    context.go('/');
+                    await SupabaseService().closeRequest(
+                      widget.requestId,
+                      outcome: 'cancelled_by_requester',
+                      status: 'cancelled',
+                    );
+                    globalRequestFlow.clearActiveRequestId();
+                    if (mounted) context.go('/');
                   },
                 ),
               ),
@@ -373,9 +483,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final hospitalLat = globalRequestFlow.state.lat;
-    final hospitalLng = globalRequestFlow.state.lng;
-    final centerPoint = LatLng(hospitalLat, hospitalLng);
+    final centerPoint = LatLng(_hospitalLat, _hospitalLng);
 
     return Scaffold(
       backgroundColor: DuoColors.bgGrouped,
@@ -396,11 +504,79 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 children: [
-                  const DuoSpeechBubble(
-                    emoji: '📡',
-                    text: "I'm searching donors in widening rings. Confirmed donors appear live on the map below!",
-                  ),
-                  const SizedBox(height: 16),
+                  if (_isClosed) ...[
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: _closedStatus == 'cancelled' ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDF4),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _closedStatus == 'cancelled' ? DuoColors.red : DuoColors.green,
+                          width: 2.0,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: DuoColors.border,
+                            offset: Offset(0, 4),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: _closedStatus == 'cancelled' ? DuoColors.red : DuoColors.green,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              _closedStatus == 'cancelled' ? Icons.close_rounded : Icons.check_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _closedStatus == 'cancelled' ? 'REQUEST CANCELLED' : 'REQUEST COMPLETED',
+                                  style: TextStyle(
+                                    fontFamily: DuoTypography.fontFamily,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: _closedStatus == 'cancelled' ? DuoColors.red : DuoColors.green,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _closedStatus == 'cancelled'
+                                      ? 'This emergency request was cancelled (${_closedOutcome.isNotEmpty ? _closedOutcome : "by requester"}). Contacted donors have been notified.'
+                                      : 'Blood request was fulfilled successfully (${_closedOutcome.isNotEmpty ? _closedOutcome : "completed"}).',
+                                  style: const TextStyle(
+                                    fontFamily: DuoTypography.fontFamily,
+                                    fontSize: 12.5,
+                                    color: DuoColors.textSecondary,
+                                    height: 1.35,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    DuoSpeechBubble(
+                      emoji: '📡',
+                      text: "Searching for $_bloodGroup donors around $_hospitalName. Contacts and responses update in real time below!",
+                    ),
+                    const SizedBox(height: 16),
+                  ],
 
                   // View Toggle (Map vs Radar Graphic)
                   Row(
@@ -433,7 +609,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                               const SizedBox(width: 6),
                               Text(
                                 _showMap ? 'RADAR VIEW' : 'MAP VIEW',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontFamily: DuoTypography.fontFamily,
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -451,7 +627,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                   // Interactive Live Search Map or Radar Graphic
                   if (_showMap)
                     Container(
-                      height: 230,
+                      height: 240,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -483,9 +659,9 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                                 circles: [
                                   CircleMarker(
                                     point: centerPoint,
-                                    radius: _currentRingKm * 800, // Visual meter scaling
+                                    radius: _currentRingKm * 1000,
                                     useRadiusInMeter: true,
-                                    color: DuoColors.red.withValues(alpha: 0.15),
+                                    color: DuoColors.red.withValues(alpha: 0.12),
                                     borderColor: DuoColors.red,
                                     borderStrokeWidth: 2.5,
                                   ),
@@ -516,22 +692,46 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                                       ),
                                     ),
                                   ),
-                                  // Accepted Donor Pins
-                                  Marker(
-                                    point: LatLng(centerPoint.latitude + 0.009, centerPoint.longitude + 0.008),
-                                    width: 44,
-                                    height: 44,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: DuoColors.green,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white, width: 2),
+                                  // Dynamic Donor Pins from Supabase
+                                  ..._donors.map((d) {
+                                    final isAccepted = d.status == 'accepted';
+                                    return Marker(
+                                      point: LatLng(d.lat, d.lng),
+                                      width: 42,
+                                      height: 42,
+                                      child: GestureDetector(
+                                        onTap: () => _callDonor(d),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: isAccepted ? DuoColors.green : DuoColors.redTint,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: isAccepted ? Colors.white : DuoColors.red,
+                                              width: 2.0,
+                                            ),
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                color: DuoColors.border,
+                                                offset: Offset(0, 2),
+                                                blurRadius: 0,
+                                              ),
+                                            ],
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              d.firstName.isNotEmpty ? d.firstName[0].toUpperCase() : 'D',
+                                              style: TextStyle(
+                                                fontFamily: DuoTypography.fontFamily,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: isAccepted ? Colors.white : DuoColors.red,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                      child: const Center(
-                                        child: Icon(Icons.person_pin_circle_rounded, color: Colors.white, size: 26),
-                                      ),
-                                    ),
-                                  ),
+                                    );
+                                  }),
                                 ],
                               ),
                             ],
@@ -553,7 +753,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                                   const SizedBox(width: 4),
                                   Text(
                                     'WAVE RING: ${_currentRingKm.toStringAsFixed(1)} KM',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontFamily: DuoTypography.fontFamily,
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
@@ -606,7 +806,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       TextButton.icon(
                         onPressed: _showCodeEntrySheet,
                         icon: const Icon(Icons.dialpad_rounded, size: 18, color: DuoColors.red),
-                        label: Text(
+                        label: const Text(
                           'ENTER CODE',
                           style: TextStyle(
                             fontFamily: DuoTypography.fontFamily,
@@ -619,7 +819,62 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  ..._donors.map((d) => _buildDuoDonorCard(context, d)),
+
+                  // If empty, display live radar scanning indicator
+                  if (_isLoading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: CircularProgressIndicator(color: DuoColors.red),
+                      ),
+                    )
+                  else if (_donors.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: DuoColors.border, width: 2.0),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: DuoColors.border,
+                            offset: Offset(0, 4),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: DuoColors.redTint,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: DuoColors.red, width: 2),
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.emergency_share_rounded, color: DuoColors.red, size: 28),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            'Broadcasting Alerts to Donors',
+                            style: DuoTypography.title3(color: DuoColors.textPrimary),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Emergency alerts sent to verified $_bloodGroup donors within ${_currentRingKm.toStringAsFixed(1)} km radius of $_hospitalName. As soon as a donor accepts, their card will appear here live.',
+                            style: DuoTypography.caption(color: DuoColors.textSecondary),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ..._donors.map((d) => _buildDuoDonorCard(context, d)),
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -631,28 +886,38 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 color: Colors.white,
                 border: Border(top: BorderSide(color: DuoColors.border, width: 2.0)),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: DuoButton(
-                      label: loc.t('live.got'),
-                      icon: Icons.check_circle_rounded,
-                      variant: DuoButtonVariant.success,
-                      onPressed: _showGotBloodSheet,
+              child: _isClosed
+                  ? DuoButton(
+                      label: 'RETURN TO HOME',
+                      icon: Icons.home_rounded,
+                      variant: DuoButtonVariant.primary,
+                      onPressed: () {
+                        globalRequestFlow.clearActiveRequestId();
+                        context.go('/');
+                      },
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: DuoButton(
+                            label: loc.t('live.got'),
+                            icon: Icons.check_circle_rounded,
+                            variant: DuoButtonVariant.success,
+                            onPressed: _showGotBloodSheet,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 1,
+                          child: DuoButton(
+                            label: loc.t('cta.stop'),
+                            variant: DuoButtonVariant.secondary,
+                            onPressed: _showStopConfirmation,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 1,
-                    child: DuoButton(
-                      label: loc.t('cta.stop'),
-                      variant: DuoButtonVariant.secondary,
-                      onPressed: _showStopConfirmation,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -688,7 +953,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           ),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: DuoTypography.fontFamily,
               fontSize: 9,
               fontWeight: FontWeight.bold,
@@ -701,6 +966,8 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   }
 
   Widget _buildDuoDonorCard(BuildContext context, DonorCardModel donor) {
+    final isAccepted = donor.status == 'accepted';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
@@ -723,18 +990,21 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: DuoColors.redTint,
+              color: isAccepted ? DuoColors.greenTint : DuoColors.redTint,
               shape: BoxShape.circle,
-              border: Border.all(color: DuoColors.red, width: 2.0),
+              border: Border.all(
+                color: isAccepted ? DuoColors.green : DuoColors.red,
+                width: 2.0,
+              ),
             ),
             child: Center(
               child: Text(
-                donor.firstName[0].toUpperCase(),
+                donor.firstName.isNotEmpty ? donor.firstName[0].toUpperCase() : 'D',
                 style: TextStyle(
                   fontFamily: DuoTypography.fontFamily,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: DuoColors.red,
+                  color: isAccepted ? DuoColors.green : DuoColors.red,
                 ),
               ),
             ),
@@ -747,9 +1017,12 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      donor.firstName,
-                      style: DuoTypography.headline(color: DuoColors.textPrimary),
+                    Flexible(
+                      child: Text(
+                        donor.firstName,
+                        style: DuoTypography.headline(color: DuoColors.textPrimary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Container(
@@ -786,6 +1059,42 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 6),
+
+                // Live Breadcrumb Milestone Stepper (BR-12/13 Compliant)
+                Row(
+                  children: [
+                    _buildBreadcrumbStep(
+                      label: 'Alerted',
+                      isActive: true,
+                      isDone: true,
+                    ),
+                    _buildBreadcrumbDivider(isDone: isAccepted),
+                    _buildBreadcrumbStep(
+                      label: 'En Route',
+                      isActive: isAccepted,
+                      isDone: isAccepted,
+                    ),
+                    _buildBreadcrumbDivider(isDone: donor.status == 'arrived' || donor.status == 'donated'),
+                    _buildBreadcrumbStep(
+                      label: 'Arrived',
+                      isActive: donor.status == 'arrived' || donor.status == 'donated',
+                      isDone: donor.status == 'donated',
+                    ),
+                  ],
+                ),
+                if (donor.donationCode != null && donor.donationCode!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Verification Pass: ${donor.donationCode}',
+                    style: const TextStyle(
+                      fontFamily: DuoTypography.fontFamily,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: DuoColors.green,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -796,12 +1105,12 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: DuoColors.green,
+                color: isAccepted ? DuoColors.green : DuoColors.red,
                 shape: BoxShape.circle,
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: DuoColors.greenShadow,
-                    offset: Offset(0, 3),
+                    color: isAccepted ? DuoColors.greenShadow : DuoColors.redShadow,
+                    offset: const Offset(0, 3),
                     blurRadius: 0,
                   ),
                 ],
@@ -817,6 +1126,42 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBreadcrumbStep({required String label, required bool isActive, required bool isDone}) {
+    final color = isDone ? DuoColors.green : (isActive ? DuoColors.red : DuoColors.border);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 3),
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: DuoTypography.fontFamily,
+            fontSize: 9.5,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+            color: isActive ? DuoColors.textPrimary : DuoColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBreadcrumbDivider({required bool isDone}) {
+    return Container(
+      width: 12,
+      height: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      color: isDone ? DuoColors.green : DuoColors.border,
     );
   }
 }

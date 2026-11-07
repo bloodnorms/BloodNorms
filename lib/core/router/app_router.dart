@@ -6,6 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../widgets/not_found_screen.dart';
 import '../../features/admin_console/screens/admin_console_screen.dart';
 import '../../features/bank_console/screens/bank_console_screen.dart';
 import '../../features/donor/screens/donor_home_screen.dart';
@@ -27,6 +28,7 @@ GoRouter createRouter({
 }) {
   return GoRouter(
     initialLocation: '/',
+    errorBuilder: (context, state) => NotFoundScreen(error: state.error?.toString()),
     routes: [
       // 1. Requester Journey
       GoRoute(
@@ -63,7 +65,7 @@ GoRouter createRouter({
       GoRoute(
         path: '/live/:id',
         builder: (context, state) {
-          final id = state.pathParameters['id'] ?? 'mock-live';
+          final id = state.pathParameters['id'] ?? 'live-active';
           return LiveTrackingScreen(requestId: id);
         },
       ),
@@ -85,7 +87,9 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: '/donor/ticket/:id',
-        builder: (context, state) => const DonorTicketScreen(),
+        builder: (context, state) => DonorTicketScreen(
+          requestId: state.pathParameters['id'],
+        ),
       ),
 
       // 4. Blood Bank Staff Console

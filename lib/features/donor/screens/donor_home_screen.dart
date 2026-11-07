@@ -6,7 +6,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/duo_colors.dart';
 import '../../../core/theme/duo_typography.dart';
 import '../../../core/widgets/duo_bottom_nav_bar.dart';
@@ -27,6 +29,70 @@ class DonorHomeScreen extends StatefulWidget {
 class _DonorHomeScreenState extends State<DonorHomeScreen> {
   int _currentTabIndex = 0;
   bool _isAvailable = true;
+  int _donationsCount = 0;
+  String? _donorId;
+  String _donorName = 'Donor';
+  String _donorGroup = 'O+';
+  String? _latestRequestId;
+  String _latestRequestHospital = 'GGH Rajahmundry';
+  String _latestRequestGroup = 'O+';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDonorStats();
+  }
+
+  Future<void> _loadDonorStats() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final dId = prefs.getString('current_donor_id');
+      _donorId = dId;
+
+      if (dId != null && dId.isNotEmpty) {
+        final donorData = await SupabaseService().getDonor(dId);
+        if (donorData != null && mounted) {
+          setState(() {
+            _donorName = donorData['full_name'] ?? donorData['first_name'] ?? 'Donor';
+            _donorGroup = donorData['blood_group'] ?? 'O+';
+            _isAvailable = (donorData['state'] != 'paused');
+            _donationsCount = (donorData['donations_count'] as num?)?.toInt() ?? 0;
+          });
+        }
+      } else {
+        final allDonors = await SupabaseService().getAllDonors();
+        if (allDonors.isNotEmpty && mounted) {
+          final d = allDonors.first;
+          _donorId = d['id']?.toString();
+          setState(() {
+            _donorName = d['full_name'] ?? d['first_name'] ?? 'Donor';
+            _donorGroup = d['blood_group'] ?? 'O+';
+            _isAvailable = (d['state'] != 'paused');
+            _donationsCount = (d['donations_count'] as num?)?.toInt() ?? 0;
+          });
+        }
+      }
+
+      final alerts = await SupabaseService().getDonorAlerts(bloodGroup: _donorGroup);
+      if (alerts.isNotEmpty && mounted) {
+        final first = alerts.first;
+        setState(() {
+          _latestRequestId = first.id;
+          _latestRequestHospital = first.hospitalName;
+          _latestRequestGroup = first.bloodGroup;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading donor stats: $e');
+    }
+  }
+
+  Future<void> _toggleAvailability(bool val) async {
+    setState(() => _isAvailable = val);
+    if (_donorId != null) {
+      await SupabaseService().updateDonorState(_donorId!, val ? 'active' : 'paused');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +155,8 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                 const Text('🔥', style: TextStyle(fontSize: 14)),
                 const SizedBox(width: 4),
                 Text(
-                  '3',
-                  style: TextStyle(
+                  '$_donationsCount',
+                  style: const TextStyle(
                     fontFamily: DuoTypography.fontFamily,
                     color: DuoColors.red,
                     fontWeight: FontWeight.bold,
@@ -107,19 +173,19 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           children: [
             // Mascot Speech Bubble
-            const DuoSpeechBubble(
+            DuoSpeechBubble(
               emoji: '🩸',
-              text: 'Welcome back, Ramesh! You are currently active and ready to save lives in Rajahmundry.',
+              text: 'Welcome back, $_donorName! You are currently ${_isAvailable ? "active and ready to save lives" : "paused"} in Rajahmundry.',
             ),
             const SizedBox(height: 20),
 
             Text(
-              'Hi, Ramesh Varma',
+              'Hi, $_donorName',
               style: DuoTypography.title1(color: DuoColors.textPrimary),
             ),
             const SizedBox(height: 4),
             Text(
-              'Verified BloodNorms Donor (O+)',
+              'Verified BloodNorms Donor ($_donorGroup)',
               style: DuoTypography.subhead(color: DuoColors.textSecondary),
             ),
             const SizedBox(height: 20),
@@ -153,7 +219,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _isAvailable ? 'Ready for emergency alerts' : 'Paused',
+                            _isAvailable ? 'Ready for emergency alerts' : 'Paused in Supabase',
                             style: DuoTypography.caption(color: DuoColors.textSecondary),
                           ),
                         ],
@@ -165,7 +231,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                           if (!val) {
                             _showPauseModal(context);
                           } else {
-                            setState(() => _isAvailable = true);
+                            _toggleAvailability(true);
                           }
                         },
                       ),
@@ -226,7 +292,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                 _buildDuoBadge(
                   emoji: '🎖️',
                   title: 'Proven Donor',
-                  subtitle: '2 Donations',
+                  subtitle: '$_donationsCount Donations',
                   color: DuoColors.red,
                   bgColor: DuoColors.redTint,
                   shadowColor: DuoColors.redShadow,
@@ -255,7 +321,13 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
 
             // Active alert banner shortcut in 3D paper card
             GestureDetector(
-              onTap: () => context.push('/donor/ticket/mock-1'),
+              onTap: () {
+                if (_latestRequestId != null) {
+                  context.push('/donor/ticket/$_latestRequestId');
+                } else {
+                  setState(() => _currentTabIndex = 1);
+                }
+              },
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -280,7 +352,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
                         children: [
                           Text('Active Donation Pass', style: DuoTypography.headline(color: DuoColors.red)),
                           const SizedBox(height: 2),
-                          Text('GGH Rajahmundry · O+ Whole blood', style: DuoTypography.caption(color: DuoColors.textPrimary)),
+                          Text('$_latestRequestHospital · $_latestRequestGroup Whole blood', style: DuoTypography.caption(color: DuoColors.textPrimary)),
                         ],
                       ),
                     ),
@@ -374,7 +446,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
               variant: DuoButtonVariant.secondary,
               height: 48,
               onPressed: () {
-                setState(() => _isAvailable = false);
+                _toggleAvailability(false);
                 Navigator.pop(ctx);
               },
             ),
@@ -384,7 +456,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
               variant: DuoButtonVariant.secondary,
               height: 48,
               onPressed: () {
-                setState(() => _isAvailable = false);
+                _toggleAvailability(false);
                 Navigator.pop(ctx);
               },
             ),

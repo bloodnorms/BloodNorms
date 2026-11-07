@@ -4,6 +4,7 @@
 // ============================================================================
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/blood_groups.dart';
 
@@ -137,9 +138,41 @@ class RequestFlowNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  static const String _storageKey = 'active_request_id';
+
+  Future<String?> loadActiveRequestIdFromStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final id = prefs.getString(_storageKey);
+      if (id != null && id.isNotEmpty) {
+        _state = _state.copyWith(activeRequestId: id);
+        notifyListeners();
+        return id;
+      }
+    } catch (e) {
+      debugPrint('Error loading active request id from storage: $e');
+    }
+    return null;
+  }
+
   void setActiveRequestId(String id) {
     _state = _state.copyWith(activeRequestId: id);
     notifyListeners();
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString(_storageKey, id);
+    }).catchError((e) {
+      debugPrint('Error saving active request id: $e');
+    });
+  }
+
+  void clearActiveRequestId() {
+    _state = _state.copyWith(activeRequestId: null);
+    notifyListeners();
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.remove(_storageKey);
+    }).catchError((e) {
+      debugPrint('Error clearing active request id: $e');
+    });
   }
 
   void reset() {

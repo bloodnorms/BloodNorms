@@ -27,8 +27,20 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
   bool _isSending = false;
 
   Future<void> _sendAlert() async {
-    setState(() => _isSending = true);
     final state = globalRequestFlow.state;
+
+    if (state.hospitalName.isEmpty || state.patientFirstName.isEmpty || state.requesterPhone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter all required patient and hospital details first.'),
+          backgroundColor: DuoColors.red,
+        ),
+      );
+      context.pop();
+      return;
+    }
+
+    setState(() => _isSending = true);
 
     try {
       final reqId = await SupabaseService().createRequest(
@@ -36,13 +48,13 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
         component: state.component.code,
         unitsNeeded: state.units,
         urgency: state.urgency.code,
-        hospitalName: state.hospitalName.isNotEmpty ? state.hospitalName : 'General Hospital',
+        hospitalName: state.hospitalName,
         hospitalArea: state.hospitalArea.isNotEmpty ? state.hospitalArea : AppConstants.pilotCity,
         lat: state.lat,
         lng: state.lng,
-        requesterName: state.requesterName.isNotEmpty ? state.requesterName : 'Family Member',
-        requesterPhone: state.requesterPhone.isNotEmpty ? state.requesterPhone : '+919848012345',
-        patientFirstName: state.patientFirstName.isNotEmpty ? state.patientFirstName : 'Patient',
+        requesterName: state.requesterName.isNotEmpty ? state.requesterName : state.patientFirstName,
+        requesterPhone: state.requesterPhone,
+        patientFirstName: state.patientFirstName,
         allowCompatible: state.allowCompatible,
         note: state.note,
       );
@@ -51,11 +63,40 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
       if (mounted) {
         context.go('/live/$reqId');
       }
-    } catch (_) {
-      final simId = 'sim-${DateTime.now().millisecondsSinceEpoch}';
-      globalRequestFlow.setActiveRequestId(simId);
+    } catch (e) {
       if (mounted) {
-        context.go('/live/$simId');
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: DuoColors.red, width: 2.0),
+            ),
+            title: Row(
+              children: [
+                const Icon(Icons.error_outline_rounded, color: DuoColors.red, size: 24),
+                const SizedBox(width: 8),
+                Text('Broadcast Error', style: DuoTypography.title3(color: DuoColors.red)),
+              ],
+            ),
+            content: Text(
+              'Failed to communicate with Supabase: $e\n\nPlease check your internet connection and try again.',
+              style: DuoTypography.body(color: DuoColors.textSecondary),
+            ),
+            actions: [
+              DuoButton(
+                label: 'RETRY',
+                variant: DuoButtonVariant.primary,
+                height: 44,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _sendAlert();
+                },
+              ),
+            ],
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -146,11 +187,11 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
                             ],
                           ),
                           const Divider(height: 32, color: DuoColors.border),
-                          _buildDetailRow('Hospital', state.hospitalName.isNotEmpty ? state.hospitalName : 'Hospital in Rajahmundry'),
+                          _buildDetailRow('Hospital', state.hospitalName.isNotEmpty ? state.hospitalName : state.placeLabel),
                           const SizedBox(height: 12),
-                          _buildDetailRow('Patient', state.patientFirstName.isNotEmpty ? state.patientFirstName : 'Family Member'),
+                          _buildDetailRow('Patient', state.patientFirstName.isNotEmpty ? state.patientFirstName : 'Not specified'),
                           const SizedBox(height: 12),
-                          _buildDetailRow('Contact', state.requesterPhone.isNotEmpty ? state.requesterPhone : '+91 98480 12345'),
+                          _buildDetailRow('Contact', state.requesterPhone.isNotEmpty ? state.requesterPhone : 'Not specified'),
                           const SizedBox(height: 12),
                           _buildDetailRow('Compatible', state.allowCompatible ? 'Allowed' : 'Exact Group Only'),
                           if (state.note.isNotEmpty) ...[

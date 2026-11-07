@@ -42,7 +42,7 @@ class AppConstants {
   static const double defaultLng = 81.7820;
 
   // Supabase defaults (can be overridden via environment/dotenv)
-  static const String defaultSupabaseUrl = 'https://xyzcompany.supabase.co';
-  static const String defaultSupabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy';
+  static const String defaultSupabaseUrl = 'https://ixrborkhofxlxbedpang.supabase.co';
+  static const String defaultSupabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4cmJvcmtob2Z4bHhiZWRwYW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5NzM0MTQsImV4cCI6MjEwOTU0OTQxNH0.sig0Idv5G5lbHK0bv7C5GHCkPRo2RZaxaZy39rR_8eI';
 }
 

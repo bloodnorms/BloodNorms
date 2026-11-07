@@ -34,14 +34,12 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
     super.initState();
     final state = globalRequestFlow.state;
     _hospitalController = TextEditingController(
-      text: state.hospitalName.isNotEmpty ? state.hospitalName : 'GGH Rajahmundry',
+      text: state.hospitalName.isNotEmpty
+          ? state.hospitalName
+          : (state.placeLabel != 'Rajahmundry, Andhra Pradesh' ? state.placeLabel : ''),
     );
-    _patientController = TextEditingController(
-      text: state.patientFirstName.isNotEmpty ? state.patientFirstName : 'Rao',
-    );
-    _phoneController = TextEditingController(
-      text: state.requesterPhone.isNotEmpty ? state.requesterPhone : '+91 98480 12345',
-    );
+    _patientController = TextEditingController(text: state.patientFirstName);
+    _phoneController = TextEditingController(text: state.requesterPhone);
     _noteController = TextEditingController(text: state.note);
     _allowCompatible = state.allowCompatible;
   }
@@ -55,16 +53,42 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
     super.dispose();
   }
 
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontFamily: DuoTypography.fontFamily,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: DuoColors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
   void _onContinue() {
-    final hosp = _hospitalController.text.trim().isNotEmpty
-        ? _hospitalController.text.trim()
-        : 'Hospital in ${AppConstants.pilotCity}';
-    final patient = _patientController.text.trim().isNotEmpty
-        ? _patientController.text.trim()
-        : 'Family Member';
-    final phone = _phoneController.text.trim().isNotEmpty
-        ? _phoneController.text.trim()
-        : '+919848012345';
+    final hosp = _hospitalController.text.trim();
+    final patient = _patientController.text.trim();
+    final phone = _phoneController.text.trim();
+
+    if (hosp.isEmpty) {
+      _showError('Please enter the hospital name.');
+      return;
+    }
+    if (patient.isEmpty) {
+      _showError('Please enter the patient\'s name.');
+      return;
+    }
+    final cleanPhone = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+    if (cleanPhone.length < 10) {
+      _showError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
 
     globalRequestFlow.setHospitalDetails(name: hosp, area: AppConstants.pilotCity);
     globalRequestFlow.setPatientDetails(firstName: patient);
@@ -113,6 +137,46 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
                       controller: _hospitalController,
                       hintText: 'e.g., GGH Rajahmundry',
                       prefixIcon: Icons.local_hospital_rounded,
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Quick Hospital selection chips
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          'GGH Rajahmundry',
+                          'Red Cross Society Blood Centre',
+                          'Swatantra Blood Bank',
+                          'Bollineni Hospital',
+                          'Suraksha Rotary Centre',
+                        ].map((hosp) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(999),
+                              onTap: () => setState(() => _hospitalController.text = hosp),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(color: DuoColors.border, width: 1.0),
+                                ),
+                                child: Text(
+                                  hosp,
+                                  style: const TextStyle(
+                                    fontFamily: DuoTypography.fontFamily,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: DuoColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                     const SizedBox(height: 20),
 

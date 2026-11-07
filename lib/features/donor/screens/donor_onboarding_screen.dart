@@ -6,7 +6,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/blood_groups.dart';
+import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/duo_colors.dart';
 import '../../../core/theme/duo_typography.dart';
 import '../../../core/widgets/duo_blood_tile.dart';
@@ -25,11 +28,11 @@ class DonorOnboardingScreen extends StatefulWidget {
 class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
   int _step = 0; // 0: Phone, 1: Email, 2: Consents, 3: Bio, 4: Blood, 5: Health, 6: Location, 7: Active
 
-  // Form states
-  final _phoneController = TextEditingController(text: '+91 98481 23456');
-  final _emailController = TextEditingController(text: 'donor@bloodnorms.org');
-  final _nameController = TextEditingController(text: 'Ramesh Varma');
-  final _weightController = TextEditingController(text: '68');
+  // Form states with empty defaults for real user input
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _weightController = TextEditingController();
 
   BloodGroup? _bloodGroup = BloodGroup.oPositive;
   bool _plateletsWilling = true;
@@ -54,6 +57,9 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
   ];
 
   int _travelLimitKm = 10;
+  String _selectedCity = 'Rajahmundry';
+  final _areaController = TextEditingController(text: 'Danavaipeta');
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -64,9 +70,94 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
     super.dispose();
   }
 
-  void _nextStep() {
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontFamily: DuoTypography.fontFamily,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: DuoColors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Future<void> _nextStep() async {
+    // Validation per step
+    if (_step == 0) {
+      final phone = _phoneController.text.replaceAll(RegExp(r'[^0-9+]'), '');
+      if (phone.length < 10) {
+        _showError('Please enter a valid 10-digit mobile number.');
+        return;
+      }
+    } else if (_step == 2) {
+      if (_consents.any((c) => !c)) {
+        _showError('Please accept all donor terms to continue.');
+        return;
+      }
+    } else if (_step == 3) {
+      if (_nameController.text.trim().isEmpty) {
+        _showError('Please enter your full name.');
+        return;
+      }
+      final w = double.tryParse(_weightController.text.trim());
+      if (w == null || w < 45) {
+        _showError('Donors must weigh at least 45 kg per medical guidelines.');
+        return;
+      }
+    } else if (_step == 4) {
+      if (_bloodGroup == null) {
+        _showError('Please select your blood group.');
+        return;
+      }
+    }
+
     if (_step < 7) {
-      setState(() => _step++);
+      if (_step == 6) {
+        setState(() => _isSubmitting = true);
+        try {
+          final chosenArea = _areaController.text.trim().isEmpty ? 'Danavaipeta' : _areaController.text.trim();
+          final donorId = await SupabaseService().registerDonor(
+            fullName: _nameController.text.trim(),
+            phone: _phoneController.text.trim(),
+            bloodGroup: _bloodGroup?.label ?? 'O+',
+            gender: 'male',
+            dob: DateTime.now().subtract(const Duration(days: 365 * 25)),
+            weightKg: double.tryParse(_weightController.text.trim()) ?? 65.0,
+            lat: AppConstants.defaultLat,
+            lng: AppConstants.defaultLng,
+            area: chosenArea,
+            city: _selectedCity,
+          );
+
+          if (donorId != null && donorId.isNotEmpty) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('current_donor_id', donorId);
+            await prefs.setString('current_donor_name', _nameController.text.trim());
+            await prefs.setString('current_donor_phone', _phoneController.text.trim());
+            await prefs.setString('current_donor_blood_group', _bloodGroup?.label ?? 'O+');
+
+            await SupabaseService().updateDonorLocationPreferences(
+              donorId: donorId,
+              city: _selectedCity,
+              area: chosenArea,
+              travelRadiusKm: _travelLimitKm.toDouble(),
+              isAway: false,
+            );
+          }
+        } catch (e) {
+          debugPrint('Error registering donor: $e');
+        } finally {
+          if (mounted) setState(() => _isSubmitting = false);
+        }
+      }
+      if (mounted) setState(() => _step++);
     } else {
       context.go('/donor');
     }
@@ -115,9 +206,9 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: DuoButton(
-                  label: _step == 7 ? 'GO TO DONOR HOME' : 'CONTINUE',
+                  label: _isSubmitting ? 'SAVING...' : (_step == 7 ? 'GO TO DONOR HOME' : 'CONTINUE'),
                   variant: _step == 7 ? DuoButtonVariant.success : DuoButtonVariant.primary,
-                  onPressed: _nextStep,
+                  onPressed: _isSubmitting ? null : _nextStep,
                 ),
               ),
             ),
@@ -164,7 +255,7 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
         DuoTextField(
           controller: _phoneController,
           keyboardType: TextInputType.phone,
-          hintText: '+91 98481 23456',
+          hintText: 'e.g., 9848012345',
           prefixIcon: Icons.phone_rounded,
         ),
       ],
@@ -272,7 +363,7 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
         DuoTextField(
           label: 'FULL NAME',
           controller: _nameController,
-          hintText: 'Ramesh Varma',
+          hintText: 'e.g., Ramesh Varma',
           prefixIcon: Icons.person_rounded,
         ),
         const SizedBox(height: 16),
@@ -433,29 +524,72 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
   // 7. Location & Travel Limit
   Widget _buildLocationStep() {
     final travelOptions = [3, 5, 10, 25, 50, 100];
+    final cities = ['Rajahmundry', 'Kakinada', 'Visakhapatnam', 'Vijayawada', 'Guntur', 'Eluru'];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const DuoSpeechBubble(
           emoji: '🚗',
-          text: 'How far are you willing to travel for an emergency blood request?',
+          text: 'Where are you based, and how far can you travel for emergency blood drives?',
         ),
-        const SizedBox(height: 20),
-        Text('Travel Limit', style: DuoTypography.title1(color: DuoColors.textPrimary)),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
+        Text('Primary City', style: DuoTypography.title2(color: DuoColors.textPrimary)),
+        const SizedBox(height: 8),
         Wrap(
-          spacing: 12,
-          runSpacing: 12,
+          spacing: 8,
+          runSpacing: 8,
+          children: cities.map((c) {
+            final isSel = _selectedCity.toLowerCase() == c.toLowerCase();
+            return ChoiceChip(
+              label: Text(
+                c,
+                style: TextStyle(
+                  fontFamily: DuoTypography.fontFamily,
+                  color: isSel ? Colors.white : DuoColors.textPrimary,
+                  fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 12,
+                ),
+              ),
+              selected: isSel,
+              selectedColor: DuoColors.red,
+              backgroundColor: DuoColors.bgGrouped,
+              onSelected: (_) => setState(() => _selectedCity = c),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 16),
+        Text('Area / Locality', style: DuoTypography.title2(color: DuoColors.textPrimary)),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _areaController,
+          decoration: InputDecoration(
+            hintText: 'e.g. Danavaipeta, Kotipalli, Morampudi',
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+            fillColor: Colors.white,
+            filled: true,
+          ),
+          style: const TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 13),
+        ),
+        const SizedBox(height: 18),
+        Text('Maximum Travel Limit', style: DuoTypography.title2(color: DuoColors.textPrimary)),
+        const SizedBox(height: 4),
+        const Text('Drives outside this radius will not disturb you.', style: TextStyle(fontFamily: DuoTypography.fontFamily, fontSize: 11, color: DuoColors.textSecondary)),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
           children: travelOptions.map((km) {
             final isSel = _travelLimitKm == km;
             return GestureDetector(
               onTap: () => setState(() => _travelLimitKm = km),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 80),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: isSel ? DuoColors.red : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: isSel ? DuoColors.redShadow : DuoColors.border,
                     width: 2.0,
@@ -474,7 +608,7 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
                     fontFamily: DuoTypography.fontFamily,
                     color: isSel ? Colors.white : DuoColors.textPrimary,
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 13,
                   ),
                 ),
               ),
