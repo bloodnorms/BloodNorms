@@ -218,6 +218,7 @@ class DuoProgressBar extends StatelessWidget {
 }
 
 typedef StatusRing = DuoMeter;
+typedef StepProgressBar = DuoProgressBar;
 
 
 /// Backward compatibility alias for existing code.
