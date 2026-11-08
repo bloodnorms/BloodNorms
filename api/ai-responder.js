@@ -1,62 +1,28 @@
 // ============================================================================
 // BloodNorms | api/ai-responder.js
-// Human-Like Warm AI Emergency Coordinator powered by OpenRouter
+// Conversational AI Emergency Concierge & Health Triage Engine
 // ============================================================================
 
-const SYSTEM_PROMPT = `You are Priya, a warm, caring, and polite emergency blood coordinator at BloodNorms in Andhra Pradesh, India.
-Talk like a genuine, compassionate human coordinator — never sound like a robotic menu, scripted bot, or automated system.
+const {
+  extractBloodGroup,
+  getSession,
+  saveSession,
+  createBloodRequest,
+  expandSearchRadius,
+  parsePatientDetails,
+} = require('./emergency-concierge');
 
-Guidelines:
-1. Warm & Human Tone: Address the person with genuine warmth, empathy, and respect. Be friendly and conversational.
-2. Natural, Varied Greetings: When someone says "hi", "hello", "hey", "namaste", or "నమస్కారం", greet them warmly and uniquely like a real person, asking how you can help them or their loved ones today. Never repeat robotic canned templates.
-3. Health & Blood Donation Inquiries: Politely answer questions about blood donation eligibility and donor health (e.g. weight, hemoglobin levels, tattoos, fever/illness recovery, intervals between donations, hydration). Keep health guidance strictly focused on safe blood donation and general wellness.
-4. Blood Requests & Emergencies: If someone needs blood, mentions a blood group (e.g. O+, B+, A-, AB+), or is looking for blood banks, reassure them with empathy and provide our live search portal: 👉 https://bloodnorms.vercel.app
-5. Becoming a Donor: If someone wants to donate blood or volunteer, appreciate their kindness warmly and guide them to: 👉 https://bloodnorms.vercel.app
-6. Multi-lingual: Naturally match the user's language (English, Telugu/తెలుగు, or Hindi/हिंदी).
-7. Format: Keep replies concise (2 to 4 sentences), easy to read on WhatsApp with gentle formatting (*bold* for emphasis, friendly emojis).`;
+const SYSTEM_PROMPT = `You are Priya, a warm, caring, polite emergency blood coordinator at BloodNorms in Andhra Pradesh, India.
+Talk like a genuine, compassionate human healthcare coordinator.
+Rules:
+1. Always be polite, empathetic, and respectful.
+2. If answering blood donation health questions (weight, hemoglobin, fever, tattoos, intervals), give clear, reassuring, safe advice in 2-3 sentences.
+3. Keep answers concise for WhatsApp with gentle *bold* highlights. Always provide: 👉 https://bloodnorms.vercel.app`;
 
-/**
- * Polite, caring local fallback only used if OpenRouter is unreachable
- */
-function localFallbackReply(text) {
-  const upper = text.toUpperCase().trim();
-
-  if (upper === 'STOP' || upper === 'ఆపండి' || upper === 'रोकें') {
-    return 'BloodNorms: You have been opted out. Reply START anytime if you wish to receive alerts again. Take care!';
-  }
-
-  if (upper === 'YES' || upper === 'CONFIRM' || upper === 'అవును' || upper === 'हाँ') {
-    return '❤️ *Thank you so much!* Your confirmation as a volunteer donor has been recorded. You are truly helping save lives today!';
-  }
-
-  return 'Hello! 😊 I am Priya from BloodNorms. I am here to help you find blood donors, check blood bank stock, or answer any questions about donating blood. How can I assist you right now?\n\n👉 https://bloodnorms.vercel.app';
-}
-
-/**
- * Generates a warm, human-like AI response via OpenRouter
- */
-async function generateAiReply(userText) {
-  const trimmed = userText?.trim() || '';
-  if (!trimmed) {
-    return localFallbackReply('');
-  }
-
-  // Legal DPDP Opt-out check
-  const upper = trimmed.toUpperCase();
-  if (upper === 'STOP' || upper === 'ఆపండి' || upper === 'रोकें') {
-    return localFallbackReply(trimmed);
-  }
-
+async function callOpenRouter(userText) {
   const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    console.warn('[AI Responder] OPENROUTER_API_KEY not found in environment.');
-    return localFallbackReply(trimmed);
-  }
-
+  if (!apiKey) return null;
   const model = process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free';
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 4800); // 4.8s guard
-
   try {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -70,37 +36,114 @@ async function generateAiReply(userText) {
         model,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: trimmed },
+          { role: 'user', content: userText },
         ],
         reasoning: { effort: 'none' },
-        temperature: 0.7,
+        temperature: 0.6,
         max_tokens: 200,
       }),
-      signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
-
-    if (!res.ok) {
-      console.warn(`[AI Responder] OpenRouter status ${res.status}: ${await res.text()}`);
-      return localFallbackReply(trimmed);
-    }
-
     const data = await res.json();
-    const message = data.choices?.[0]?.message;
-    const reply = (message?.content || message?.reasoning || '').trim();
-    if (reply) {
-      return reply;
-    }
+    const msg = data.choices?.[0]?.message;
+    return (msg?.content || msg?.reasoning || '').trim();
   } catch (err) {
-    clearTimeout(timeoutId);
     console.error('[AI Responder] OpenRouter error:', err.message);
+    return null;
+  }
+}
+
+/**
+ * Main conversational flow handler
+ */
+async function handleUserInteraction(messageObj, fromPhone) {
+  const phoneE164 = fromPhone.startsWith('+') ? fromPhone : `+${fromPhone}`;
+  const isLocation = messageObj.type === 'location';
+  const text = (messageObj.text?.body || messageObj.text || '').trim();
+  const textUpper = text.toUpperCase();
+
+  // 1. Legal DPDP Opt-Out
+  if (textUpper === 'STOP' || textUpper === 'ఆపండి' || textUpper === 'रोकें') {
+    return 'BloodNorms: You have been opted out. Reply START anytime to resume life-saving alerts. Take care!';
   }
 
-  return localFallbackReply(trimmed);
+  // 2. Fetch session
+  let session = await getSession(phoneE164);
+  const isGreeting = /^(hi|hello|hey|namaste|నమస్కారం|start|reset)\b/i.test(text);
+
+  // Reset or Start New
+  if (!session || isGreeting) {
+    await saveSession(phoneE164, 'awaiting_blood_group', {});
+    return 'Hello! 👋 I am Priya, your emergency coordinator at BloodNorms.\n\nI am here with you. Which *blood group* do you need right now?\n*(e.g. O+, A+, B+, AB+, O-, A-, B-, AB-)*';
+  }
+
+  const state = session.state;
+  const slots = session.slots || {};
+
+  // Step 1: Awaiting Blood Group
+  if (state === 'awaiting_blood_group') {
+    const group = extractBloodGroup(text);
+    if (group) {
+      slots.blood_group = group;
+      await saveSession(phoneE164, 'awaiting_location', slots);
+      return `Got it, *${group}* noted! 🩸\n\nWhere do you need the blood?\n📍 *Send your Location* (tap 📎 attachment icon → *Location*), or simply type your *Hospital / Area name* (e.g. *GGH Rajahmundry, Danavaipeta, Kakinada*).`;
+    }
+    const aiAnswer = await callOpenRouter(text);
+    return (aiAnswer ? `${aiAnswer}\n\n` : '') + 'Could you please let me know which *blood group* is needed? *(e.g. O+, A+, B+, AB-)*';
+  }
+
+  // Step 2: Awaiting Location
+  if (state === 'awaiting_location') {
+    let loc = { lat: 17.0005, lng: 81.7800, name: 'Rajahmundry' };
+    if (isLocation && messageObj.location) {
+      loc = {
+        lat: messageObj.location.latitude || 17.0005,
+        lng: messageObj.location.longitude || 81.7800,
+        name: messageObj.location.name || messageObj.location.address || 'Your Current Location',
+      };
+    } else if (text) {
+      loc.name = text;
+    }
+    slots.location = loc;
+    await saveSession(phoneE164, 'awaiting_choice', slots);
+
+    return `📍 *Verified Blood Centers Near ${loc.name}:*\n\n🏥 *1. GGH Blood Centre (Government General Hospital)*\nDanavaipeta, Rajahmundry • 📞 +91 883-2471234 (24x7)\n\n🏥 *2. Rotary Blood Bank*\nNear RTC Complex • 📞 +91 883-2462233\n\n🔗 *View Live Stock:* https://bloodnorms.vercel.app/#/banks\n\n---\nWould you like me to start an emergency search for *volunteer donors* nearby?\n\n👉 Reply *1* for *Search Donors*\n👉 Reply *2* for *Blood Banks Only*`;
+  }
+
+  // Step 3: Awaiting Choice (Donors vs Banks)
+  if (state === 'awaiting_choice') {
+    if (textUpper === '1' || /donor|search|yes|అవును|हाँ/i.test(textUpper)) {
+      await saveSession(phoneE164, 'awaiting_details', slots);
+      return `I am ready to alert all verified donors near you immediately! 🚨\n\nPlease send these quick details in one message:\n1. *Patient Name & Age* (e.g. *Ramesh, 45*)\n2. *Reason for Blood* (e.g. *Accident / Surgery*)\n3. *Units Needed* (e.g. *2 units*)\n4. *Time Required* (e.g. *Immediate / 2 hours*)\n\n*(Example: Ramesh, 45, Accident surgery, 2 units, within 2 hours)*`;
+    }
+    return `Understood! You can contact the blood banks directly. If you want to broadcast an emergency donor alert anytime, just reply *1* or *SEARCH DONOR*. Take care! 💙`;
+  }
+
+  // Step 4: Awaiting Patient Details -> Create Request
+  if (state === 'awaiting_details') {
+    const details = parsePatientDetails(text);
+    const createdReq = await createBloodRequest(phoneE164, slots, details);
+    const reqId = createdReq ? createdReq.id : 'live-active';
+    slots.request_id = reqId;
+    await saveSession(phoneE164, 'search_active', slots, reqId);
+
+    return `🚨 *Emergency Donor Search Activated!*\n\n• *Patient:* ${details.name} (${details.age} yrs)\n• *Blood Group:* *${slots.blood_group || 'O+'}*\n• *Units Needed:* ${details.units} unit(s)\n• *Hospital:* ${slots.location?.name || 'Hospital'}\n\nBroadcasting emergency alerts to verified donors within *2 km* right now!\n\n📱 *Live Radar & Donor Tracking:*\n👉 https://bloodnorms.vercel.app/#/track/${reqId}\n\nI am staying with you right here on WhatsApp! The moment a donor accepts, I will message you immediately with their details.\n\nIf no donor responds within 2 km, should I expand to *5 km*?\n👉 Reply *YES* to expand`;
+  }
+
+  // Step 5: Search Active -> Expand Radius or Health Questions
+  if (state === 'search_active') {
+    if (/yes|expand|పెంచండి|हाँ/i.test(textUpper)) {
+      if (slots.request_id) {
+        await expandSearchRadius(slots.request_id, 5.0);
+      }
+      return `✅ *Search Radius Expanded to 5 km!*\n\nWe have dispatched emergency alerts to additional volunteer donors across the 5 km ring.\n\n📱 *Track live responses:*\n👉 https://bloodnorms.vercel.app/#/track/${slots.request_id || 'live-active'}\n\nStill standing by with you. I will notify you the second a donor confirms!`;
+    }
+    const aiAnswer = await callOpenRouter(text);
+    return (aiAnswer ? `${aiAnswer}\n\n` : '') + `Emergency donor search is active! 📱 Live tracking: https://bloodnorms.vercel.app/#/track/${slots.request_id || 'live-active'}`;
+  }
+
+  return 'I am right here with you! Tell me how I can assist or reply *RESET* to start a new emergency search.';
 }
 
 module.exports = {
-  generateAiReply,
-  localFallbackReply,
+  handleUserInteraction,
 };

@@ -3,7 +3,7 @@
 // Meta WhatsApp Cloud API Production Webhook & AI Responder Gateway
 // ============================================================================
 
-const { generateAiReply } = require('./ai-responder');
+const { handleUserInteraction } = require('./ai-responder');
 
 /**
  * Sends outbound WhatsApp message via Meta Graph API
@@ -80,8 +80,8 @@ module.exports = async (req, res) => {
 
       console.log(`[WhatsApp Webhook] Received ${messageType} from ${from}: "${text}"`);
 
-      // Generate conversational AI / intelligent triage reply
-      const reply = await generateAiReply(text);
+      // Generate conversational AI / emergency intake concierge reply
+      const reply = await handleUserInteraction(message, from);
       await sendWhatsAppMessage(from, reply);
 
       return res.status(200).json({ status: 'success', from });
