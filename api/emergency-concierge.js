@@ -4,9 +4,11 @@
 // ============================================================================
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ixrborkhofxlxbedpang.supabase.co';
+const SERVICE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 function getSupabaseKey() {
-  return process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+  return SERVICE_KEY;
 }
 
 /**

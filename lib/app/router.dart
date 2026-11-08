@@ -69,6 +69,20 @@ GoRouter createRouter({
           return LiveTrackingScreen(requestId: id);
         },
       ),
+      GoRoute(
+        path: '/track/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? 'live-active';
+          return LiveTrackingScreen(requestId: id);
+        },
+      ),
+      GoRoute(
+        path: '/r/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? 'live-active';
+          return LiveTrackingScreen(requestId: id);
+        },
+      ),
 
       // 2. Public Banks Directory (/b)
       GoRoute(

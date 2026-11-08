@@ -43,10 +43,10 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     super.initState();
     final f = globalRequestFlow.state;
     _data = LiveTrackingData(
-      need: f.units,
+      need: f.units > 0 ? f.units : 1,
       bloodGroup: f.bloodGroup?.label ?? 'Blood',
-      hospitalLat: f.lat,
-      hospitalLng: f.lng,
+      hospitalLat: (f.lat != 0.0) ? f.lat : 17.0005,
+      hospitalLng: (f.lng != 0.0) ? f.lng : 81.7820,
       hospitalName: f.hospitalName.isNotEmpty ? f.hospitalName : 'Hospital',
     );
     _controller = LiveTrackingController(
