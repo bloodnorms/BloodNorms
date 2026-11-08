@@ -33,6 +33,13 @@ class LiveTrackingDonorsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final agreedDonors = donors
+        .where((d) =>
+            d.status == 'accepted' ||
+            d.status == 'on_the_way' ||
+            d.status == 'arrived')
+        .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -64,14 +71,14 @@ class LiveTrackingDonorsSection extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 32),
             child: Center(child: CircularProgressIndicator(color: BrandColors.primaryDark)),
           )
-        else if (donors.isEmpty)
+        else if (agreedDonors.isEmpty)
           LiveTrackingEmptyCard(
             bloodGroup: bloodGroup,
             currentRingKm: currentRingKm,
             hospitalName: hospitalName,
           )
         else
-          ...donors.map((d) => LiveTrackingDonorCard(
+          ...agreedDonors.map((d) => LiveTrackingDonorCard(
                 donor: d,
                 onCallDonor: () => onCallDonor(d),
               )),

@@ -81,8 +81,15 @@ class LiveTrackingMapView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Dynamic Donor Pins from Supabase
-                  ...donors.map((d) {
+                  // Dynamic Donor Pins from Supabase (only agreed donors)
+                  ...donors
+                      .where((d) =>
+                          (d.status == 'accepted' ||
+                              d.status == 'on_the_way' ||
+                              d.status == 'arrived') &&
+                          d.latitude != null &&
+                          d.longitude != null)
+                      .map((d) {
                     final isAccepted = d.status == 'accepted';
                     return Marker(
                       point: LatLng(d.lat, d.lng),

@@ -7,8 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/donor_card_model.dart';
 import '../../../shared/services/supabase_service.dart';
-import '../providers/request_flow_provider.dart';
-import 'fallback_donors_data.dart';
 
 class RequestSearchService {
   static final RequestSearchService _instance =
@@ -73,7 +71,7 @@ class RequestSearchService {
               bloodGroup: d['blood_group']?.toString() ?? bloodGroup,
               distanceBand: '< 2.0 km',
               etaMinutes: 20,
-              status: 'accepted',
+              status: 'queued',
               isStandby: false,
               phoneRevealed: true,
               phone: d['phone']?.toString(),
@@ -86,11 +84,7 @@ class RequestSearchService {
         debugPrint('direct donors query error: $e');
       }
     }
-    return getFallbackDonors(
-      bloodGroup: bloodGroup,
-      centerLat: lat,
-      centerLng: lng,
-    );
+    return const [];
   }
 
   /// Get contacts for an active request
@@ -119,14 +113,15 @@ class RequestSearchService {
 
             final distKm =
                 (row['distance_km'] ?? row['ring_km'] as num?)?.toDouble() ?? 1.5;
+            final rawStatus = row['status']?.toString() ?? 'queued';
             return DonorCardModel(
               id: row['id']?.toString() ?? '',
               firstName: donor['first_name']?.toString() ?? 'Donor',
               bloodGroup: donor['blood_group']?.toString() ?? 'O+',
               distanceBand: '< ${(distKm + 0.5).toStringAsFixed(1)} km',
               etaMinutes: (distKm * 8).toInt().clamp(10, 45),
-              status: row['status']?.toString() ?? 'accepted',
-              isStandby: false,
+              status: rawStatus,
+              isStandby: rawStatus == 'standby',
               phoneRevealed: true,
               phone: donor['phone']?.toString(),
               donationCode: row['donation_code']?.toString(),
@@ -139,11 +134,6 @@ class RequestSearchService {
         debugPrint('getRequestContacts error: $e');
       }
     }
-    final bg = globalRequestFlow.state.bloodGroup?.label ?? 'O+';
-    return getFallbackDonors(
-      bloodGroup: bg,
-      centerLat: globalRequestFlow.state.lat,
-      centerLng: globalRequestFlow.state.lng,
-    );
+    return const [];
   }
 }

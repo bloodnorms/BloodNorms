@@ -110,10 +110,20 @@ class LiveTrackingController {
       }
 
       final initialContacts = await SupabaseService().getRequestContacts(requestId);
+      final acceptedCount = initialContacts
+          .where((d) =>
+              d.status == 'accepted' ||
+              d.status == 'on_the_way' ||
+              d.status == 'arrived')
+          .length;
       data = data.copyWith(
         donors: initialContacts,
-        contacted: initialContacts.isNotEmpty ? initialContacts.length : data.contacted,
-        accepted: initialContacts.where((d) => d.status == 'accepted').length,
+        contacted: (req != null && (req['donors_contacted'] as num?)?.toInt() != null)
+            ? (req['donors_contacted'] as num)!.toInt()
+            : initialContacts.length,
+        accepted: (req != null && (req['donors_accepted'] as num?)?.toInt() != null)
+            ? (req['donors_accepted'] as num)!.toInt()
+            : acceptedCount,
         isLoading: false,
       );
       onDataChanged(data);
@@ -140,10 +150,16 @@ class LiveTrackingController {
 
     _contactsSub = SupabaseService().streamRequestContacts(requestId).listen((rows) async {
       final updated = await SupabaseService().getRequestContacts(requestId);
+      final acceptedCount = updated
+          .where((d) =>
+              d.status == 'accepted' ||
+              d.status == 'on_the_way' ||
+              d.status == 'arrived')
+          .length;
       data = data.copyWith(
         donors: updated,
         contacted: updated.isNotEmpty ? updated.length : data.contacted,
-        accepted: updated.where((d) => d.status == 'accepted').length,
+        accepted: acceptedCount,
       );
       onDataChanged(data);
     });
