@@ -23,11 +23,7 @@ void main() async {
   // Load environment variables if available
   try {
     await dotenv.load(fileName: ".env");
-  } catch (_) {
-    try {
-      await dotenv.load(fileName: "assets/.env");
-    } catch (_) {}
-  }
+  } catch (_) {}
 
   // Initialize Supabase client
   await SupabaseService().initialize();

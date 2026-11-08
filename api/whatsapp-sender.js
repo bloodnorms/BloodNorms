@@ -55,3 +55,4 @@ async function sendWhatsAppMessage(to, payload) {
 }
 
 module.exports = { sendWhatsAppMessage };
+

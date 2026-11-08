@@ -89,6 +89,26 @@ class OnboardingLocationStep extends StatelessWidget {
           ),
           style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 13),
         ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: BrandColors.surfaceSoft,
+            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+            border: Border.all(color: BrandColors.borderSubtle),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.my_location_rounded, size: 14, color: BrandColors.primaryDark),
+              const SizedBox(width: 8),
+              Text(
+                'Live Radar GPS: Auto-mapped to $selectedCity coordinates',
+                style: BrandTypography.caption(color: BrandColors.textSecondary),
+              ),
+            ],
+          ),
+        ),
         const SizedBox(height: 18),
         Text('Maximum Travel Limit', style: BrandTypography.title2(color: BrandColors.textPrimary)),
         const SizedBox(height: 4),

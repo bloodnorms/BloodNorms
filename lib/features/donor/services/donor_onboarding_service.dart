@@ -18,8 +18,12 @@ class DonorOnboardingService {
     required String city,
     required String area,
     required int travelLimitKm,
+    double? lat,
+    double? lng,
   }) async {
     final chosenArea = area.trim().isEmpty ? 'Danavaipeta' : area.trim();
+    final dLat = lat ?? AppConstants.defaultLat;
+    final dLng = lng ?? AppConstants.defaultLng;
     try {
       final donorId = await SupabaseService().registerDonor(
         fullName: fullName.trim(),
@@ -28,8 +32,8 @@ class DonorOnboardingService {
         gender: 'male',
         dob: DateTime.now().subtract(const Duration(days: 365 * 25)),
         weightKg: weightKg,
-        lat: AppConstants.defaultLat,
-        lng: AppConstants.defaultLng,
+        lat: dLat,
+        lng: dLng,
         area: chosenArea,
         city: city,
       );

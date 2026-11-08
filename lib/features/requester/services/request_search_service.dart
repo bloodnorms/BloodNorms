@@ -94,7 +94,7 @@ class RequestSearchService {
       try {
         final res = await client
             .from('request_contacts')
-            .select('id, request_id, donor_id, ring_km, distance_km, status, donation_code, donors (first_name, blood_group, phone, donor_location (home_lat, home_lng))')
+            .select('id, request_id, donor_id, ring_km, distance_km, status, donation_code, donors (first_name, full_name, blood_group, phone, gender, dob, donor_location (home_lat, home_lng))')
             .eq('request_id', requestId);
 
         if (res.isNotEmpty) {
@@ -113,12 +113,28 @@ class RequestSearchService {
 
             final distKm =
                 (row['distance_km'] ?? row['ring_km'] as num?)?.toDouble() ?? 1.5;
+
+            if (dLat == null || dLng == null) {
+              final hash = (row['id']?.toString() ?? 'donor').hashCode.abs();
+              final offset = (distKm / 111.0) * 0.7;
+              dLat = 17.0005 + offset * (hash % 2 == 0 ? 1.0 : -0.8);
+              dLng = 81.7800 + offset * (hash % 3 == 0 ? 0.9 : -1.1);
+            }
+
             final rawStatus = row['status']?.toString() ?? 'queued';
+
+            final dobStr = donor['dob']?.toString();
+            int? donorAge;
+            if (dobStr != null && dobStr.isNotEmpty) {
+              final birthYear = DateTime.tryParse(dobStr)?.year;
+              if (birthYear != null) donorAge = DateTime.now().year - birthYear;
+            }
+
             return DonorCardModel(
               id: row['id']?.toString() ?? '',
-              firstName: donor['first_name']?.toString() ?? 'Donor',
+              firstName: donor['full_name']?.toString() ?? donor['first_name']?.toString() ?? 'Donor',
               bloodGroup: donor['blood_group']?.toString() ?? 'O+',
-              distanceBand: '< ${(distKm + 0.5).toStringAsFixed(1)} km',
+              distanceBand: '${distKm.toStringAsFixed(1)} km away',
               etaMinutes: (distKm * 8).toInt().clamp(10, 45),
               status: rawStatus,
               isStandby: rawStatus == 'standby',
@@ -127,6 +143,8 @@ class RequestSearchService {
               donationCode: row['donation_code']?.toString(),
               latitude: dLat,
               longitude: dLng,
+              gender: donor['gender']?.toString() ?? 'Male',
+              age: donorAge ?? 23,
             );
           }).toList();
         }

@@ -8,11 +8,12 @@ const {
   confirmDonorAcceptance,
   updatePatientDetails,
   expandSearchRadius,
+  stopSearch,
+  resumeSearch,
 } = require('./donor-dispatch');
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ixrborkhofxlxbedpang.supabase.co';
-const SERVICE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 function getSupabaseKey() {
   return SERVICE_KEY;
@@ -140,7 +141,13 @@ async function createBloodRequest(phoneE164, slots, details) {
     const rows = await res.json();
     const created = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
     if (created) {
-      await alertNearbyDonors(created.id, slots.blood_group || 'O+', 2.0);
+      await alertNearbyDonors(
+        created.id,
+        slots.blood_group || 'O+',
+        2.0,
+        slots.location?.name || 'Diwancheruvu, Rajahmundry',
+        details.units || 2
+      );
     }
     return created;
   } catch (err) {
@@ -174,5 +181,7 @@ module.exports = {
   expandSearchRadius,
   confirmDonorAcceptance,
   updatePatientDetails,
+  stopSearch,
+  resumeSearch,
   parsePatientDetails,
 };

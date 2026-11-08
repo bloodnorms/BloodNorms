@@ -4,6 +4,7 @@
 // ============================================================================
 
 const { handleUserInteraction } = require('./ai-responder');
+const { handleDonorResponse } = require('./donor-dispatch');
 const { sendWhatsAppMessage } = require('./whatsapp-sender');
 
 module.exports = async (req, res) => {
@@ -46,7 +47,14 @@ module.exports = async (req, res) => {
 
       console.log(`[WhatsApp Webhook] Received ${messageType} from ${from}: "${text}"`);
 
-      // Generate conversational AI / emergency intake concierge reply
+      // 1. Check if incoming message is a volunteer donor response
+      const donorReply = await handleDonorResponse(from, message);
+      if (donorReply) {
+        await sendWhatsAppMessage(from, donorReply);
+        return res.status(200).json({ status: 'donor_handled', from });
+      }
+
+      // 2. Generate conversational AI / emergency intake concierge reply
       const reply = await handleUserInteraction(message, from);
       await sendWhatsAppMessage(from, reply);
 

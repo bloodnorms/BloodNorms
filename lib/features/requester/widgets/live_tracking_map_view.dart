@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | live_tracking_map_view.dart
-// Interactive OpenStreetMap showing expanding search wave radius and donor pins
+// Interactive Map matching pure reference with Hospital beacon & donor pins
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -16,6 +16,7 @@ class LiveTrackingMapView extends StatelessWidget {
   final double currentRingKm;
   final List<DonorCardModel> donors;
   final ValueChanged<DonorCardModel> onCallDonor;
+  final int needUnits;
 
   const LiveTrackingMapView({
     super.key,
@@ -24,99 +25,89 @@ class LiveTrackingMapView extends StatelessWidget {
     required this.currentRingKm,
     required this.donors,
     required this.onCallDonor,
+    this.needUnits = 2,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 240,
-      decoration: BoxDecoration(
-        color: BrandColors.surface,
-        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
-        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
-        boxShadow: BrandColors.shadowSubtle,
-      ),
-      clipBehavior: Clip.antiAlias,
+    final agreed = donors
+        .where((d) => d.status == 'accepted' || d.status == 'on_the_way' || d.status == 'arrived')
+        .toList();
+
+    return SizedBox(
+      height: 260,
+      width: double.infinity,
       child: Stack(
         children: [
           FlutterMap(
             mapController: mapController,
             options: MapOptions(
               initialCenter: centerPoint,
-              initialZoom: 13.0,
+              initialZoom: 13.8,
             ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.arkiolabs.bloodnorms',
               ),
-              CircleLayer(
-                circles: [
-                  CircleMarker(
-                    point: centerPoint,
-                    radius: currentRingKm * 1000,
-                    useRadiusInMeter: true,
-                    color: BrandColors.primaryDark.withOpacity(0.08),
-                    borderColor: BrandColors.primaryDark,
-                    borderStrokeWidth: 1.5,
-                  ),
-                ],
-              ),
               MarkerLayer(
                 markers: [
-                  // Hospital Pin
+                  // Center Hospital / Requester Red Beacon with concentric halo
                   Marker(
                     point: centerPoint,
-                    width: 44,
-                    height: 44,
+                    width: 32,
+                    height: 32,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: BrandColors.primaryDark,
+                        color: const Color(0xFFEF4444).withOpacity(0.18),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2.0),
-                        boxShadow: BrandColors.shadowFloating,
                       ),
-                      child: const Center(
-                        child: Icon(Icons.local_hospital_rounded, color: Colors.white, size: 22),
+                      child: Center(
+                        child: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF4444),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.12),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  // Dynamic Donor Pins from Supabase (only agreed donors)
+                  // Donor markers
                   ...donors
-                      .where((d) =>
-                          (d.status == 'accepted' ||
-                              d.status == 'on_the_way' ||
-                              d.status == 'arrived') &&
-                          d.latitude != null &&
-                          d.longitude != null)
+                      .where((d) => d.latitude != null && d.longitude != null)
                       .map((d) {
-                    final isAccepted = d.status == 'accepted';
+                    final isAcc = d.status == 'accepted' || d.status == 'on_the_way';
                     return Marker(
                       point: LatLng(d.lat, d.lng),
-                      width: 40,
-                      height: 40,
+                      width: 26,
+                      height: 26,
                       child: GestureDetector(
                         onTap: () => onCallDonor(d),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: isAccepted ? BrandColors.green : BrandColors.surface,
+                            color: isAcc ? const Color(0xFF4B4C55) : Colors.grey.shade400,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isAccepted ? Colors.white : BrandColors.primaryDark,
-                              width: 1.5,
+                              color: isAcc ? const Color(0xFF8E909D).withOpacity(0.4) : Colors.white,
+                              width: isAcc ? 4.0 : 2.0,
                             ),
-                            boxShadow: BrandColors.shadowSubtle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              d.firstName.isNotEmpty ? d.firstName[0].toUpperCase() : 'D',
-                              style: TextStyle(
-                                fontFamily: BrandTypography.fontFamily,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: isAccepted ? Colors.white : BrandColors.primaryDark,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
@@ -126,32 +117,82 @@ class LiveTrackingMapView extends StatelessWidget {
               ),
             ],
           ),
-          Positioned(
-            top: 10,
-            left: 10,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: BrandColors.surface,
-                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
-                border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
-                boxShadow: BrandColors.shadowSubtle,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.radar_rounded, size: 14, color: BrandColors.primaryDark),
-                  const SizedBox(width: 4),
-                  Text(
-                    'WAVE RING: ${currentRingKm.toStringAsFixed(1)} KM',
+          // Floating Pill Callout matching reference screenshot
+          if (agreed.isNotEmpty)
+            Positioned(
+              top: 14,
+              left: 20,
+              right: 20,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    agreed.length == 1
+                        ? '${agreed.first.firstName} accepted your request'
+                        : '${agreed.length} of $needUnits accepted',
                     style: const TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: BrandColors.primaryDark,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1F2937),
                     ),
                   ),
-                ],
+                ),
+              ),
+            ),
+          // Mapbox Watermark styling
+          Positioned(
+            bottom: 8,
+            left: 10,
+            child: Row(
+              children: [
+                Icon(Icons.near_me_rounded, size: 13, color: Colors.black.withOpacity(0.35)),
+                const SizedBox(width: 3),
+                Text(
+                  'mapbox',
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black.withOpacity(0.35),
+                    letterSpacing: -0.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Info circle button styling
+          Positioned(
+            bottom: 8,
+            right: 10,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Text(
+                  'i',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),

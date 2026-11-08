@@ -31,6 +31,8 @@ class DonorCardModel {
   final String? donationCode;
   final double? latitude;
   final double? longitude;
+  final String? gender;
+  final int? age;
 
   /// Latitude with pilot-city fallback.
   double get lat => latitude ?? 17.0005;
@@ -51,6 +53,8 @@ class DonorCardModel {
     this.donationCode,
     this.latitude,
     this.longitude,
+    this.gender,
+    this.age,
   });
 
   /// Parses a donor card from the JSON shape returned by the matching engine.
@@ -73,6 +77,8 @@ class DonorCardModel {
       donationCode: json['donation_code']?.toString(),
       latitude: (json['lat'] ?? json['home_lat']) != null ? ((json['lat'] ?? json['home_lat']) as num).toDouble() : null,
       longitude: (json['lng'] ?? json['home_lng']) != null ? ((json['lng'] ?? json['home_lng']) as num).toDouble() : null,
+      gender: json['gender']?.toString(),
+      age: (json['age'] as num?)?.toInt(),
     );
   }
 }

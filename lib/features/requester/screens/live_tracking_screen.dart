@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | live_tracking_screen.dart
-// Live tracking screen with Map & Radar — Thin Screen Composing Sub-views
+// Live tracking screen matching pure reference with Map & Accepted Donors
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -8,20 +8,15 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
-import '../../../shared/widgets/donor_radar_card.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../controllers/live_tracking_controller.dart';
 import '../providers/request_flow_provider.dart';
-import '../widgets/live_tracking_bottom_bar.dart';
 import '../widgets/live_tracking_contact_dialogs.dart';
 import '../widgets/live_tracking_donors_section.dart';
 import '../widgets/live_tracking_fulfillment_dialogs.dart';
 import '../widgets/live_tracking_map_view.dart';
-import '../widgets/live_tracking_metrics_row.dart';
-import '../widgets/live_tracking_status_header.dart';
 
 class LiveTrackingScreen extends StatefulWidget {
   final String requestId;
@@ -36,18 +31,17 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
   late LiveTrackingController _controller;
   late LiveTrackingData _data;
   final MapController _mapController = MapController();
-  bool _showMap = true;
 
   @override
   void initState() {
     super.initState();
     final f = globalRequestFlow.state;
     _data = LiveTrackingData(
-      need: f.units > 0 ? f.units : 1,
-      bloodGroup: f.bloodGroup?.label ?? 'Blood',
-      hospitalLat: (f.lat != 0.0) ? f.lat : 17.0005,
-      hospitalLng: (f.lng != 0.0) ? f.lng : 81.7820,
-      hospitalName: f.hospitalName.isNotEmpty ? f.hospitalName : 'Hospital',
+      need: f.units > 0 ? f.units : 2,
+      bloodGroup: f.bloodGroup?.label ?? 'O+',
+      hospitalLat: (f.lat != 0.0) ? f.lat : 17.0481,
+      hospitalLng: (f.lng != 0.0) ? f.lng : 81.8421,
+      hospitalName: f.hospitalName.isNotEmpty ? f.hospitalName : 'Diwancheruvu',
     );
     _controller = LiveTrackingController(
       requestId: widget.requestId,
@@ -90,23 +84,25 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     if (mounted) showDonationConfirmedDialog(context, code);
   }
 
-  Future<void> _finishRequest(String reason) async {
-    await SupabaseService().closeRequest(widget.requestId, outcome: reason, status: 'fulfilled');
-    globalRequestFlow.clearActiveRequestId();
-    if (mounted) showRequestCompletedDialog(context, reason);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
     final centerPoint = LatLng(_data.hospitalLat, _data.hospitalLng);
 
     return Scaffold(
-      backgroundColor: BrandColors.surfaceSoft,
+      backgroundColor: Colors.white,
       appBar: ScreenHeader(
-        title: 'Live Search',
-        showBackButton: false,
+        title: 'Request sent',
+        showBackButton: true,
+        onBackOverride: () => context.go('/'),
         trailing: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: BrandColors.borderSubtle),
+              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+            ),
+            child: const Text('EN', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+          ),
           IconButton(
             onPressed: () => context.go('/'),
             icon: const Icon(Icons.close_rounded, size: 24, color: BrandColors.textSecondary),
@@ -114,73 +110,28 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                children: [
-                  LiveTrackingStatusHeader(
-                    isClosed: _data.isClosed,
-                    closedStatus: _data.closedStatus,
-                    closedOutcome: _data.closedOutcome,
-                    bloodGroup: _data.bloodGroup,
-                    hospitalName: _data.hospitalName,
-                    showMap: _showMap,
-                    onToggleView: () => setState(() => _showMap = !_showMap),
-                  ),
-                  const SizedBox(height: 12),
-                  if (_showMap)
-                    LiveTrackingMapView(
-                      mapController: _mapController,
-                      centerPoint: centerPoint,
-                      currentRingKm: _data.currentRingKm,
-                      donors: _data.donors,
-                      onCallDonor: _callDonor,
-                    )
-                  else
-                    DonorRadarCard(
-                      currentRingKm: _data.currentRingKm,
-                      contactedCount: _data.contacted,
-                      acceptedCount: _data.accepted,
-                      needUnits: _data.need,
-                    ),
-                  const SizedBox(height: 20),
-                  LiveTrackingMetricsRow(
-                    contactedCount: _data.contacted,
-                    acceptedCount: _data.accepted,
-                    needUnits: _data.need,
-                  ),
-                  const SizedBox(height: 24),
-                  LiveTrackingDonorsSection(
-                    isLoading: _data.isLoading,
-                    bloodGroup: _data.bloodGroup,
-                    currentRingKm: _data.currentRingKm,
-                    hospitalName: _data.hospitalName,
-                    donors: _data.donors,
-                    onCallDonor: _callDonor,
-                    onConfirmDonation: _confirmDonation,
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+            LiveTrackingMapView(
+              mapController: _mapController,
+              centerPoint: centerPoint,
+              currentRingKm: _data.currentRingKm,
+              donors: _data.donors,
+              onCallDonor: _callDonor,
+              needUnits: _data.need,
             ),
-            LiveTrackingBottomBar(
-              isClosed: _data.isClosed,
-              gotBloodLabel: loc.t('live.got'),
-              stopLabel: loc.t('cta.stop'),
-              onReturnHome: () {
-                globalRequestFlow.clearActiveRequestId();
-                context.go('/');
-              },
-              onGotBlood: () => showGotBloodSheet(context: context, onSelectedReason: _finishRequest),
-              onStopSearch: () => showStopSearchDialog(
-                context: context,
-                onConfirmStop: () async {
-                  await SupabaseService().closeRequest(widget.requestId, outcome: 'cancelled_by_requester', status: 'cancelled');
-                  globalRequestFlow.clearActiveRequestId();
-                  if (mounted) context.go('/');
-                },
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+              child: LiveTrackingDonorsSection(
+                isLoading: _data.isLoading,
+                bloodGroup: _data.bloodGroup,
+                needUnits: _data.need,
+                currentRingKm: _data.currentRingKm,
+                hospitalName: _data.hospitalName,
+                donors: _data.donors,
+                onCallDonor: _callDonor,
+                onConfirmDonation: _confirmDonation,
               ),
             ),
           ],
