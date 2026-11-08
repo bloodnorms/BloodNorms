@@ -1,7 +1,9 @@
 // ============================================================================
 // BloodNorms | api/webhook.js
-// Meta WhatsApp Cloud API Production Webhook & Interactive Auto-Responder
+// Meta WhatsApp Cloud API Production Webhook & AI Responder Gateway
 // ============================================================================
+
+const { generateAiReply } = require('./ai-responder');
 
 /**
  * Sends outbound WhatsApp message via Meta Graph API
@@ -75,45 +77,14 @@ module.exports = async (req, res) => {
       const from = message.from; // Sender phone without '+'
       const messageType = message.type;
       const text = message.text?.body?.trim() || '';
-      const textUpper = text.toUpperCase();
 
       console.log(`[WhatsApp Webhook] Received ${messageType} from ${from}: "${text}"`);
 
-      // Handle DPDP Opt-Out (STOP)
-      if (textUpper === 'STOP' || textUpper === 'ఆపండి' || textUpper === 'रोकें') {
-        await sendWhatsAppMessage(
-          from,
-          'BloodNorms: You have been opted out. You will not receive any further alerts. Reply START to resume.'
-        );
-        return res.status(200).json({ status: 'opt_out_success', from });
-      }
+      // Generate conversational AI / intelligent triage reply
+      const reply = await generateAiReply(text);
+      await sendWhatsAppMessage(from, reply);
 
-      // Handle Volunteer Confirmation (YES)
-      if (textUpper === 'YES' || textUpper === 'CONFIRM' || textUpper === 'అవును' || textUpper === 'हाँ') {
-        await sendWhatsAppMessage(
-          from,
-          '🩸 Thank you for confirming! Your volunteer blood donation attendance has been recorded in BloodNorms. You are saving lives today!'
-        );
-        return res.status(200).json({ status: 'confirm_success', from });
-      }
-
-      // Handle Blood Group Inquiry (e.g. O+, A+, B+, etc.)
-      const bloodGroupRegex = /^(A|B|AB|O)[+-]$/i;
-      if (bloodGroupRegex.test(textUpper)) {
-        await sendWhatsAppMessage(
-          from,
-          `🩸 Blood Group *${textUpper}* noted!\n\nWe are searching verified blood banks and volunteer donors near your area.\n\nTrack stock & emergency requests live:\n👉 https://bloodnorms.vercel.app\n\nNeed immediate helpline? Call our 24/7 toll-free emergency coordinator.`
-        );
-        return res.status(200).json({ status: 'blood_group_noted', from });
-      }
-
-      // Default Interactive Greeting (e.g. for "hi", "hello", or any question)
-      await sendWhatsAppMessage(
-        from,
-        '🩸 *Welcome to BloodNorms Emergency Network!*\n\nWe help you find verified blood donors and live blood bank stock in minutes.\n\n• *Reply with a Blood Group* (e.g. O+, B+, A+, AB-)\n• *Live Blood Portal:* https://bloodnorms.vercel.app\n• *Opt-out anytime:* Reply STOP\n\nHow can we help you save a life today?'
-      );
-
-      return res.status(200).json({ status: 'greeting_sent', from });
+      return res.status(200).json({ status: 'success', from });
     } catch (err) {
       console.error('[WhatsApp Webhook] Error processing event:', err);
       if (!res.headersSent) {
