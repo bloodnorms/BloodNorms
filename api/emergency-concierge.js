@@ -4,7 +4,10 @@
 // ============================================================================
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ixrborkhofxlxbedpang.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+
+function getSupabaseKey() {
+  return process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+}
 
 /**
  * Normalizes blood group variations (e.g. "o positive", "O+", "b-")
@@ -23,7 +26,7 @@ function extractBloodGroup(text) {
     'ab neg': 'AB-', 'ab negative': 'AB-', 'ab-': 'AB-',
   };
   for (const [key, val] of Object.entries(map)) {
-    if (n === key || n.includes(` ${key} `) || n.startsWith(`${key} `) || n.endsWith(` ${key}`)) {
+    if (n === key || n.includes(` ${key} `) || n.startsWith(`${key} `) || n.endsWith(` ${key}`) || n.includes(`${key}`)) {
       return val;
     }
   }
@@ -31,54 +34,76 @@ function extractBloodGroup(text) {
 }
 
 /**
+ * Normalizes location text to known Rajahmundry / AP areas
+ */
+function normalizeLocation(text) {
+  if (!text) return 'Rajahmundry';
+  const clean = text.replace(/\b(location|area|place|near|at|hospital)\b/gi, '').trim();
+  if (/diwancheruvu|diwanchervuvu|divancheruvu/i.test(clean)) {
+    return 'Diwancheruvu, Rajahmundry';
+  }
+  if (/danavaipeta|danavaypeta/i.test(clean)) {
+    return 'Danavaipeta, Rajahmundry';
+  }
+  if (/morampudi/i.test(clean)) {
+    return 'Morampudi, Rajahmundry';
+  }
+  if (/lalacheruvu/i.test(clean)) {
+    return 'Lalacheruvu, Rajahmundry';
+  }
+  if (/kakinada/i.test(clean)) {
+    return 'Kakinada';
+  }
+  return clean || 'Rajahmundry';
+}
+
+/**
  * Fetches active inbound session for phone number
  */
+const SESSIONS = new Map();
+
 async function getSession(phoneE164) {
+  if (SESSIONS.has(phoneE164)) {
+    return SESSIONS.get(phoneE164);
+  }
+  const key = getSupabaseKey();
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/inbound_sessions?phone_e164=eq.${encodeURIComponent(phoneE164)}&channel=eq.whatsapp&order=updated_at.desc&limit=1`, {
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
     });
     const rows = await res.json();
-    return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+    const session = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+    if (session) SESSIONS.set(phoneE164, session);
+    return session;
   } catch (err) {
-    console.error('[Concierge] Error fetching session:', err);
     return null;
   }
 }
 
-/**
- * Saves or updates inbound session
- */
 async function saveSession(phoneE164, state, slots, requestId = null) {
+  const sessionObj = {
+    phone_e164: phoneE164,
+    channel: 'whatsapp',
+    state,
+    slots: slots || {},
+    request_id: requestId,
+    updated_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+  };
+  SESSIONS.set(phoneE164, sessionObj);
+
+  const key = getSupabaseKey();
   try {
-    const body = {
-      phone_e164: phoneE164,
-      channel: 'whatsapp',
-      state,
-      slots: slots || {},
-      request_id: requestId,
-      updated_at: new Date().toISOString(),
-      expires_at: new Date(Date.now() + 45 * 60 * 1000).toISOString(),
-    };
     await fetch(`${SUPABASE_URL}/rest/v1/inbound_sessions`, {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify(body),
+      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(sessionObj),
     });
-  } catch (err) {
-    console.error('[Concierge] Error saving session:', err);
-  }
+  } catch (err) {}
 }
 
-/**
- * Creates live blood request in Supabase
- */
 async function createBloodRequest(phoneE164, slots, details) {
+  const key = getSupabaseKey();
   try {
     const body = {
       blood_group: slots.blood_group || 'O+',
@@ -91,7 +116,7 @@ async function createBloodRequest(phoneE164, slots, details) {
       patient_first_name: details.name || 'Patient',
       patient_age: details.age || 35,
       relation: 'family',
-      reason: details.reason || 'Emergency need',
+      reason: details.reason || 'Accident surgery',
       requester_phone: phoneE164,
       requester_name: 'Family Coordinator',
       origin: 'whatsapp',
@@ -100,39 +125,25 @@ async function createBloodRequest(phoneE164, slots, details) {
     };
     const res = await fetch(`${SUPABASE_URL}/rest/v1/requests`, {
       method: 'POST',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=representation',
-      },
+      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
       body: JSON.stringify(body),
     });
     const rows = await res.json();
     return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
   } catch (err) {
-    console.error('[Concierge] Error creating request:', err);
     return null;
   }
 }
 
-/**
- * Updates search radius for active request
- */
 async function expandSearchRadius(requestId, km) {
+  const key = getSupabaseKey();
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/requests?id=eq.${requestId}`, {
       method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ current_ring_km: km, updated_at: new Date().toISOString() }),
     });
-  } catch (err) {
-    console.error('[Concierge] Error expanding radius:', err);
-  }
+  } catch (err) {}
 }
 
 /**
@@ -154,6 +165,7 @@ function parsePatientDetails(text) {
 
 module.exports = {
   extractBloodGroup,
+  normalizeLocation,
   getSession,
   saveSession,
   createBloodRequest,

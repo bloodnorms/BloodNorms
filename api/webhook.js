@@ -6,15 +6,44 @@
 const { handleUserInteraction } = require('./ai-responder');
 
 /**
- * Sends outbound WhatsApp message via Meta Graph API
+ * Sends outbound WhatsApp message (Text or Interactive Buttons) via Meta Graph API
  */
-async function sendWhatsAppMessage(to, text) {
+async function sendWhatsAppMessage(to, payload) {
   const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID || '1427256480473692';
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
 
   if (!phoneId || !token) {
     console.error('[WhatsApp Webhook] Missing PHONE_NUMBER_ID or ACCESS_TOKEN');
     return;
+  }
+
+  let body;
+  if (typeof payload === 'object' && payload.buttons && payload.buttons.length > 0) {
+    body = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to,
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        body: { text: payload.text },
+        action: {
+          buttons: payload.buttons.slice(0, 3).map((b) => ({
+            type: 'reply',
+            reply: { id: b.id, title: b.title.substring(0, 20) },
+          })),
+        },
+      },
+    };
+  } else {
+    const text = typeof payload === 'string' ? payload : (payload.text || '');
+    body = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to,
+      type: 'text',
+      text: { body: text },
+    };
   }
 
   try {
@@ -24,13 +53,7 @@ async function sendWhatsAppMessage(to, text) {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
-        to,
-        type: 'text',
-        text: { body: text },
-      }),
+      body: JSON.stringify(body),
     });
 
     const data = await res.json();
