@@ -15,8 +15,9 @@ import '../../../shared/models/blood_bank_model.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import '../widgets/bank_inventory_card.dart';
 import '../widgets/public_banks_map_widget.dart';
 
@@ -73,7 +74,7 @@ class _PublicBanksScreenState extends State<PublicBanksScreen> {
     final cityPoint = LatLng(AppConstants.defaultLat, AppConstants.defaultLng);
 
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: ScreenHeader(
         title: loc.t('banks.title'),
         showBackButton: true,
@@ -83,13 +84,13 @@ class _PublicBanksScreenState extends State<PublicBanksScreen> {
           children: [
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: BrandColors.red))
+                  ? const Center(child: CircularProgressIndicator(color: BrandColors.primaryAction))
                   : ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       children: [
                         const SpeechBubble(
                           emoji: '🏦',
-                          text: 'Browse honest stock from verified blood banks in Rajahmundry! Call before you go.',
+                          text: 'Browse honest stock from verified blood banks in Rajahmundry. Call before you go.',
                         ),
                         const SizedBox(height: 16),
                         PublicBanksMapWidget(
@@ -100,7 +101,7 @@ class _PublicBanksScreenState extends State<PublicBanksScreen> {
                           onBankSelected: (idx) => setState(() => _selectedBankIndex = idx),
                         ),
                         const SizedBox(height: 20),
-                        Text(loc.t('banks.title'), style: BrandTypography.title1(color: BrandColors.textPrimary)),
+                        Text(loc.t('banks.title'), style: BrandTypography.title2(color: BrandColors.textPrimary)),
                         const SizedBox(height: 4),
                         Text('Verified blood banks in ${AppConstants.pilotCity}', style: BrandTypography.subhead(color: BrandColors.textSecondary)),
                         const SizedBox(height: 16),
@@ -113,53 +114,60 @@ class _PublicBanksScreenState extends State<PublicBanksScreen> {
                             onCall: () => _callBank(bank.phone),
                           );
                         }),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.info_outline_rounded, size: 16, color: BrandColors.red),
+                            const Icon(Icons.info_outline_rounded, size: 16, color: BrandColors.textSecondary),
                             const SizedBox(width: 6),
                             Text(
                               loc.t('banks.call_before'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontFamily: BrandTypography.fontFamily,
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                                 color: BrandColors.textSecondary,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
                       ],
                     ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
+                color: BrandColors.background,
+                border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ActionButton(
-                      label: 'NEED BLOOD',
-                      icon: Icons.water_drop_rounded,
-                      variant: ActionButtonVariant.primary,
-                      onPressed: () => context.push('/group'),
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: AppPillButton(
+                        label: 'Need Blood',
+                        icon: Icons.water_drop_outlined,
+                        variant: AppPillButtonVariant.primary,
+                        isFullWidth: true,
+                        onPressed: () => context.push('/group'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ActionButton(
-                      label: 'WHATSAPP',
-                      icon: Icons.chat_rounded,
-                      variant: ActionButtonVariant.success,
-                      onPressed: _launchWhatsApp,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: AppPillButton(
+                        label: 'WhatsApp',
+                        icon: Icons.chat_bubble_outline_rounded,
+                        variant: AppPillButtonVariant.secondary,
+                        isFullWidth: true,
+                        onPressed: _launchWhatsApp,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

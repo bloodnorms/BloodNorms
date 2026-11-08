@@ -21,11 +21,11 @@ class LiveTrackingMetricsRow extends StatelessWidget {
 
   Widget _buildMetricPill(IconData icon, String label, String value, Color color, Color bg) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: BrandColors.border, width: 1.5),
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         children: [
@@ -39,18 +39,20 @@ class LiveTrackingMetricsRow extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: BrandTypography.fontFamily,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: color,
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 2),
           Text(
             label,
             style: const TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.5,
               color: BrandColors.textSecondary,
             ),
           ),
@@ -64,18 +66,17 @@ class LiveTrackingMetricsRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _buildMetricPill(Icons.people_rounded, 'CONTACTED', '$contactedCount', BrandColors.textPrimary, const Color(0xFFF0F0F0)),
+          child: _buildMetricPill(Icons.people_outline_rounded, 'CONTACTED', '$contactedCount', BrandColors.textPrimary, BrandColors.surfaceSoft),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _buildMetricPill(Icons.check_circle_rounded, 'AGREED', '$acceptedCount', BrandColors.green, BrandColors.greenTint),
+          child: _buildMetricPill(Icons.check_circle_outline_rounded, 'AGREED', '$acceptedCount', BrandColors.statusSuccess, BrandColors.statusSuccessTint),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _buildMetricPill(Icons.water_drop_rounded, 'NEEDED', '$needUnits', BrandColors.red, BrandColors.redTint),
+          child: _buildMetricPill(Icons.water_drop_outlined, 'NEEDED', '$needUnits', BrandColors.statusError, BrandColors.statusErrorTint),
         ),
       ],
     );
   }
 }
-

@@ -21,16 +21,10 @@ class DonorCancelledBanner extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.red, width: 2.5),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.redShadow,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.redTint,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.red.withOpacity(0.25), width: 1.0),
+        boxShadow: BrandColors.shadowSubtle,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,7 +35,7 @@ class DonorCancelledBanner extends StatelessWidget {
               color: BrandColors.red,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+            child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -52,7 +46,7 @@ class DonorCancelledBanner extends StatelessWidget {
                   'REQUEST CANCELLED BY REQUESTER',
                   style: TextStyle(
                     fontFamily: BrandTypography.fontFamily,
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: BrandColors.red,
                   ),
@@ -76,4 +70,3 @@ class DonorCancelledBanner extends StatelessWidget {
     );
   }
 }
-

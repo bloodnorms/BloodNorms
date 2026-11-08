@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import '../../../../../shared/constants/blood_groups.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/blood_group_tile.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 
 class OnboardingBioStep extends StatelessWidget {
   final TextEditingController nameController;
@@ -94,16 +94,10 @@ class OnboardingBloodStep extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 3),
-                blurRadius: 0,
-              ),
-            ],
+            color: BrandColors.surface,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+            boxShadow: BrandColors.shadowSubtle,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -118,7 +112,7 @@ class OnboardingBloodStep extends StatelessWidget {
               ),
               Switch(
                 value: plateletsWilling,
-                activeThumbColor: BrandColors.red,
+                activeThumbColor: BrandColors.primaryDark,
                 onChanged: onPlateletsChanged,
               ),
             ],
@@ -128,4 +122,3 @@ class OnboardingBloodStep extends StatelessWidget {
     );
   }
 }
-

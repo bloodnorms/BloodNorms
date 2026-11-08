@@ -10,8 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import '../widgets/donor_alert_card.dart';
 import '../widgets/donor_history_card.dart';
 
@@ -83,21 +83,21 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: const ScreenHeader(
         title: 'Emergency Alerts',
         showBackButton: false,
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          color: BrandColors.red,
+          color: BrandColors.primaryAction,
           onRefresh: _loadAll,
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             children: [
               const SpeechBubble(
                 emoji: '🚨',
-                text: 'Emergency requests incoming! Check hospital distance and tap ACCEPT if you can donate.',
+                text: 'Emergency requests incoming. Check hospital distance and tap Accept if you can donate.',
               ),
               const SizedBox(height: 20),
               Text('Live Alerts', style: BrandTypography.title1(color: BrandColors.textPrimary)),
@@ -106,21 +106,21 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(32),
-                    child: CircularProgressIndicator(color: BrandColors.red),
+                    child: CircularProgressIndicator(color: BrandColors.primaryAction),
                   ),
                 )
               else if (_alerts.isEmpty)
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: BrandColors.border, width: 2.0),
+                    color: BrandColors.background,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                    border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                   ),
                   child: Center(
                     child: Column(
                       children: [
-                        const Text('🛡️', style: TextStyle(fontSize: 40)),
+                        const Icon(Icons.shield_outlined, size: 40, color: BrandColors.statusSuccess),
                         const SizedBox(height: 12),
                         Text('No Emergency Alerts Nearby', style: BrandTypography.title2(color: BrandColors.textPrimary)),
                         const SizedBox(height: 6),
@@ -142,7 +142,7 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
                     onDecline: () => _handleDecline(alert.id),
                   );
                 }),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text('Past Donations & Passes', style: BrandTypography.title3(color: BrandColors.textPrimary)),
               const SizedBox(height: 12),
               if (_pastHistory.isEmpty)
@@ -164,9 +164,9 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
                       date: '$displayDate • Code #$code',
                       group: '$group',
                       status: status,
-                      statusColor: BrandColors.green,
-                      statusBg: BrandColors.greenTint,
-                      statusBorder: BrandColors.greenShadow,
+                      statusColor: BrandColors.statusSuccess,
+                      statusBg: BrandColors.statusSuccessTint,
+                      statusBorder: BrandColors.borderSubtle,
                     ),
                   );
                 }),

@@ -4,6 +4,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 
 class PlatformStatsCard extends StatelessWidget {
@@ -25,9 +26,9 @@ class PlatformStatsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.0),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -38,8 +39,8 @@ class PlatformStatsCard extends StatelessWidget {
           ),
           Container(
             width: 1,
-            height: 36,
-            color: const Color(0xFFE5E7EB),
+            height: 32,
+            color: BrandColors.borderSubtle,
           ),
           _buildStatColumn(
             count: isLoading ? '...' : '$bloodCenters',
@@ -47,8 +48,8 @@ class PlatformStatsCard extends StatelessWidget {
           ),
           Container(
             width: 1,
-            height: 36,
-            color: const Color(0xFFE5E7EB),
+            height: 32,
+            color: BrandColors.borderSubtle,
           ),
           _buildStatColumn(
             count: isLoading ? '...' : '$campsOrganised',
@@ -67,19 +68,18 @@ class PlatformStatsCard extends StatelessWidget {
           style: const TextStyle(
             fontFamily: BrandTypography.fontFamily,
             fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF111827),
+            fontWeight: FontWeight.w700,
+            color: BrandColors.textPrimary,
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         Text(
           label,
           style: const TextStyle(
             fontFamily: BrandTypography.fontFamily,
             fontSize: 11,
-            fontWeight: FontWeight.normal,
-            color: Color(0xFF6B7280),
+            color: BrandColors.textSecondary,
           ),
         ),
       ],

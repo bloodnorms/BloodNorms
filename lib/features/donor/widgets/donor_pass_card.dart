@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | donor_pass_card.dart
-// 3D physical-style pass card displaying donation verification code and hospital info
+// Clean digital pass card displaying donation verification code and hospital info
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -34,62 +34,56 @@ class DonorPassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: BrandColors.redShadow, width: 2.5),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.redShadow,
-            offset: Offset(0, 6),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header Banner
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
             decoration: BoxDecoration(
-              color: isCancelled ? const Color(0xFF6B7280) : BrandColors.red,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(25),
-                topRight: Radius.circular(25),
-              ),
+              color: isCancelled ? BrandColors.surfaceMuted : BrandColors.primaryAction,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Icon(isCancelled ? Icons.block_rounded : Icons.verified_rounded, color: Colors.white, size: 20),
+                    Icon(
+                      isCancelled ? Icons.block_rounded : Icons.verified_rounded,
+                      color: isCancelled ? BrandColors.textDisabled : Colors.white,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       isCancelled ? 'PASS CANCELLED' : 'OFFICIAL DONOR PASS',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                        color: isCancelled ? BrandColors.textDisabled : Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
                         letterSpacing: 0.5,
                       ),
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(999),
+                    color: isCancelled ? BrandColors.surfaceSoft : BrandColors.statusErrorTint,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                   ),
                   child: Text(
                     bloodGroup.label,
                     style: TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      color: isCancelled ? const Color(0xFF6B7280) : BrandColors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      color: isCancelled ? BrandColors.textDisabled : BrandColors.statusError,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -99,91 +93,104 @@ class DonorPassCard extends StatelessWidget {
 
           // Code Box
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(20),
             child: Column(
               children: [
                 Text(
                   isCancelled ? 'STATUS' : 'DONATION VERIFICATION CODE',
-                  style: BrandTypography.caption(color: BrandColors.textSecondary),
+                  style: const TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontSize: 11,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w600,
+                    color: BrandColors.textSecondary,
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   decoration: BoxDecoration(
-                    color: isCancelled ? const Color(0xFFF3F4F6) : BrandColors.redTint,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: isCancelled ? const Color(0xFFD1D5DB) : BrandColors.redShadow, width: 2.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: isCancelled ? const Color(0xFFE5E7EB) : BrandColors.redShadow,
-                        offset: const Offset(0, 3),
-                        blurRadius: 0,
-                      ),
-                    ],
+                    color: isCancelled ? BrandColors.surfaceMuted : BrandColors.surfaceSoft,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                    border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                   ),
                   child: Text(
                     isCancelled ? 'VOID' : donationCode,
                     style: TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      fontSize: isCancelled ? 24 : 36,
-                      fontWeight: FontWeight.bold,
+                      fontSize: isCancelled ? 24 : 34,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: isCancelled ? 4 : 8,
-                      color: isCancelled ? const Color(0xFF6B7280) : BrandColors.red,
+                      color: isCancelled ? BrandColors.textDisabled : BrandColors.textPrimary,
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  isCancelled ? 'Requester closed this emergency request' : 'Single use • Valid for 24 hours',
+                  isCancelled ? 'Requester closed this emergency request' : 'Single use · Valid for 24 hours',
                   style: BrandTypography.caption(color: BrandColors.textSecondary),
                 ),
               ],
             ),
           ),
 
-          // Dashed Separator Line
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: List.generate(
-                30,
-                (index) => Expanded(
-                  child: Container(
-                    color: index % 2 == 0 ? Colors.transparent : BrandColors.border,
-                    height: 2,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // Divider
+          const Divider(height: 1, thickness: 1, color: BrandColors.borderSubtle),
 
           // Hospital & Location Details
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('DESTINATION HOSPITAL', style: BrandTypography.caption(color: BrandColors.textSecondary)),
-                const SizedBox(height: 6),
+                const Text(
+                  'DESTINATION HOSPITAL',
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontSize: 10.5,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w600,
+                    color: BrandColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
                 Text(hospitalName, style: BrandTypography.title2(color: BrandColors.textPrimary)),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_rounded, size: 16, color: BrandColors.red),
+                    const Icon(Icons.location_on_outlined, size: 15, color: BrandColors.statusError),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(hospitalArea, style: BrandTypography.body(color: BrandColors.textSecondary)),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Text('WARD & BED', style: BrandTypography.caption(color: BrandColors.textSecondary)),
+                const SizedBox(height: 14),
+                const Text(
+                  'WARD & BED',
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontSize: 10.5,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w600,
+                    color: BrandColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(wardDetail, style: BrandTypography.title3(color: BrandColors.textPrimary)),
-                const SizedBox(height: 16),
-                Text('REQUESTER', style: BrandTypography.caption(color: BrandColors.textSecondary)),
+                const SizedBox(height: 14),
+                const Text(
+                  'REQUESTER',
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    fontSize: 10.5,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w600,
+                    color: BrandColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('$requesterName • $requesterPhone', style: BrandTypography.body(color: BrandColors.textPrimary)),
+                Text('$requesterName · $requesterPhone', style: BrandTypography.body(color: BrandColors.textPrimary)),
               ],
             ),
           ),
@@ -192,4 +199,3 @@ class DonorPassCard extends StatelessWidget {
     );
   }
 }
-

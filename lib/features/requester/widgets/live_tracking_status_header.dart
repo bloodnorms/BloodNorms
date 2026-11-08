@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 
 class LiveTrackingStatusHeader extends StatelessWidget {
   final bool isClosed;
@@ -36,27 +36,37 @@ class LiveTrackingStatusHeader extends StatelessWidget {
         if (isClosed)
           Container(
             margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: closedStatus == 'cancelled' ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDF4),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: closedStatus == 'cancelled' ? BrandColors.red : BrandColors.green, width: 2.0),
-              boxShadow: const [BoxShadow(color: BrandColors.border, offset: Offset(0, 4), blurRadius: 0)],
+              color: closedStatus == 'cancelled'
+                  ? BrandColors.statusErrorTint
+                  : BrandColors.statusSuccessTint,
+              borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+              border: Border.all(
+                color: closedStatus == 'cancelled'
+                    ? BrandColors.statusError.withValues(alpha: 0.25)
+                    : BrandColors.statusSuccess.withValues(alpha: 0.25),
+                width: 1.0,
+              ),
             ),
             child: Row(
               children: [
                 Icon(
-                  closedStatus == 'cancelled' ? Icons.close_rounded : Icons.check_rounded,
-                  color: closedStatus == 'cancelled' ? BrandColors.red : BrandColors.green,
-                  size: 24,
+                  closedStatus == 'cancelled' ? Icons.close_rounded : Icons.check_circle_outline_rounded,
+                  color: closedStatus == 'cancelled' ? BrandColors.statusError : BrandColors.statusSuccess,
+                  size: 22,
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     closedStatus == 'cancelled'
                         ? 'This emergency request was cancelled (${closedOutcome.isNotEmpty ? closedOutcome : "by requester"}).'
                         : 'Blood request was fulfilled successfully (${closedOutcome.isNotEmpty ? closedOutcome : "completed"}).',
-                    style: TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 13, color: BrandColors.textPrimary),
+                    style: const TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontSize: 13,
+                      color: BrandColors.textPrimary,
+                    ),
                   ),
                 ),
               ],
@@ -65,36 +75,44 @@ class LiveTrackingStatusHeader extends StatelessWidget {
         else
           SpeechBubble(
             emoji: '📡',
-            text: "Searching for $bloodGroup donors around $hospitalName. Contacts and responses update in real time below!",
+            text: "Searching for $bloodGroup donors around $hospitalName. Contacts and responses update in real time below.",
           ),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            GestureDetector(
-              onTap: onToggleView,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: BrandColors.red, width: 1.5),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(showMap ? Icons.radar_rounded : Icons.map_rounded, size: 16, color: BrandColors.red),
-                    const SizedBox(width: 6),
-                    Text(
-                      showMap ? 'RADAR VIEW' : 'MAP VIEW',
-                      style: const TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: BrandColors.red,
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                onTap: onToggleView,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: BrandColors.background,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                    border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        showMap ? Icons.radar_rounded : Icons.map_rounded,
+                        size: 16,
+                        color: BrandColors.primaryAction,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Text(
+                        showMap ? 'Radar View' : 'Map View',
+                        style: const TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: BrandColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -104,4 +122,3 @@ class LiveTrackingStatusHeader extends StatelessWidget {
     );
   }
 }
-

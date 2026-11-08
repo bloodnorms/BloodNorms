@@ -6,8 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../../../shared/constants/app_constants.dart';
 import '../../../shared/models/blood_bank_model.dart';
+import '../../../shared/services/location_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 
@@ -32,16 +32,9 @@ class PublicBanksMapWidget extends StatelessWidget {
     return Container(
       height: 200,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -54,7 +47,7 @@ class PublicBanksMapWidget extends StatelessWidget {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: LocationService.osmTileUrl,
                 userAgentPackageName: 'com.arkiolabs.bloodnorms',
               ),
               MarkerLayer(
@@ -65,8 +58,8 @@ class PublicBanksMapWidget extends StatelessWidget {
 
                   return Marker(
                     point: LatLng(b.lat, b.lng),
-                    width: 48,
-                    height: 48,
+                    width: 44,
+                    height: 44,
                     child: GestureDetector(
                       onTap: () {
                         onBankSelected(index);
@@ -74,25 +67,19 @@ class PublicBanksMapWidget extends StatelessWidget {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSel ? BrandColors.red : Colors.white,
+                          color: isSel ? BrandColors.primaryAction : BrandColors.background,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isSel ? BrandColors.redShadow : BrandColors.red,
-                            width: 2.5,
+                            color: isSel ? BrandColors.primaryAction : BrandColors.borderSubtle,
+                            width: 1.5,
                           ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: BrandColors.border,
-                              offset: Offset(0, 3),
-                              blurRadius: 0,
-                            ),
-                          ],
+                          boxShadow: BrandColors.shadowCardHover,
                         ),
                         child: Center(
                           child: Icon(
                             Icons.local_hospital_rounded,
-                            size: 24,
-                            color: isSel ? Colors.white : BrandColors.red,
+                            size: 20,
+                            color: isSel ? Colors.white : BrandColors.statusError,
                           ),
                         ),
                       ),
@@ -106,24 +93,25 @@ class PublicBanksMapWidget extends StatelessWidget {
             top: 10,
             right: 10,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: BrandColors.border, width: 1.5),
+                color: BrandColors.background,
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                boxShadow: BrandColors.shadowCardHover,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.pin_drop_rounded, size: 14, color: BrandColors.red),
-                  const SizedBox(width: 4),
+                children: const [
+                  Icon(Icons.touch_app_outlined, size: 13, color: BrandColors.textSecondary),
+                  SizedBox(width: 4),
                   Text(
-                    '${banks.length} Banks in ${AppConstants.pilotCity}',
+                    'Interactive map',
                     style: TextStyle(
                       fontFamily: BrandTypography.fontFamily,
                       fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: BrandColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                      color: BrandColors.textSecondary,
                     ),
                   ),
                 ],
@@ -135,4 +123,3 @@ class PublicBanksMapWidget extends StatelessWidget {
     );
   }
 }
-

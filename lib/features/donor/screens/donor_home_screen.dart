@@ -95,7 +95,7 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DuoColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       body: IndexedStack(
         index: _currentTabIndex,
         children: [
@@ -115,23 +115,23 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
           const DonorProfileScreen(),
         ],
       ),
-      bottomNavigationBar: DuoBottomNavBar(
+      bottomNavigationBar: AppNavBar(
         currentIndex: _currentTabIndex,
         onTap: (index) => setState(() => _currentTabIndex = index),
         items: const [
-          DuoNavItem(
+          AppNavItem(
             icon: Icons.home_rounded,
             label: 'Home',
           ),
-          DuoNavItem(
+          AppNavItem(
             icon: Icons.notifications_rounded,
             label: 'Alerts',
           ),
-          DuoNavItem(
+          AppNavItem(
             icon: Icons.calendar_month_rounded,
             label: 'Camps',
           ),
-          DuoNavItem(
+          AppNavItem(
             icon: Icons.person_rounded,
             label: 'Profile',
           ),

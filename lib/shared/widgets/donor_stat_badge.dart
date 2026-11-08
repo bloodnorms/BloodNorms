@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | donor_stat_badge.dart
-// Gamified metric badge widget for donor search metrics
+// Metric badge widget for donor search metrics
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -31,15 +31,8 @@ class DuoStatBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: border, width: 1.5),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 2),
-            blurRadius: 0,
-          ),
-        ],
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         children: [
@@ -50,17 +43,17 @@ class DuoStatBadge extends StatelessWidget {
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: color,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: BrandTypography.fontFamily,
               fontSize: 10,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: BrandColors.textSecondary,
               letterSpacing: 0.5,
             ),
@@ -70,3 +63,6 @@ class DuoStatBadge extends StatelessWidget {
     );
   }
 }
+
+/// Backward compatibility alias
+typedef DonorStatBadge = DuoStatBadge;

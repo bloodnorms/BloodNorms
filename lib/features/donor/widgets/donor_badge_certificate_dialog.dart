@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 void showDonorBadgeCertificateDialog({
   required BuildContext context,
@@ -26,30 +26,24 @@ void showDonorBadgeCertificateDialog({
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFFFFFDF5),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFD4AF37), width: 3.0),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x33000000),
-              offset: Offset(0, 8),
-              blurRadius: 16,
-            ),
-          ],
+          color: BrandColors.surface,
+          borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+          border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+          boxShadow: BrandColors.shadowFloating,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 60,
-              height: 60,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF4D1),
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFD4AF37), width: 2.0),
+                border: Border.all(color: const Color(0xFFD4AF37), width: 1.0),
               ),
               child: Center(
-                child: Text(badge.icon, style: const TextStyle(fontSize: 30)),
+                child: Text(badge.icon, style: const TextStyle(fontSize: 28)),
               ),
             ),
             const SizedBox(height: 12),
@@ -59,12 +53,12 @@ void showDonorBadgeCertificateDialog({
               style: TextStyle(
                 fontFamily: BrandTypography.fontFamily,
                 color: Color(0xFF8B6508),
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 1.0,
+                letterSpacing: 0.8,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               'CERTIFICATE OF APPRECIATION',
               textAlign: TextAlign.center,
@@ -72,7 +66,7 @@ void showDonorBadgeCertificateDialog({
                   .copyWith(letterSpacing: 0.5),
             ),
             const SizedBox(height: 12),
-            const Divider(color: Color(0xFFD4AF37), thickness: 1.5),
+            const Divider(color: Color(0xFFD4AF37), thickness: 1.0),
             const SizedBox(height: 12),
             Text(
               'This Certificate of Lifetime Honor is proudly presented to',
@@ -95,8 +89,8 @@ void showDonorBadgeCertificateDialog({
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                color: BrandColors.surfaceSoft,
+                borderRadius: BorderRadius.circular(BrandColors.radiusCard),
                 border: Border.all(color: const Color(0xFFD4AF37), width: 1.0),
               ),
               child: Row(
@@ -121,11 +115,11 @@ void showDonorBadgeCertificateDialog({
               ),
             ),
             const SizedBox(height: 20),
-            ActionButton(
-              label: 'SHARE / SAVE CERTIFICATE',
+            AppPillButton(
+              text: 'Share / Save Certificate',
               icon: Icons.share_rounded,
-              variant: ActionButtonVariant.success,
-              height: 46,
+              variant: AppPillButtonVariant.primary,
+              height: 48,
               onPressed: () {
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -140,10 +134,10 @@ void showDonorBadgeCertificateDialog({
               },
             ),
             const SizedBox(height: 8),
-            ActionButton(
-              label: 'CLOSE',
-              variant: ActionButtonVariant.plain,
-              height: 40,
+            AppPillButton(
+              text: 'Close',
+              variant: AppPillButtonVariant.secondary,
+              height: 44,
               onPressed: () => Navigator.pop(ctx),
             ),
           ],

@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import '../../../shared/constants/blood_groups.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/blood_group_tile.dart';
-import '../../../shared/widgets/action_button.dart';
-import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/notification_bell.dart';
+import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/segmented_picker.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import 'bank_stock_group_tile.dart';
 
 class StockTabView extends StatelessWidget {
@@ -43,27 +43,31 @@ class StockTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: ScreenHeader(
         title: 'Stock Management',
         showBackButton: true,
         trailing: [
-          GestureDetector(
-            onTap: onRefreshUnchanged,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: BrandColors.redTint,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: BrandColors.redShadow, width: 1.5),
-              ),
-              child: const Text(
-                'ALL SAME',
-                style: TextStyle(
-                  fontFamily: BrandTypography.fontFamily,
-                  color: BrandColors.red,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onRefreshUnchanged,
+              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                  border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                ),
+                child: const Text(
+                  'ALL SAME',
+                  style: TextStyle(
+                    fontFamily: BrandTypography.fontFamily,
+                    color: BrandColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                  ),
                 ),
               ),
             ),
@@ -81,7 +85,7 @@ class StockTabView extends StatelessWidget {
                 children: [
                   const SpeechBubble(
                     emoji: '🩸',
-                    text: "Keep units accurate! When blood bank stock is truthful, families don't waste hours on the road.",
+                    text: "Keep units accurate. When blood bank stock is truthful, families don't waste hours on the road.",
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -102,7 +106,7 @@ class StockTabView extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              const Icon(Icons.arrow_drop_down_rounded, color: BrandColors.red, size: 24),
+                              const Icon(Icons.arrow_drop_down_rounded, color: BrandColors.textPrimary, size: 24),
                             ],
                           ),
                         ),
@@ -110,21 +114,21 @@ class StockTabView extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: BrandColors.greenTint,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: BrandColors.greenShadow, width: 1.0),
+                          color: BrandColors.statusSuccessTint,
+                          borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                          border: Border.all(color: BrandColors.statusSuccess.withValues(alpha: 0.3), width: 1.0),
                         ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.check_circle_rounded, size: 14, color: BrandColors.green),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.check_circle_outline_rounded, size: 14, color: BrandColors.statusSuccess),
                             SizedBox(width: 4),
                             Text(
                               'Updated 25m ago',
                               style: TextStyle(
                                 fontFamily: BrandTypography.fontFamily,
-                                color: BrandColors.green,
+                                color: BrandColors.statusSuccess,
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -141,11 +145,10 @@ class StockTabView extends StatelessWidget {
                       SegmentItem(value: BloodComponentType.plasma, label: 'Plasma'),
                     ],
                     selectedValue: selectedComponent,
-                    activeColor: BrandColors.red,
-                    activeShadowColor: BrandColors.redShadow,
+                    activeColor: BrandColors.primaryAction,
                     onValueChanged: onComponentChanged,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
                   ...BloodGroup.values.map(
                     (group) => BankStockGroupTile(
                       group: group,
@@ -158,17 +161,18 @@ class StockTabView extends StatelessWidget {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
+                color: BrandColors.background,
+                border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ActionButton(
-                  label: 'SAVE STOCK',
-                  variant: ActionButtonVariant.success,
+              child: SafeArea(
+                top: false,
+                child: AppPillButton(
+                  label: 'Save Stock',
+                  variant: AppPillButtonVariant.primary,
                   isLoading: isSavingStock,
+                  isFullWidth: true,
                   onPressed: onSaveStock,
                 ),
               ),

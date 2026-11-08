@@ -137,11 +137,11 @@ class _DonorCampsScreenState extends State<DonorCampsScreen> {
     final filtered = _getFilteredCamps();
 
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: const ScreenHeader(title: 'Donation Camps', showBackButton: false),
       body: SafeArea(
         child: RefreshIndicator(
-          color: BrandColors.red,
+          color: BrandColors.primaryAction,
           onRefresh: _loadDonorLocationAndCamps,
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

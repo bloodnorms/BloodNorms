@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/app_pill_button.dart';
+import 'voice_simulator_result_card.dart';
 
 class VoiceSimulatorView extends StatefulWidget {
   final void Function(String message) onShowToast;
@@ -104,90 +105,15 @@ class _VoiceSimulatorViewState extends State<VoiceSimulatorView> {
             onPressed: _isAiTesting ? null : _runVoiceSimulation,
           ),
           const SizedBox(height: 16),
-          if (_aiTestSimulationResult != null) _buildResultCard(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultCard() {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: BrandColors.surfaceSoft,
-        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
-        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Simulation outcome (Verified against prompt v2.4)',
-            style: TextStyle(
-              fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-              color: BrandColors.accent,
+          if (_aiTestSimulationResult != null)
+            VoiceSimulatorResultCard(
+              result: _aiTestSimulationResult!,
+              humanRating: _aiHumanRating,
+              onRatingChanged: (star) {
+                setState(() => _aiHumanRating = star);
+                widget.onShowToast('Saved evaluation score: $star/5 stars');
+              },
             ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            '• Extracted blood group: ${_aiTestSimulationResult!['recognized_group']} · Units: ${_aiTestSimulationResult!['units']}',
-            style: const TextStyle(
-              fontFamily: BrandTypography.fontFamily,
-              fontSize: 13,
-              color: BrandColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '• Urgency: ${_aiTestSimulationResult!['urgency']} · Confidence: 98%',
-            style: const TextStyle(
-              fontFamily: BrandTypography.fontFamily,
-              fontSize: 13,
-              color: BrandColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '• Hospital: ${_aiTestSimulationResult!['hospital']}',
-            style: const TextStyle(
-              fontFamily: BrandTypography.fontFamily,
-              fontSize: 13,
-              color: BrandColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Text(
-                'Evaluation rating: ',
-                style: TextStyle(
-                  fontFamily: BrandTypography.fontFamily,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 12,
-                  color: BrandColors.textSecondary,
-                ),
-              ),
-              ...[1, 2, 3, 4, 5].map((star) => InkWell(
-                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
-                    onTap: () {
-                      setState(() => _aiHumanRating = star);
-                      widget.onShowToast('Saved evaluation score: $star/5 stars');
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.star_rounded,
-                        color: star <= _aiHumanRating
-                            ? BrandColors.statusWarning
-                            : BrandColors.borderStrong,
-                        size: 20,
-                      ),
-                    ),
-                  )),
-            ],
-          ),
         ],
       ),
     );

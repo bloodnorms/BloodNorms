@@ -15,21 +15,15 @@ class DonorRegistrationNavTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.surface,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+        boxShadow: BrandColors.shadowSubtle,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(BrandColors.radiusCard),
           onTap: () => context.push('/donor/onboarding'),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -39,17 +33,13 @@ class DonorRegistrationNavTile extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: BrandColors.redTint,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: BrandColors.redShadow,
-                      width: 1.5,
-                    ),
+                    color: BrandColors.surfaceSoft,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusSmall),
                   ),
                   child: const Icon(
                     Icons.badge_rounded,
-                    color: BrandColors.red,
-                    size: 24,
+                    color: BrandColors.primaryDark,
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 14),

@@ -31,27 +31,24 @@ class DonorImpactBadgesRow extends StatelessWidget {
               emoji: '🎖️',
               title: 'Proven Donor',
               subtitle: '$donationsCount Donations',
-              color: BrandColors.red,
-              bgColor: BrandColors.redTint,
-              shadowColor: BrandColors.redShadow,
+              color: BrandColors.statusError,
+              bgColor: BrandColors.statusErrorTint,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             _buildBadge(
               emoji: '⭐',
               title: 'Reliable',
               subtitle: '100% answer',
               color: BrandColors.textPrimary,
-              bgColor: const Color(0xFFF7F7F7),
-              shadowColor: BrandColors.border,
+              bgColor: BrandColors.surfaceSoft,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             _buildBadge(
               emoji: '🎁',
               title: 'Kit Eligible',
               subtitle: 'Claimed',
-              color: BrandColors.green,
-              bgColor: BrandColors.greenTint,
-              shadowColor: BrandColors.greenShadow,
+              color: BrandColors.statusSuccess,
+              bgColor: BrandColors.statusSuccessTint,
             ),
           ],
         ),
@@ -65,22 +62,14 @@ class DonorImpactBadgesRow extends StatelessWidget {
     required String subtitle,
     required Color color,
     required Color bgColor,
-    required Color shadowColor,
   }) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: shadowColor, width: 2.0),
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor,
-              offset: const Offset(0, 3),
-              blurRadius: 0,
-            ),
-          ],
+          borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+          border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
         ),
         child: Column(
           children: [
@@ -91,7 +80,7 @@ class DonorImpactBadgesRow extends StatelessWidget {
               style: TextStyle(
                 fontFamily: BrandTypography.fontFamily,
                 color: color,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
               textAlign: TextAlign.center,
@@ -102,9 +91,8 @@ class DonorImpactBadgesRow extends StatelessWidget {
               subtitle,
               style: const TextStyle(
                 fontFamily: BrandTypography.fontFamily,
-                color: BrandColors.textSecondary,
                 fontSize: 10,
-                fontWeight: FontWeight.normal,
+                color: BrandColors.textSecondary,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,

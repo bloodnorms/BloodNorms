@@ -26,19 +26,12 @@ class BankStockGroupTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -48,7 +41,7 @@ class BankStockGroupTile extends StatelessWidget {
               BloodGroupTile(
                 bloodGroup: group,
                 isSelected: false,
-                size: 52,
+                size: 48,
                 onTap: () {},
               ),
               const SizedBox(width: 14),
@@ -72,8 +65,8 @@ class BankStockGroupTile extends StatelessWidget {
                     '$currentUnits',
                     style: const TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
                       color: BrandColors.textPrimary,
                     ),
                   ),
@@ -96,33 +89,28 @@ class BankStockGroupTile extends StatelessWidget {
     required bool isEnabled,
     required VoidCallback? onPressed,
   }) {
-    return GestureDetector(
-      onTap: isEnabled ? onPressed : null,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: isEnabled ? BrandColors.redTint : const Color(0xFFF0F0F0),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isEnabled ? BrandColors.redShadow : BrandColors.border,
-            width: 2.0,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+        onTap: isEnabled ? onPressed : null,
+        child: Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: isEnabled ? BrandColors.surfaceSoft : BrandColors.surfaceDisabled,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isEnabled ? BrandColors.borderSubtle : Colors.transparent,
+              width: 1.0,
+            ),
           ),
-          boxShadow: isEnabled
-              ? const [
-                  BoxShadow(
-                    color: BrandColors.border,
-                    offset: Offset(0, 3),
-                    blurRadius: 0,
-                  ),
-                ]
-              : null,
-        ),
-        child: Center(
-          child: Icon(
-            icon,
-            size: 20,
-            color: isEnabled ? BrandColors.red : BrandColors.textSecondary,
+          child: Center(
+            child: Icon(
+              icon,
+              size: 18,
+              color: isEnabled ? BrandColors.textPrimary : BrandColors.textDisabled,
+            ),
           ),
         ),
       ),

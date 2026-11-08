@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/screen_header.dart';
 
 class BankMoreTabView extends StatelessWidget {
@@ -16,7 +16,7 @@ class BankMoreTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: const ScreenHeader(
         title: 'Bank Info & Team',
         showBackButton: false,
@@ -29,16 +29,10 @@ class BankMoreTabView extends StatelessWidget {
             const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: BrandColors.border, width: 2.0),
-                boxShadow: const [
-                  BoxShadow(
-                    color: BrandColors.border,
-                    offset: Offset(0, 4),
-                    blurRadius: 0,
-                  ),
-                ],
+                color: BrandColors.surface,
+                borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                boxShadow: BrandColors.shadowSubtle,
               ),
               child: Column(
                 children: [
@@ -51,8 +45,7 @@ class BankMoreTabView extends StatelessWidget {
                           height: 40,
                           decoration: BoxDecoration(
                             color: BrandColors.greenTint,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: BrandColors.greenShadow, width: 1.5),
+                            borderRadius: BorderRadius.circular(BrandColors.radiusSmall),
                           ),
                           child: const Icon(Icons.access_time_filled_rounded, color: BrandColors.green, size: 20),
                         ),
@@ -70,7 +63,7 @@ class BankMoreTabView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Divider(height: 1, color: BrandColors.border),
+                  const Divider(height: 1, color: BrandColors.borderSubtle),
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
@@ -80,8 +73,7 @@ class BankMoreTabView extends StatelessWidget {
                           height: 40,
                           decoration: BoxDecoration(
                             color: BrandColors.redTint,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: BrandColors.redShadow, width: 1.5),
+                            borderRadius: BorderRadius.circular(BrandColors.radiusSmall),
                           ),
                           child: const Icon(Icons.groups_rounded, color: BrandColors.red, size: 20),
                         ),
@@ -100,7 +92,7 @@ class BankMoreTabView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Divider(height: 1, color: BrandColors.border),
+                  const Divider(height: 1, color: BrandColors.borderSubtle),
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
@@ -110,8 +102,7 @@ class BankMoreTabView extends StatelessWidget {
                           height: 40,
                           decoration: BoxDecoration(
                             color: BrandColors.greenTint,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: BrandColors.greenShadow, width: 1.5),
+                            borderRadius: BorderRadius.circular(BrandColors.radiusSmall),
                           ),
                           child: const Icon(Icons.verified_rounded, color: BrandColors.green, size: 20),
                         ),
@@ -127,11 +118,10 @@ class BankMoreTabView extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: BrandColors.greenTint,
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(color: BrandColors.greenShadow, width: 1.0),
+                            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                           ),
                           child: const Text(
                             'RELIABLE',
@@ -150,9 +140,9 @@ class BankMoreTabView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            ActionButton(
-              label: 'EXIT CONSOLE',
-              variant: ActionButtonVariant.secondary,
+            AppPillButton(
+              text: 'Exit Console',
+              variant: AppPillButtonVariant.secondary,
               onPressed: () => context.go('/'),
             ),
           ],

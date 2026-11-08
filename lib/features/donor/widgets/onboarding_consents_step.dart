@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 
 class OnboardingConsentsStep extends StatelessWidget {
   final List<bool> consents;
@@ -44,29 +44,23 @@ class OnboardingConsentsStep extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: BrandColors.border, width: 2.0),
-              boxShadow: const [
-                BoxShadow(
-                  color: BrandColors.border,
-                  offset: Offset(0, 2),
-                  blurRadius: 0,
-                ),
-              ],
+              color: BrandColors.surface,
+              borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+              border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+              boxShadow: BrandColors.shadowSubtle,
             ),
             child: Row(
               children: [
                 Switch(
                   value: consents[i],
-                  activeThumbColor: BrandColors.red,
+                  activeThumbColor: BrandColors.primaryDark,
                   onChanged: (val) => onConsentChanged(i, val),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Text(
                     consentLabels[i],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: BrandTypography.fontFamily,
                       fontSize: 13,
                       fontWeight: FontWeight.normal,
@@ -82,4 +76,3 @@ class OnboardingConsentsStep extends StatelessWidget {
     );
   }
 }
-

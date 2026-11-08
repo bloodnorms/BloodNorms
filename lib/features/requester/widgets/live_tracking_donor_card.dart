@@ -19,22 +19,22 @@ class LiveTrackingDonorCard extends StatelessWidget {
   });
 
   Widget _buildBreadcrumbStep({required String label, required bool isActive, required bool isDone}) {
-    final color = isDone ? BrandColors.green : (isActive ? BrandColors.red : BrandColors.border);
+    final color = isDone ? BrandColors.statusSuccess : (isActive ? BrandColors.primaryAction : BrandColors.borderSubtle);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: 7,
+          height: 7,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 3),
+        const SizedBox(width: 4),
         Text(
           label,
           style: TextStyle(
             fontFamily: BrandTypography.fontFamily,
-            fontSize: 9.5,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+            fontSize: 10,
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
             color: isActive ? BrandColors.textPrimary : BrandColors.textSecondary,
           ),
         ),
@@ -45,9 +45,9 @@ class LiveTrackingDonorCard extends StatelessWidget {
   Widget _buildBreadcrumbDivider({required bool isDone}) {
     return Container(
       width: 12,
-      height: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 2),
-      color: isDone ? BrandColors.green : BrandColors.border,
+      height: 1.5,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      color: isDone ? BrandColors.statusSuccess : BrandColors.borderSubtle,
     );
   }
 
@@ -56,31 +56,24 @@ class LiveTrackingDonorCard extends StatelessWidget {
     final isAccepted = donor.status == 'accepted';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Row(
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: 46,
+            height: 46,
             decoration: BoxDecoration(
-              color: isAccepted ? BrandColors.greenTint : BrandColors.redTint,
+              color: isAccepted ? BrandColors.statusSuccessTint : BrandColors.surfaceSoft,
               shape: BoxShape.circle,
               border: Border.all(
-                color: isAccepted ? BrandColors.green : BrandColors.red,
-                width: 2.0,
+                color: isAccepted ? BrandColors.statusSuccess : BrandColors.borderSubtle,
+                width: 1.0,
               ),
             ),
             child: Center(
@@ -88,9 +81,9 @@ class LiveTrackingDonorCard extends StatelessWidget {
                 donor.firstName.isNotEmpty ? donor.firstName[0].toUpperCase() : 'D',
                 style: TextStyle(
                   fontFamily: BrandTypography.fontFamily,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: isAccepted ? BrandColors.green : BrandColors.red,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: isAccepted ? BrandColors.statusSuccess : BrandColors.textPrimary,
                 ),
               ),
             ),
@@ -105,7 +98,12 @@ class LiveTrackingDonorCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         donor.firstName,
-                        style: BrandTypography.headline(color: BrandColors.textPrimary),
+                        style: const TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: BrandColors.textPrimary,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -113,15 +111,15 @@ class LiveTrackingDonorCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: BrandColors.red,
-                        borderRadius: BorderRadius.circular(6),
+                        color: BrandColors.statusErrorTint,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                       ),
                       child: Text(
                         donor.bloodGroup,
                         style: const TextStyle(
                           fontFamily: BrandTypography.fontFamily,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          color: BrandColors.statusError,
+                          fontWeight: FontWeight.w700,
                           fontSize: 11,
                         ),
                       ),
@@ -133,7 +131,7 @@ class LiveTrackingDonorCard extends StatelessWidget {
                   children: [
                     Text(donor.distanceBand, style: BrandTypography.caption(color: BrandColors.textSecondary)),
                     const Text(' · ', style: TextStyle(color: BrandColors.textMuted)),
-                    const Icon(Icons.schedule_rounded, size: 14, color: BrandColors.textSecondary),
+                    const Icon(Icons.schedule_rounded, size: 13, color: BrandColors.textSecondary),
                     const SizedBox(width: 4),
                     Text('~${donor.etaMinutes} min ETA', style: BrandTypography.caption(color: BrandColors.textSecondary)),
                   ],
@@ -155,36 +153,33 @@ class LiveTrackingDonorCard extends StatelessWidget {
                 if (donor.donationCode != null && donor.donationCode!.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
-                    'Verification Pass: ${donor.donationCode}',
+                    'Pass: ${donor.donationCode}',
                     style: const TextStyle(
                       fontFamily: BrandTypography.fontFamily,
                       fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: BrandColors.green,
+                      fontWeight: FontWeight.w600,
+                      color: BrandColors.statusSuccess,
                     ),
                   ),
                 ],
               ],
             ),
           ),
-          GestureDetector(
-            onTap: onCallDonor,
-            child: Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: isAccepted ? BrandColors.green : BrandColors.red,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: isAccepted ? BrandColors.greenShadow : BrandColors.redShadow,
-                    offset: const Offset(0, 3),
-                    blurRadius: 0,
-                  ),
-                ],
-              ),
-              child: const Center(
-                child: Icon(Icons.phone_rounded, size: 22, color: Colors.white),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onCallDonor,
+              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: isAccepted ? BrandColors.statusSuccess : BrandColors.primaryAction,
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(Icons.phone_rounded, size: 20, color: Colors.white),
+                ),
               ),
             ),
           ),
@@ -193,4 +188,3 @@ class LiveTrackingDonorCard extends StatelessWidget {
     );
   }
 }
-

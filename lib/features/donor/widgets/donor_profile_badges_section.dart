@@ -7,9 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
 import 'donor_badge_tile.dart';
-import 'donor_badge_certificate_dialog.dart';
 
 class DonorProfileBadgesSection extends StatelessWidget {
   final List<DonorBadgeModel> badges;
@@ -39,17 +37,17 @@ class DonorProfileBadgesSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: BrandColors.redTint,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: BrandColors.redShadow, width: 1.0),
+                color: BrandColors.statusErrorTint,
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                border: Border.all(color: BrandColors.statusError.withValues(alpha: 0.3), width: 1.0),
               ),
               child: Text(
                 '$donationsCount DONATIONS',
                 style: const TextStyle(
                   fontFamily: BrandTypography.fontFamily,
-                  color: BrandColors.red,
+                  color: BrandColors.statusError,
                   fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -63,16 +61,9 @@ class DonorProfileBadgesSection extends StatelessWidget {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 4),
-                blurRadius: 0,
-              ),
-            ],
+            color: BrandColors.background,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
           ),
           child: Column(
             children: badges.map((badge) => DonorBadgeTile(

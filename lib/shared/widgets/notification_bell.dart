@@ -60,42 +60,37 @@ class _NotificationBellState extends State<NotificationBell> {
   Widget build(BuildContext context) {
     final unread = _unreadCount;
 
-    return GestureDetector(
+    return InkWell(
       onTap: () => _openSheet(context),
+      borderRadius: BorderRadius.circular(BrandColors.radiusPill),
       child: Container(
-        width: 42,
-        height: 42,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: BrandColors.border, width: 2.0),
-          boxShadow: const [
-            BoxShadow(
-              color: BrandColors.border,
-              offset: Offset(0, 2),
-              blurRadius: 0,
-            ),
-          ],
+          color: BrandColors.surface,
+          shape: BoxShape.circle,
+          border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+          boxShadow: BrandColors.shadowSubtle,
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
             const Icon(
-              Icons.notifications_rounded,
+              Icons.notifications_outlined,
               size: 20,
               color: BrandColors.textPrimary,
             ),
             if (unread > 0)
               Positioned(
-                top: 4,
-                right: 4,
+                top: 6,
+                right: 6,
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(
-                    color: BrandColors.red,
+                    color: BrandColors.statusError,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 1.5),
+                    border: Border.all(color: Colors.white, width: 1.0),
                   ),
                   constraints:
                       const BoxConstraints(minWidth: 14, minHeight: 14),

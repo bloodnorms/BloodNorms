@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 void showDonationVerifiedSuccessDialog({
   required BuildContext context,
@@ -16,24 +16,23 @@ void showDonationVerifiedSuccessDialog({
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: BrandColors.background,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: BrandColors.border, width: 2.0),
+        borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+        side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
       ),
       title: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: BrandColors.greenTint,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: BrandColors.greenShadow, width: 1.5),
+              color: BrandColors.statusSuccessTint,
+              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
             ),
             child: const Icon(
-              Icons.check_circle_rounded,
-              color: BrandColors.green,
-              size: 24,
+              Icons.check_circle_outline_rounded,
+              color: BrandColors.statusSuccess,
+              size: 22,
             ),
           ),
           const SizedBox(width: 12),
@@ -48,10 +47,10 @@ void showDonationVerifiedSuccessDialog({
         style: BrandTypography.body(color: BrandColors.textSecondary),
       ),
       actions: [
-        ActionButton(
-          label: 'DONE',
-          height: 44,
-          variant: ActionButtonVariant.success,
+        AppPillButton(
+          label: 'Done',
+          height: 40,
+          variant: AppPillButtonVariant.primary,
           onPressed: () => Navigator.pop(ctx),
         ),
       ],
@@ -65,12 +64,12 @@ void showReasonForNotDonatingSheet({
 }) {
   showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: BrandColors.background,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(BrandColors.radiusDialog)),
     ),
     builder: (ctx) => Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,36 +78,36 @@ void showReasonForNotDonatingSheet({
             'Reason for Not Donating',
             style: BrandTypography.title2(color: BrandColors.textPrimary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             'The request search will reopen for other donors.',
             style: BrandTypography.body(color: BrandColors.textSecondary),
           ),
-          const SizedBox(height: 20),
-          ActionButton(
+          const SizedBox(height: 18),
+          AppPillButton(
             label: 'Medical Deferral (Doctor decision)',
-            variant: ActionButtonVariant.secondary,
-            height: 48,
+            variant: AppPillButtonVariant.secondary,
+            isFullWidth: true,
             onPressed: () {
               Navigator.pop(ctx);
               onRecorded('Recorded: Medical deferral');
             },
           ),
           const SizedBox(height: 10),
-          ActionButton(
+          AppPillButton(
             label: 'Did Not Come / Cancelled',
-            variant: ActionButtonVariant.secondary,
-            height: 48,
+            variant: AppPillButtonVariant.secondary,
+            isFullWidth: true,
             onPressed: () {
               Navigator.pop(ctx);
-              onRecorded('Recorded: Donor did not arrive');
+              onRecorded('Recorded: Donor cancelled');
             },
           ),
           const SizedBox(height: 10),
-          ActionButton(
-            label: 'CANCEL',
-            variant: ActionButtonVariant.plain,
-            height: 44,
+          AppPillButton(
+            label: 'Cancel',
+            variant: AppPillButtonVariant.text,
+            isFullWidth: true,
             onPressed: () => Navigator.pop(ctx),
           ),
         ],

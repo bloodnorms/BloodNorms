@@ -9,8 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../../shared/constants/blood_groups.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
-import 'donor_ticket_certificate_dialog.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class DonorTicketActions extends StatelessWidget {
   final bool isCancelled;
@@ -47,18 +46,18 @@ class DonorTicketActions extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: BrandColors.background,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: BrandColors.border, width: 2.0),
+          borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+          side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
         ),
         title: Text('Contact Requester', style: BrandTypography.title3(color: BrandColors.textPrimary)),
         content: Text('Requester contact number: $requesterPhone', style: BrandTypography.body(color: BrandColors.textSecondary)),
         actions: [
-          ActionButton(
+          AppPillButton(
             label: 'OK',
-            variant: ActionButtonVariant.primary,
-            height: 44,
+            variant: AppPillButtonVariant.primary,
+            height: 40,
             onPressed: () => Navigator.pop(ctx),
           ),
         ],
@@ -69,54 +68,40 @@ class DonorTicketActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isCancelled) {
-      return ActionButton(
-        label: 'BACK TO EMERGENCY ALERTS',
+      return AppPillButton(
+        label: 'Back to Emergency Alerts',
         icon: Icons.arrow_back_rounded,
-        variant: ActionButtonVariant.primary,
-        height: 52,
+        variant: AppPillButtonVariant.primary,
+        isFullWidth: true,
         onPressed: () => context.go('/donor/alerts'),
       );
     }
 
     return Column(
       children: [
-        ActionButton(
-          label: 'CALL REQUESTER',
-          icon: Icons.phone_rounded,
-          variant: ActionButtonVariant.primary,
-          height: 52,
+        AppPillButton(
+          label: 'Call Requester',
+          icon: Icons.phone_outlined,
+          variant: AppPillButtonVariant.primary,
+          isFullWidth: true,
           onPressed: () => _callRequester(context),
         ),
         const SizedBox(height: 12),
-        ActionButton(
-          label: 'NAVIGATE IN MAPS',
-          icon: Icons.navigation_rounded,
-          variant: ActionButtonVariant.secondary,
-          height: 52,
+        AppPillButton(
+          label: 'Navigate in Maps',
+          icon: Icons.navigation_outlined,
+          variant: AppPillButtonVariant.secondary,
+          isFullWidth: true,
           onPressed: () async {
             final url = Uri.parse(
               'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent('$hospitalName $hospitalArea')}',
             );
             if (await canLaunchUrl(url)) {
-              await launchUrl(url);
+              await launchUrl(url, mode: LaunchMode.externalApplication);
             }
           },
-        ),
-        const SizedBox(height: 12),
-        ActionButton(
-          label: 'CERTIFICATE OF APPRECIATION',
-          icon: Icons.workspace_premium_rounded,
-          variant: ActionButtonVariant.success,
-          height: 52,
-          onPressed: () => showTicketCertificateModal(
-            context: context,
-            donationCode: donationCode,
-            hospitalName: hospitalName,
-            bloodGroup: bloodGroup,
-          ),
         ),
       ],
     );
   }
 }
-

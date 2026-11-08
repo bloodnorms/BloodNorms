@@ -30,14 +30,15 @@ class AppPillButton extends StatefulWidget {
 
   const AppPillButton({
     super.key,
-    required this.label,
+    String? label,
+    String? text,
     required this.onPressed,
     this.icon,
     this.variant = AppPillButtonVariant.primary,
     this.isLoading = false,
     this.isFullWidth = false,
     this.height = 44.0,
-  });
+  }) : label = label ?? text ?? '';
 
   @override
   State<AppPillButton> createState() => _AppPillButtonState();

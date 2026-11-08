@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class LiveTrackingBottomBar extends StatelessWidget {
   final bool isClosed;
@@ -28,41 +28,46 @@ class LiveTrackingBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
+        color: BrandColors.background,
+        border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
       ),
-      child: isClosed
-          ? ActionButton(
-              label: 'RETURN TO HOME',
-              icon: Icons.home_rounded,
-              variant: ActionButtonVariant.primary,
-              onPressed: onReturnHome,
-            )
-          : Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: ActionButton(
-                    label: gotBloodLabel,
-                    icon: Icons.check_circle_rounded,
-                    variant: ActionButtonVariant.success,
-                    onPressed: onGotBlood,
+      child: SafeArea(
+        top: false,
+        child: isClosed
+            ? AppPillButton(
+                label: 'Return to Home',
+                icon: Icons.home_rounded,
+                variant: AppPillButtonVariant.primary,
+                isFullWidth: true,
+                onPressed: onReturnHome,
+              )
+            : Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: AppPillButton(
+                      label: gotBloodLabel,
+                      icon: Icons.check_circle_outline_rounded,
+                      variant: AppPillButtonVariant.primary,
+                      isFullWidth: true,
+                      onPressed: onGotBlood,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 1,
-                  child: ActionButton(
-                    label: stopLabel,
-                    variant: ActionButtonVariant.secondary,
-                    onPressed: onStopSearch,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 1,
+                    child: AppPillButton(
+                      label: stopLabel,
+                      variant: AppPillButtonVariant.secondary,
+                      isFullWidth: true,
+                      onPressed: onStopSearch,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+      ),
     );
   }
 }
-

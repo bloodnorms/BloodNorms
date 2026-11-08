@@ -94,7 +94,7 @@ class _AppStatCardState extends State<AppStatCard> {
               const SizedBox(height: 12),
               Text(
                 widget.value,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: BrandTypography.fontFamily,
                   fontSize: 28,
                   fontWeight: FontWeight.w600,

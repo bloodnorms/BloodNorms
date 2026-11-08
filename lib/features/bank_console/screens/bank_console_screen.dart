@@ -148,7 +148,7 @@ class _BankConsoleScreenState extends State<BankConsoleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       body: IndexedStack(
         index: _currentTab,
         children: [

@@ -5,7 +5,9 @@
 
 import 'package:flutter/material.dart';
 import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../providers/request_flow_provider.dart';
 
 void showStopEmergencySearchDialog({
@@ -16,52 +18,36 @@ void showStopEmergencySearchDialog({
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: BrandColors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: Color(0xFFE52E2E), width: 2.0),
+        borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+        side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
       ),
-      title: const Text(
+      title: Text(
         'Stop Search?',
-        style: TextStyle(
-          fontFamily: BrandTypography.fontFamily,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFFE52E2E),
-        ),
+        style: BrandTypography.title2(color: BrandColors.statusError),
       ),
-      content: const Text(
+      content: Text(
         'This will cancel the active request in Supabase and notify contacted donors that blood is no longer needed.',
-        style: TextStyle(
-          fontFamily: BrandTypography.fontFamily,
-          fontSize: 14,
-          color: Color(0xFF4B5563),
-        ),
+        style: BrandTypography.body(color: BrandColors.textSecondary),
       ),
       actions: [
         Row(
           children: [
             Expanded(
-              child: OutlinedButton(
+              child: AppPillButton(
+                text: 'Keep Searching',
+                variant: AppPillButtonVariant.secondary,
+                height: 44,
                 onPressed: () => Navigator.pop(ctx),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'KEEP SEARCHING',
-                  style: TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: ElevatedButton(
+              child: AppPillButton(
+                text: 'Stop',
+                variant: AppPillButtonVariant.destructive,
+                height: 44,
                 onPressed: () async {
                   Navigator.pop(ctx);
                   await SupabaseService().closeRequest(
@@ -75,26 +61,11 @@ void showStopEmergencySearchDialog({
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Active blood request cancelled.'),
-                        backgroundColor: Color(0xFFE52E2E),
+                        backgroundColor: BrandColors.statusError,
                       ),
                     );
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFE52E2E),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'STOP',
-                  style: TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ),
             ),
           ],

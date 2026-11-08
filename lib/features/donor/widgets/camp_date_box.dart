@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | camp_date_box.dart
-// 3D tactile date badge showing month and day for blood drive cards
+// Clean date badge showing month and day for blood drive cards
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -22,22 +22,15 @@ class CampDateBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 58,
+      width: 54,
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: isJoined ? BrandColors.greenTint : BrandColors.redTint,
-        borderRadius: BorderRadius.circular(16),
+        color: isJoined ? BrandColors.statusSuccessTint : BrandColors.surfaceSoft,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
         border: Border.all(
-          color: isJoined ? BrandColors.greenShadow : BrandColors.redShadow,
-          width: 2.0,
+          color: isJoined ? BrandColors.statusSuccess.withValues(alpha: 0.3) : BrandColors.borderSubtle,
+          width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: isJoined ? BrandColors.greenShadow : BrandColors.redShadow,
-            offset: const Offset(0, 2),
-            blurRadius: 0,
-          ),
-        ],
       ),
       child: Column(
         children: [
@@ -45,19 +38,20 @@ class CampDateBox extends StatelessWidget {
             month,
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              color: isJoined ? BrandColors.green : BrandColors.red,
-              fontWeight: FontWeight.bold,
+              color: isJoined ? BrandColors.statusSuccess : BrandColors.statusError,
+              fontWeight: FontWeight.w700,
               fontSize: 11,
               letterSpacing: 0.5,
             ),
           ),
+          const SizedBox(height: 2),
           Text(
             day,
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              color: isJoined ? BrandColors.green : BrandColors.red,
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
+              color: isJoined ? BrandColors.statusSuccess : BrandColors.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
               height: 1.1,
             ),
           ),

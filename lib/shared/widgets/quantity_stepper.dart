@@ -1,7 +1,7 @@
-﻿// ============================================================================
-// BloodNorms | duo_stepper.dart
-// Duolingo Feather 3D Tactile Stepper Component
-// Physical pushable round +/- buttons with heart units indicator
+// ============================================================================
+// BloodNorms | quantity_stepper.dart
+// Clean, minimal stepper component with accessible touch targets
+// Physical +/- circular buttons and clear units counter
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import '../theme/brand_colors.dart';
 import '../theme/brand_typography.dart';
 
-class QuantityStepper extends StatefulWidget {
+class QuantityStepper extends StatelessWidget {
   final int value;
   final int min;
   final int max;
@@ -24,89 +24,71 @@ class QuantityStepper extends StatefulWidget {
   });
 
   @override
-  State<QuantityStepper> createState() => _QuantityStepperState();
-}
-
-class _QuantityStepperState extends State<QuantityStepper> {
-  @override
   Widget build(BuildContext context) {
-    final canDecrement = widget.value > widget.min;
-    final canIncrement = widget.value < widget.max;
+    final canDecrement = value > min;
+    final canIncrement = value < max;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Minus Button
-        _DuoStepperCircleButton(
+        _StepperCircleButton(
           icon: Icons.remove_rounded,
           isEnabled: canDecrement,
           onTap: () {
-            if (canDecrement) {
-              widget.onChanged(widget.value - 1);
-            }
+            if (canDecrement) onChanged(value - 1);
           },
         ),
-
-        // Value Box with Hearts
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 4),
-                blurRadius: 0,
-              ),
-            ],
+            color: BrandColors.surfaceSoft,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
           ),
           child: Column(
             children: [
               Row(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
                   Text(
-                    '${widget.value}',
-                    style: TextStyle(
+                    '$value',
+                    style: const TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: BrandColors.red,
+                      fontSize: 44,
+                      fontWeight: FontWeight.w700,
+                      color: BrandColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   const Icon(
-                    Icons.favorite_rounded,
-                    color: BrandColors.red,
-                    size: 28,
+                    Icons.water_drop_rounded,
+                    color: BrandColors.statusError,
+                    size: 24,
                   ),
                 ],
               ),
+              const SizedBox(height: 2),
               Text(
-                widget.value == 1 ? 'UNIT NEEDED' : 'UNITS NEEDED',
-                style: TextStyle(
+                value == 1 ? 'UNIT NEEDED' : 'UNITS NEEDED',
+                style: const TextStyle(
                   fontFamily: BrandTypography.fontFamily,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.8,
                   color: BrandColors.textSecondary,
                 ),
               ),
             ],
           ),
         ),
-
-        // Plus Button
-        _DuoStepperCircleButton(
+        _StepperCircleButton(
           icon: Icons.add_rounded,
           isEnabled: canIncrement,
           onTap: () {
-            if (canIncrement) {
-              widget.onChanged(widget.value + 1);
-            }
+            if (canIncrement) onChanged(value + 1);
           },
         ),
       ],
@@ -114,35 +96,31 @@ class _QuantityStepperState extends State<QuantityStepper> {
   }
 }
 
-class _DuoStepperCircleButton extends StatefulWidget {
+class _StepperCircleButton extends StatefulWidget {
   final IconData icon;
   final bool isEnabled;
   final VoidCallback onTap;
 
-  const _DuoStepperCircleButton({
+  const _StepperCircleButton({
     required this.icon,
     required this.isEnabled,
     required this.onTap,
   });
 
   @override
-  State<_DuoStepperCircleButton> createState() => _DuoStepperCircleButtonState();
+  State<_StepperCircleButton> createState() => _StepperCircleButtonState();
 }
 
-class _DuoStepperCircleButtonState extends State<_DuoStepperCircleButton> {
+class _StepperCircleButtonState extends State<_StepperCircleButton> {
   bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    const bevel = BrandColors.bevelHeight;
-    final topOffset = (widget.isEnabled && _pressed) ? bevel : 0.0;
-    final currentShadow = (widget.isEnabled && _pressed) ? 0.0 : bevel;
-
     return GestureDetector(
       onTapDown: widget.isEnabled
           ? (_) {
               setState(() => _pressed = true);
-              HapticFeedback.lightImpact();
+              HapticFeedback.selectionClick();
             }
           : null,
       onTapUp: widget.isEnabled
@@ -152,40 +130,36 @@ class _DuoStepperCircleButtonState extends State<_DuoStepperCircleButton> {
             }
           : null,
       onTapCancel: widget.isEnabled ? () => setState(() => _pressed = false) : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 60),
-        margin: EdgeInsets.only(top: topOffset, bottom: bevel - currentShadow),
-        width: 58,
-        height: 58,
-        decoration: BoxDecoration(
-          color: widget.isEnabled ? BrandColors.red : const Color(0xFFF0F0F0),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: widget.isEnabled ? BrandColors.redShadow : BrandColors.border,
-            width: 2.0,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 100),
+        opacity: !widget.isEnabled
+            ? 0.35
+            : _pressed
+                ? 0.7
+                : 1.0,
+        child: Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: widget.isEnabled ? BrandColors.primaryAction : BrandColors.surfaceDisabled,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: widget.isEnabled ? BrandColors.primaryAction : BrandColors.borderSubtle,
+              width: 1.0,
+            ),
           ),
-          boxShadow: currentShadow > 0
-              ? [
-                  BoxShadow(
-                    color: widget.isEnabled ? BrandColors.redShadow : BrandColors.border,
-                    offset: Offset(0, currentShadow),
-                    blurRadius: 0,
-                  ),
-                ]
-              : null,
-        ),
-        child: Center(
-          child: Icon(
-            widget.icon,
-            size: 28,
-            color: widget.isEnabled ? Colors.white : BrandColors.textMuted,
+          child: Center(
+            child: Icon(
+              widget.icon,
+              size: 24,
+              color: widget.isEnabled ? Colors.white : BrandColors.textDisabled,
+            ),
           ),
         ),
       ),
     );
   }
 }
-
 
 /// Backward compatibility alias for existing code.
 typedef DuoStepper = QuantityStepper;

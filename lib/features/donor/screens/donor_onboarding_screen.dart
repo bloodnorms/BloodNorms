@@ -9,7 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../shared/constants/blood_groups.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/progress_meter.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../services/donor_onboarding_service.dart';
@@ -59,9 +59,9 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
       SnackBar(
         content: Text(
           message,
-          style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.w500, color: Colors.white),
         ),
-        backgroundColor: BrandColors.red,
+        backgroundColor: BrandColors.statusError,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -105,7 +105,7 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: ScreenHeader(
         title: 'Donor Registration',
         showBackButton: _step > 0,
@@ -121,8 +121,12 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: StepProgressBar(progress: (_step + 1) / 8, fillColor: BrandColors.red, height: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: StepProgressBar(
+                progress: (_step + 1) / 8,
+                fillColor: BrandColors.primaryAction,
+                height: 6,
+              ),
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -131,16 +135,18 @@ class _DonorOnboardingScreenState extends State<DonorOnboardingScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
+                color: BrandColors.background,
+                border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ActionButton(
-                  label: _isSubmitting ? 'SAVING...' : (_step == 7 ? 'GO TO DONOR HOME' : 'CONTINUE'),
-                  variant: _step == 7 ? ActionButtonVariant.success : ActionButtonVariant.primary,
+              child: SafeArea(
+                top: false,
+                child: AppPillButton(
+                  label: _isSubmitting ? 'Saving...' : (_step == 7 ? 'Go to Donor Home' : 'Continue'),
+                  variant: AppPillButtonVariant.primary,
+                  isFullWidth: true,
+                  isLoading: _isSubmitting,
                   onPressed: _isSubmitting ? null : _nextStep,
                 ),
               ),

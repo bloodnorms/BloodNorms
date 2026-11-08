@@ -41,6 +41,7 @@ class BrandColors {
   static const double radiusPill = 999.0;
   static const double radiusCard = 16.0;
   static const double radiusInput = 12.0;
+  static const double radiusSmall = radiusInput;
   static const double radiusDialog = 24.0;
   static const double minTouchTarget = 44.0;
 
@@ -60,8 +61,11 @@ class BrandColors {
       offset: Offset(0, 2),
     ),
   ];
+  static const List<BoxShadow> shadowSubtle = shadowCardHover;
 
   // --- Backward-Compatible Aliases ---
+  static const Color surface = background;
+  static const Color primaryDark = primaryAction;
   static const Color bg = background;
   static const Color bgGrouped = surfaceSoft;
   static const Color cardBg = background;

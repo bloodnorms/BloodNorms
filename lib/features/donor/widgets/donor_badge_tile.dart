@@ -30,7 +30,7 @@ class DonorBadgeTile extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: BrandColors.border, width: 1.0),
+          bottom: BorderSide(color: BrandColors.borderSubtle, width: 1.0),
         ),
       ),
       padding: const EdgeInsets.all(16),
@@ -41,11 +41,11 @@ class DonorBadgeTile extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: isUnlocked ? const Color(0xFFFFF9E6) : BrandColors.bgGrouped,
+              color: isUnlocked ? const Color(0xFFFFF9E6) : BrandColors.surfaceSoft,
               shape: BoxShape.circle,
               border: Border.all(
-                color: isUnlocked ? const Color(0xFFFFD700) : BrandColors.border,
-                width: 2.0,
+                color: isUnlocked ? const Color(0xFFFFD700) : BrandColors.borderSubtle,
+                width: 1.0,
               ),
             ),
             child: Center(
@@ -78,11 +78,11 @@ class DonorBadgeTile extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
-                          vertical: 2,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
                           color: BrandColors.greenTint,
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                         ),
                         child: const Text(
                           'UNLOCKED ✓',
@@ -98,11 +98,12 @@ class DonorBadgeTile extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
-                          vertical: 2,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: BrandColors.bgGrouped,
-                          borderRadius: BorderRadius.circular(6),
+                          color: BrandColors.surfaceSoft,
+                          borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                          border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                         ),
                         child: Text(
                           '${badge.requiredDonations} DONATIONS',
@@ -133,7 +134,7 @@ class DonorBadgeTile extends StatelessWidget {
                       bloodGroup: bloodGroup,
                       donorId: donorId,
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                     child: const Padding(
                       padding: EdgeInsets.symmetric(vertical: 4),
                       child: Row(

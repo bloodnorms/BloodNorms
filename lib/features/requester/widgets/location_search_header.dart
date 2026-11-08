@@ -27,7 +27,10 @@ class LocationSearchHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      decoration: const BoxDecoration(
+        color: BrandColors.background,
+        border: Border(bottom: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         children: [
@@ -36,7 +39,7 @@ class LocationSearchHeader extends StatelessWidget {
             hintText: hintText,
             prefixIcon: Icons.search_rounded,
             suffix: IconButton(
-              icon: const Icon(Icons.arrow_forward_rounded, color: BrandColors.red),
+              icon: const Icon(Icons.arrow_forward_rounded, color: BrandColors.primaryAction),
               onPressed: () => onSearchSubmitted(searchController.text),
             ),
             onChanged: (val) {
@@ -57,28 +60,21 @@ class LocationSearchHeader extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: BrandColors.border, width: 2.0),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: BrandColors.border,
-                            offset: Offset(0, 2),
-                            blurRadius: 0,
-                          ),
-                        ],
+                        color: BrandColors.surfaceSoft,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.near_me_rounded, size: 14, color: BrandColors.red),
+                          const Icon(Icons.near_me_rounded, size: 14, color: BrandColors.statusError),
                           const SizedBox(width: 6),
                           Text(
                             q['name'],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: BrandTypography.fontFamily,
                               color: BrandColors.textPrimary,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                               fontSize: 12,
                             ),
                           ),

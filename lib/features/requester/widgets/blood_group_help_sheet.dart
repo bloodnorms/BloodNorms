@@ -1,71 +1,78 @@
 // ============================================================================
 // BloodNorms | blood_group_help_sheet.dart
-// Modal sheet shown when the requester does not know the required blood group
+// Clean, minimal modal sheet shown when blood group is unknown
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 void showBloodGroupHelpSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(BrandColors.radiusDialog)),
     ),
-    builder: (ctx) => Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: DuoColors.redTint,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: DuoColors.red, width: 1.5),
+    builder: (ctx) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: BrandColors.surfaceSoft,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                  ),
+                  child: const Icon(
+                    Icons.help_outline_rounded,
+                    color: BrandColors.accent,
+                    size: 22,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.help_outline_rounded,
-                  color: DuoColors.red,
-                  size: 24,
+                const SizedBox(width: 14),
+                Text(
+                  "Don't know the group?",
+                  style: BrandTypography.title2(color: BrandColors.textPrimary),
                 ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Please check the hospital requisition slip or ask the attending doctor. You can still search blood banks right now, but finding live verified donors requires an exact blood group.',
+              style: BrandTypography.body(color: BrandColors.textSecondary),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: AppPillButton(
+                label: 'Search Blood Banks Now',
+                variant: AppPillButtonVariant.primary,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  context.push('/b');
+                },
               ),
-              const SizedBox(width: 12),
-              Text(
-                "Don't know the group?",
-                style: DuoTypography.title2(color: DuoColors.textPrimary),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: AppPillButton(
+                label: 'Back',
+                variant: AppPillButtonVariant.secondary,
+                onPressed: () => Navigator.pop(ctx),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Please check the hospital requisition slip or ask the attending doctor. You can still search blood banks right now, but finding live verified donors requires an exact blood group.',
-            style: DuoTypography.body(color: DuoColors.textSecondary),
-          ),
-          const SizedBox(height: 20),
-          DuoButton(
-            label: 'BROWSE BLOOD BANKS NOW',
-            variant: DuoButtonVariant.primary,
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.push('/b');
-            },
-          ),
-          const SizedBox(height: 10),
-          DuoButton(
-            label: 'BACK',
-            variant: DuoButtonVariant.plain,
-            height: 44,
-            onPressed: () => Navigator.pop(ctx),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     ),
   );

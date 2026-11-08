@@ -1,7 +1,6 @@
 // ============================================================================
-// BloodNorms | duo_radar_card.dart
-// Duolingo Feather Tactile Radar Card Component
-// 3D paper card, concentric expanding search rings, 3 gamified stat badges
+// BloodNorms | donor_radar_card.dart
+// Clean, minimal radar card component with expanding pulse rings and metric badges
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -54,16 +53,9 @@ class _DonorRadarCardState extends State<DonorRadarCard> with SingleTickerProvid
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         children: [
@@ -87,17 +79,17 @@ class _DonorRadarCardState extends State<DonorRadarCard> with SingleTickerProvid
                 ),
                 // Center Radar Ping Pulse
                 Container(
-                  width: 24,
-                  height: 24,
+                  width: 18,
+                  height: 18,
                   decoration: BoxDecoration(
-                    color: BrandColors.red,
+                    color: BrandColors.primaryDark,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
-                    boxShadow: const [
+                    border: Border.all(color: Colors.white, width: 2.0),
+                    boxShadow: [
                       BoxShadow(
-                        color: BrandColors.redShadow,
-                        offset: Offset(0, 2),
-                        blurRadius: 0,
+                        color: BrandColors.primaryDark.withValues(alpha: 0.25),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
                       ),
                     ],
                   ),
@@ -107,17 +99,17 @@ class _DonorRadarCardState extends State<DonorRadarCard> with SingleTickerProvid
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: BrandColors.redTint,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: BrandColors.red, width: 1.5),
+                      color: BrandColors.surfaceSoft,
+                      borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                      border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                     ),
                     child: Text(
                       'SEARCHING ${widget.currentRingKm.toStringAsFixed(1)} KM',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: BrandTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: BrandColors.red,
+                        fontWeight: FontWeight.w600,
+                        color: BrandColors.textPrimary,
                       ),
                     ),
                   ),
@@ -127,39 +119,39 @@ class _DonorRadarCardState extends State<DonorRadarCard> with SingleTickerProvid
           ),
           const SizedBox(height: 18),
 
-          // 3 Gamified Metrics Badges
+          // 3 Metrics Badges
           Row(
             children: [
               Expanded(
                 child: DuoStatBadge(
-                  icon: Icons.people_rounded,
+                  icon: Icons.people_outline_rounded,
                   label: 'CONTACTED',
                   value: '${widget.contactedCount}',
                   color: BrandColors.textPrimary,
-                  bg: BrandColors.bgGrouped,
-                  border: BrandColors.border,
+                  bg: BrandColors.surfaceSoft,
+                  border: BrandColors.borderSubtle,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: DuoStatBadge(
-                  icon: Icons.check_circle_rounded,
+                  icon: Icons.check_circle_outline_rounded,
                   label: 'AGREED',
                   value: '${widget.acceptedCount}',
-                  color: BrandColors.green,
-                  bg: BrandColors.greenTint,
-                  border: BrandColors.greenShadow,
+                  color: BrandColors.statusSuccess,
+                  bg: BrandColors.statusSuccessTint,
+                  border: BrandColors.borderSubtle,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: DuoStatBadge(
-                  icon: Icons.water_drop_rounded,
+                  icon: Icons.water_drop_outlined,
                   label: 'NEEDED',
                   value: '${widget.needUnits}',
-                  color: BrandColors.red,
-                  bg: BrandColors.redTint,
-                  border: BrandColors.redShadow,
+                  color: BrandColors.statusError,
+                  bg: BrandColors.statusErrorTint,
+                  border: BrandColors.borderSubtle,
                 ),
               ),
             ],

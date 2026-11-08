@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import '../../../shared/models/camp_model.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
 import 'bank_camp_actions_row.dart';
 
 class BankCampCard extends StatelessWidget {
@@ -37,18 +36,11 @@ class BankCampCard extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,19 +55,19 @@ class BankCampCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: BrandColors.redTint,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: BrandColors.redShadow, width: 1.0),
+                  color: BrandColors.statusErrorTint,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                  border: Border.all(color: BrandColors.statusError.withValues(alpha: 0.3), width: 1.0),
                 ),
                 child: Text(
                   camp.status.toUpperCase(),
                   style: const TextStyle(
                     fontFamily: BrandTypography.fontFamily,
-                    color: BrandColors.red,
+                    color: BrandColors.statusError,
                     fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -84,7 +76,7 @@ class BankCampCard extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              const Icon(Icons.location_on_rounded, size: 14, color: BrandColors.red),
+              const Icon(Icons.location_on_outlined, size: 14, color: BrandColors.statusError),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
@@ -105,7 +97,7 @@ class BankCampCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: BrandColors.bgGrouped,
+                  color: BrandColors.surfaceSoft,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -126,23 +118,23 @@ class BankCampCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: camp.attendeesCheckedIn > 0
-                      ? BrandColors.greenTint
-                      : BrandColors.bgGrouped,
-                  borderRadius: BorderRadius.circular(8),
+                      ? BrandColors.statusSuccessTint
+                      : BrandColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                   border: Border.all(
                     color: camp.attendeesCheckedIn > 0
-                        ? BrandColors.greenShadow
-                        : BrandColors.border,
+                        ? BrandColors.statusSuccess.withValues(alpha: 0.3)
+                        : BrandColors.borderSubtle,
                     width: 1.0,
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      Icons.how_to_reg_rounded,
+                      Icons.how_to_reg_outlined,
                       size: 14,
                       color: camp.attendeesCheckedIn > 0
-                          ? BrandColors.green
+                          ? BrandColors.statusSuccess
                           : BrandColors.textSecondary,
                     ),
                     const SizedBox(width: 4),
@@ -151,9 +143,9 @@ class BankCampCard extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                         color: camp.attendeesCheckedIn > 0
-                            ? BrandColors.green
+                            ? BrandColors.statusSuccess
                             : BrandColors.textSecondary,
                       ),
                     ),
@@ -164,21 +156,21 @@ class BankCampCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: BrandColors.redTint,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: BrandColors.redShadow, width: 1.0),
+                  color: BrandColors.statusErrorTint,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                  border: Border.all(color: BrandColors.statusError.withValues(alpha: 0.3), width: 1.0),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.bloodtype_rounded, size: 14, color: BrandColors.red),
+                    const Icon(Icons.water_drop_outlined, size: 14, color: BrandColors.statusError),
                     const SizedBox(width: 4),
                     Text(
                       '${camp.unitsCollected} Units',
                       style: const TextStyle(
                         fontFamily: BrandTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: BrandColors.red,
+                        fontWeight: FontWeight.w600,
+                        color: BrandColors.statusError,
                       ),
                     ),
                   ],

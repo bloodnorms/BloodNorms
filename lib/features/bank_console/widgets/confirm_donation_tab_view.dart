@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
-import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/pin_keypad.dart';
+import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import 'donation_confirmation_dialogs.dart';
 
 class ConfirmDonationTabView extends StatefulWidget {
@@ -52,7 +53,6 @@ class _ConfirmDonationTabViewState extends State<ConfirmDonationTabView> {
     }
   }
 
-
   void _showToast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -60,7 +60,7 @@ class _ConfirmDonationTabViewState extends State<ConfirmDonationTabView> {
           message,
           style: const TextStyle(
             fontFamily: BrandTypography.fontFamily,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: Colors.white,
           ),
         ),
@@ -72,11 +72,10 @@ class _ConfirmDonationTabViewState extends State<ConfirmDonationTabView> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: const ScreenHeader(
         title: 'Confirm Donation',
         showBackButton: false,
@@ -88,22 +87,22 @@ class _ConfirmDonationTabViewState extends State<ConfirmDonationTabView> {
             children: [
               const SpeechBubble(
                 emoji: '🎯',
-                text: 'Ask the donor for the 6-digit confirmation code shown on their BloodNorms ticket!',
+                text: 'Ask the donor for the 6-digit confirmation code shown on their BloodNorms ticket.',
               ),
               const SizedBox(height: 20),
               Text('Enter 6-Digit Code', style: BrandTypography.title1(color: BrandColors.textPrimary)),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
                 'Told by donor upon arrival at blood bank',
                 style: BrandTypography.subhead(color: BrandColors.textSecondary),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               CodeDisplayDots(code: _enteredCode),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               if (_isConfirming)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: CircularProgressIndicator(color: BrandColors.red),
+                  child: CircularProgressIndicator(color: BrandColors.primaryAction),
                 ),
               PinKeypad(
                 onDigitPressed: (digit) {
@@ -121,9 +120,9 @@ class _ConfirmDonationTabViewState extends State<ConfirmDonationTabView> {
                 },
               ),
               const SizedBox(height: 20),
-              ActionButton(
-                label: 'NOT DONATED / DEFERRED',
-                variant: ActionButtonVariant.plain,
+              AppPillButton(
+                label: 'Not Donated / Deferred',
+                variant: AppPillButtonVariant.text,
                 height: 40,
                 onPressed: () => showReasonForNotDonatingSheet(context: context, onRecorded: _showToast),
               ),

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../shared/models/request_alert_model.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class DonorAlertCard extends StatelessWidget {
   final RequestAlertModel alert;
@@ -26,20 +26,13 @@ class DonorAlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: BrandColors.redShadow, width: 2.5),
-          boxShadow: const [
-            BoxShadow(
-              color: BrandColors.redShadow,
-              offset: Offset(0, 5),
-              blurRadius: 0,
-            ),
-          ],
+          color: BrandColors.background,
+          borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+          border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,15 +43,15 @@ class DonorAlertCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: BrandColors.red,
-                    borderRadius: BorderRadius.circular(8),
+                    color: BrandColors.statusErrorTint,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                   ),
                   child: Text(
                     alert.urgency == 'now' ? 'URGENT NOW' : 'WITHIN 24H',
                     style: const TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      color: BrandColors.statusError,
+                      fontWeight: FontWeight.w700,
                       fontSize: 11,
                     ),
                   ),
@@ -66,20 +59,21 @@ class DonorAlertCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: BrandColors.redTint,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: BrandColors.redShadow, width: 1.5),
+                    color: BrandColors.surfaceSoft,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                    border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                   ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.location_on_rounded, size: 14, color: BrandColors.red),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.location_on_outlined, size: 14, color: BrandColors.textSecondary),
                       SizedBox(width: 4),
                       Text(
                         'RAJAHMUNDRY',
                         style: TextStyle(
                           fontFamily: BrandTypography.fontFamily,
-                          color: BrandColors.red,
-                          fontWeight: FontWeight.bold,
+                          color: BrandColors.textSecondary,
+                          fontWeight: FontWeight.w600,
                           fontSize: 11,
                         ),
                       ),
@@ -93,26 +87,25 @@ class DonorAlertCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '${alert.unitsNeeded} Unit ${alert.bloodGroup} ${alert.component.replaceAll('_', ' ')} needed for patient (${alert.patientFirstName})',
-              style: BrandTypography.body(color: BrandColors.textPrimary),
+              style: BrandTypography.body(color: BrandColors.textSecondary),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             Row(
               children: [
                 Expanded(
-                  child: ActionButton(
-                    label: isAccepting ? 'ACCEPTING...' : 'ACCEPT',
-                    icon: Icons.check_circle_rounded,
-                    variant: ActionButtonVariant.success,
-                    height: 48,
+                  child: AppPillButton(
+                    label: isAccepting ? 'Accepting...' : 'Accept',
+                    icon: Icons.check_circle_outline_rounded,
+                    isLoading: isAccepting,
+                    variant: AppPillButtonVariant.primary,
                     onPressed: isAccepting ? null : onAccept,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ActionButton(
-                    label: 'DECLINE',
-                    variant: ActionButtonVariant.secondary,
-                    height: 48,
+                  child: AppPillButton(
+                    label: 'Decline',
+                    variant: AppPillButtonVariant.secondary,
                     onPressed: onDecline,
                   ),
                 ),
@@ -124,4 +117,3 @@ class DonorAlertCard extends StatelessWidget {
     );
   }
 }
-

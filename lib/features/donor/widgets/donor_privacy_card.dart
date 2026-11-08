@@ -24,23 +24,16 @@ class DonorPrivacyCard extends StatelessWidget {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 4),
-                blurRadius: 0,
-              ),
-            ],
+            color: BrandColors.background,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
           ),
           child: Column(
             children: [
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(BrandColors.radiusCard)),
                   onTap: onExportData,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -50,11 +43,10 @@ class DonorPrivacyCard extends StatelessWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: BrandColors.redTint,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: BrandColors.redShadow, width: 1.5),
+                            color: BrandColors.statusErrorTint,
+                            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                           ),
-                          child: const Icon(Icons.description_rounded, color: BrandColors.red, size: 20),
+                          child: const Icon(Icons.description_outlined, color: BrandColors.statusError, size: 20),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -67,13 +59,13 @@ class DonorPrivacyCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const Icon(Icons.chevron_right_rounded, size: 18, color: BrandColors.textSecondary),
+                        const Icon(Icons.chevron_right_rounded, size: 18, color: BrandColors.textMuted),
                       ],
                     ),
                   ),
                 ),
               ),
-              const Divider(height: 1, color: BrandColors.border),
+              const Divider(height: 1, color: BrandColors.borderSubtle),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -82,11 +74,10 @@ class DonorPrivacyCard extends StatelessWidget {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: BrandColors.greenTint,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: BrandColors.greenShadow, width: 1.5),
+                        color: BrandColors.statusSuccessTint,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                       ),
-                      child: const Icon(Icons.favorite_rounded, color: BrandColors.green, size: 20),
+                      child: const Icon(Icons.favorite_outline_rounded, color: BrandColors.statusSuccess, size: 20),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -99,15 +90,6 @@ class DonorPrivacyCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: BrandColors.greenTint,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: BrandColors.greenShadow, width: 1.0),
-                      ),
-                      child: const Text('OK', style: TextStyle(color: BrandColors.green, fontSize: 11, fontWeight: FontWeight.bold)),
-                    ),
                   ],
                 ),
               ),
@@ -118,4 +100,3 @@ class DonorPrivacyCard extends StatelessWidget {
     );
   }
 }
-

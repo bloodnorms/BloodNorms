@@ -1,13 +1,13 @@
 // ============================================================================
 // BloodNorms | active_emergency_card.dart
-// Active Emergency Search Card with Live Radar & Cancellation Controls
+// Clean, minimal active emergency search card with live tracking CTA
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../providers/request_flow_provider.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import 'emergency_blood_group_header.dart';
 import 'stop_search_dialog.dart';
 
@@ -35,17 +35,11 @@ class ActiveEmergencyCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE52E2E), width: 2.5),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0xFFE5E7EB),
-            offset: Offset(0, 5),
-            blurRadius: 0,
-          ),
-        ],
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.statusError.withValues(alpha: 0.3), width: 1.0),
+        boxShadow: BrandColors.shadowCardHover,
       ),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,46 +49,35 @@ class ActiveEmergencyCard extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 10,
-                    height: 10,
+                    width: 8,
+                    height: 8,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFE52E2E),
+                      color: BrandColors.statusError,
                       shape: BoxShape.circle,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'ACTIVE SEARCH IN PROGRESS',
-                    style: TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFE52E2E),
-                      letterSpacing: 0.5,
-                    ),
+                  Text(
+                    'Active Search in Progress',
+                    style: BrandTypography.label(color: BrandColors.statusError),
                   ),
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF2F2),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: const Color(0xFFE52E2E), width: 1.2),
+                  color: BrandColors.statusErrorTint,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                 ),
                 child: Text(
-                  'RING: ${ring.toStringAsFixed(1)} KM',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFE52E2E),
-                  ),
+                  'Radius: ${ring.toStringAsFixed(1)} km',
+                  style: BrandTypography.caption(color: BrandColors.statusError)
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           EmergencyBloodGroupHeader(
             bloodGroup: bg,
             units: units,
@@ -102,84 +85,52 @@ class ActiveEmergencyCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+              color: BrandColors.surfaceSoft,
+              borderRadius: BorderRadius.circular(BrandColors.radiusInput),
+              border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text(
                   'Contacted: $contacted',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4B5563),
-                  ),
+                  style: BrandTypography.label(color: BrandColors.textSecondary),
                 ),
-                const Text('•', style: TextStyle(color: Color(0xFFD1D5DB))),
+                Text(
+                  '•',
+                  style: TextStyle(color: BrandColors.borderStrong),
+                ),
                 Text(
                   'Agreed: $agreed',
-                  style: const TextStyle(
-                    fontFamily: BrandTypography.fontFamily,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF10B981),
-                  ),
+                  style: BrandTypography.label(color: BrandColors.statusSuccess),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 flex: 2,
-                child: ElevatedButton.icon(
+                child: AppPillButton(
+                  label: 'View Live Map',
+                  icon: Icons.radar_rounded,
+                  variant: AppPillButtonVariant.primary,
                   onPressed: () => context.push('/live/$id'),
-                  icon: const Icon(Icons.radar_rounded, size: 18),
-                  label: const Text(
-                    'VIEW LIVE MAP',
-                    style: TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE52E2E),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    elevation: 0,
-                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 flex: 1,
-                child: OutlinedButton(
+                child: AppPillButton(
+                  label: 'Stop',
+                  variant: AppPillButtonVariant.destructive,
                   onPressed: () => showStopEmergencySearchDialog(
                     context: context,
                     reqId: id,
                     onSearchStopped: onSearchStopped,
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFE52E2E),
-                    side: const BorderSide(color: Color(0xFFE52E2E), width: 1.5),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  ),
-                  child: const Text(
-                    'STOP',
-                    style: TextStyle(
-                      fontFamily: BrandTypography.fontFamily,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
                   ),
                 ),
               ),
@@ -189,5 +140,4 @@ class ActiveEmergencyCard extends StatelessWidget {
       ),
     );
   }
-
 }

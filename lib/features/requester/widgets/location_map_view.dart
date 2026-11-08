@@ -65,48 +65,47 @@ class LocationMapView extends StatelessWidget {
           left: 20,
           right: 20,
           child: Center(
-            child: GestureDetector(
-              onTap: isLoadingGps ? null : onUseMyLocation,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: BrandColors.redShadow, width: 2.0),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: BrandColors.redShadow,
-                      offset: Offset(0, 3),
-                      blurRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (isLoadingGps)
-                      const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: BrandColors.red),
-                      )
-                    else
-                      const Icon(
-                        Icons.my_location_rounded,
-                        size: 18,
-                        color: BrandColors.red,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                onTap: isLoadingGps ? null : onUseMyLocation,
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: BrandColors.minTouchTarget),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: BrandColors.background,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                    border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                    boxShadow: BrandColors.shadowFloating,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isLoadingGps)
+                        const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: BrandColors.statusError),
+                        )
+                      else
+                        const Icon(
+                          Icons.my_location_rounded,
+                          size: 18,
+                          color: BrandColors.statusError,
+                        ),
+                      const SizedBox(width: 8),
+                      Text(
+                        gpsButtonLabel,
+                        style: const TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: BrandColors.textPrimary,
+                        ),
                       ),
-                    const SizedBox(width: 8),
-                    Text(
-                      gpsButtonLabel.toUpperCase(),
-                      style: TextStyle(
-                        fontFamily: BrandTypography.fontFamily,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                        color: BrandColors.red,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

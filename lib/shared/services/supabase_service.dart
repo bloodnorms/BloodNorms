@@ -7,20 +7,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../features/admin_console/services/index.dart';
-import '../../features/bank_console/services/index.dart';
-import '../../features/donor/services/index.dart';
-import '../../features/requester/services/index.dart';
 import '../constants/app_constants.dart';
-import '../models/blood_bank_model.dart';
-import '../models/camp_model.dart';
-import '../models/donor_badge_model.dart';
-import '../models/donor_card_model.dart';
-import '../models/notification_model.dart';
-import '../models/request_alert_model.dart';
 import '../utils/geo_utils.dart' as geo;
-import 'notification_service.dart';
-import 'realtime_service.dart';
 
 // Model & domain service re-exports for backward compatibility
 export '../../features/admin_console/services/index.dart';

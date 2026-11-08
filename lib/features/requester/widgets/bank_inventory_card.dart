@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../shared/models/blood_bank_model.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/progress_meter.dart';
 
 class BankInventoryCard extends StatelessWidget {
@@ -24,18 +24,18 @@ class BankInventoryCard extends StatelessWidget {
 
   Widget _buildPill(String text, Color textColor, Color bgColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: BrandColors.border, width: 1.0),
+        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Text(
         text,
         style: TextStyle(
           fontFamily: BrandTypography.fontFamily,
           fontSize: 11,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
           color: textColor,
         ),
       ),
@@ -47,22 +47,15 @@ class BankInventoryCard extends StatelessWidget {
     final distanceKm = bank.distanceMeters / 1000.0;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
         border: Border.all(
-          color: isHighlighted ? BrandColors.red : BrandColors.border,
-          width: isHighlighted ? 2.5 : 2.0,
+          color: isHighlighted ? BrandColors.primaryAction : BrandColors.borderSubtle,
+          width: 1.0,
         ),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,9 +66,9 @@ class BankInventoryCard extends StatelessWidget {
               ProgressMeter.stockFreshness(
                 units: bank.unitsAvailable,
                 freshness: bank.stockFreshness,
-                size: 64,
+                size: 58,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,10 +89,10 @@ class BankInventoryCard extends StatelessWidget {
                       spacing: 6,
                       runSpacing: 4,
                       children: [
-                        _buildPill('${distanceKm.toStringAsFixed(1)} km', BrandColors.textPrimary, const Color(0xFFF0F0F0)),
-                        _buildPill('Trust: ${bank.trustScore}', BrandColors.red, BrandColors.redTint),
+                        _buildPill('${distanceKm.toStringAsFixed(1)} km', BrandColors.textPrimary, BrandColors.surfaceSoft),
+                        _buildPill('Trust: ${bank.trustScore}', BrandColors.statusError, BrandColors.statusErrorTint),
                         if (bank.isOpen24x7)
-                          _buildPill('24x7 OPEN', BrandColors.green, BrandColors.greenTint),
+                          _buildPill('24x7 OPEN', BrandColors.statusSuccess, BrandColors.statusSuccessTint),
                       ],
                     ),
                   ],
@@ -107,12 +100,13 @@ class BankInventoryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          ActionButton(
-            label: 'CALL BLOOD BANK',
-            icon: Icons.phone_rounded,
-            height: 44,
-            variant: ActionButtonVariant.success,
+          const SizedBox(height: 12),
+          AppPillButton(
+            label: 'Call Blood Bank',
+            icon: Icons.phone_outlined,
+            height: 40,
+            variant: AppPillButtonVariant.secondary,
+            isFullWidth: true,
             onPressed: onCall,
           ),
         ],
@@ -120,4 +114,3 @@ class BankInventoryCard extends StatelessWidget {
     );
   }
 }
-

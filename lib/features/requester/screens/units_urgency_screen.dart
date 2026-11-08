@@ -9,10 +9,11 @@ import '../../../../../shared/constants/blood_groups.dart';
 import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/quantity_stepper.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../../../shared/widgets/segmented_picker.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import '../providers/request_flow_provider.dart';
 import '../widgets/blood_component_selector_card.dart';
 import '../widgets/blood_component_sheet.dart';
@@ -53,7 +54,7 @@ class _UnitsUrgencyScreenState extends State<UnitsUrgencyScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: ScreenHeader(
         title: loc.t('units.title'),
         showBackButton: true,
@@ -71,43 +72,32 @@ class _UnitsUrgencyScreenState extends State<UnitsUrgencyScreen> {
                       emoji: '⏱️',
                       text: 'Specify how many units you need and when the blood is required.',
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     Text(
                       'Units',
-                      style: BrandTypography.title1(color: BrandColors.textPrimary),
+                      style: BrandTypography.title2(color: BrandColors.textPrimary),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: BrandColors.border, width: 2.0),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: BrandColors.border,
-                            offset: Offset(0, 4),
-                            blurRadius: 0,
-                          ),
-                        ],
+                        color: BrandColors.background,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                       ),
-                      child: Column(
-                        children: [
-                          Text('UNITS NEEDED', style: BrandTypography.caption(color: BrandColors.textSecondary)),
-                          const SizedBox(height: 16),
-                          QuantityStepper(
-                            value: _units,
-                            min: 1,
-                            max: 10,
-                            onChanged: (val) {
-                              setState(() => _units = val);
-                              globalRequestFlow.setUnits(val);
-                            },
-                          ),
-                        ],
+                      child: Center(
+                        child: QuantityStepper(
+                          value: _units,
+                          min: 1,
+                          max: 10,
+                          onChanged: (val) {
+                            setState(() => _units = val);
+                            globalRequestFlow.setUnits(val);
+                          },
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
                     Text(
                       'Urgency Level',
                       style: BrandTypography.title3(color: BrandColors.textPrimary),
@@ -132,14 +122,13 @@ class _UnitsUrgencyScreenState extends State<UnitsUrgencyScreen> {
                         ),
                       ],
                       selectedValue: _urgency,
-                      activeColor: BrandColors.red,
-                      activeShadowColor: BrandColors.redShadow,
+                      activeColor: BrandColors.primaryAction,
                       onValueChanged: (val) {
                         setState(() => _urgency = val);
                         globalRequestFlow.setUrgency(val);
                       },
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
                     Text(
                       'Blood Component',
                       style: BrandTypography.title3(color: BrandColors.textPrimary),
@@ -154,16 +143,17 @@ class _UnitsUrgencyScreenState extends State<UnitsUrgencyScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
+                color: BrandColors.background,
+                border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ActionButton(
+              child: SafeArea(
+                top: false,
+                child: AppPillButton(
                   label: loc.t('cta.continue'),
-                  variant: ActionButtonVariant.primary,
+                  variant: AppPillButtonVariant.primary,
+                  isFullWidth: true,
                   onPressed: () => context.push('/location'),
                 ),
               ),

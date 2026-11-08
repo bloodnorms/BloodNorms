@@ -27,16 +27,9 @@ class DonorStatusAvailabilityCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         children: [
@@ -61,7 +54,7 @@ class DonorStatusAvailabilityCard extends StatelessWidget {
               ),
               Switch(
                 value: isAvailable,
-                activeThumbColor: BrandColors.green,
+                activeThumbColor: BrandColors.statusSuccess,
                 onChanged: (val) {
                   if (!val) {
                     showDonorPauseSheet(
@@ -75,9 +68,9 @@ class DonorStatusAvailabilityCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          const Divider(height: 2, thickness: 2, color: BrandColors.border),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
+          const Divider(height: 1, thickness: 1, color: BrandColors.borderSubtle),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -85,10 +78,10 @@ class DonorStatusAvailabilityCard extends StatelessWidget {
                 children: [
                   ProgressMeter(
                     value: 1.0,
-                    color: BrandColors.green,
+                    color: BrandColors.statusSuccess,
                     centerText: '✓',
                     subText: loc.t('donor.active'),
-                    size: 80,
+                    size: 72,
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -99,16 +92,16 @@ class DonorStatusAvailabilityCard extends StatelessWidget {
               ),
               Column(
                 children: [
-                  const ProgressMeter(
+                  ProgressMeter(
                     value: 0.8,
-                    color: BrandColors.red,
-                    centerText: '14',
-                    subText: 'days',
-                    size: 80,
+                    color: BrandColors.accent,
+                    centerText: '100%',
+                    subText: 'Reliability',
+                    size: 72,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    loc.t('donor.next'),
+                    'Response',
                     style: BrandTypography.caption(color: BrandColors.textSecondary),
                   ),
                 ],

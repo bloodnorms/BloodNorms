@@ -1,8 +1,6 @@
-﻿// ============================================================================
+// ============================================================================
 // BloodNorms | connectivity_banner.dart
-// Top-of-screen tactile Duolingo offline & reconnect banner
-// Non-intrusive, auto-retrying, Cardinal Red (#E52E2E), Universal Green for sync
-// Strict Rules: Arial font only, FontWeight.normal & FontWeight.bold only.
+// Top-of-screen offline & reconnect status banner
 // ============================================================================
 
 import 'dart:async';
@@ -51,7 +49,6 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
     try {
       final uri = Uri.parse('${AppConstants.defaultSupabaseUrl}/rest/v1/');
       final res = await http.get(uri).timeout(const Duration(seconds: 3));
-      // Any response code (even 401/404) means network route to Supabase server is alive!
       isOnline = res.statusCode > 0;
     } catch (_) {
       isOnline = false;
@@ -82,13 +79,13 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
       children: [
         if (_isOffline)
           Material(
-            color: BrandColors.red,
+            color: BrandColors.statusError,
             child: SafeArea(
               bottom: false,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: BrandColors.redShadow, width: 2.0)),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.black.withValues(alpha: 0.1), width: 1.0)),
                 ),
                 child: Row(
                   children: [
@@ -108,9 +105,9 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
                     TextButton(
                       onPressed: _checkConnection,
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         backgroundColor: Colors.white.withValues(alpha: 0.2),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(BrandColors.radiusPill)),
                       ),
                       child: const Text(
                         'RETRY',
@@ -134,8 +131,8 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
               bottom: false,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: BrandColors.greenShadow, width: 2.0)),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.black.withValues(alpha: 0.1), width: 1.0)),
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -161,4 +158,3 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
     );
   }
 }
-

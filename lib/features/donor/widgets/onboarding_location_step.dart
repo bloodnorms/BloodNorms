@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 
 class OnboardingLocationStep extends StatelessWidget {
   final String selectedCity;
@@ -49,14 +49,21 @@ class OnboardingLocationStep extends StatelessWidget {
                 c,
                 style: TextStyle(
                   fontFamily: BrandTypography.fontFamily,
-                  color: isSel ? Colors.white : BrandColors.textPrimary,
+                  color: isSel ? BrandColors.primaryDark : BrandColors.textSecondary,
                   fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
                   fontSize: 12,
                 ),
               ),
               selected: isSel,
-              selectedColor: BrandColors.red,
-              backgroundColor: BrandColors.bgGrouped,
+              selectedColor: BrandColors.surfaceSoft,
+              backgroundColor: BrandColors.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                side: BorderSide(
+                  color: isSel ? BrandColors.primaryDark : BrandColors.borderSubtle,
+                  width: 1.0,
+                ),
+              ),
               onSelected: (_) => onCityChanged(c),
             );
           }).toList(),
@@ -68,10 +75,17 @@ class OnboardingLocationStep extends StatelessWidget {
           controller: areaController,
           decoration: InputDecoration(
             hintText: 'e.g. Danavaipeta, Kotipalli, Morampudi',
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             filled: true,
+            fillColor: BrandColors.surface,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+              borderSide: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+              borderSide: const BorderSide(color: BrandColors.primaryDark, width: 1.5),
+            ),
           ),
           style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 13),
         ),
@@ -88,32 +102,27 @@ class OnboardingLocationStep extends StatelessWidget {
           runSpacing: 10,
           children: travelOptions.map((km) {
             final isSel = travelLimitKm == km;
-            return GestureDetector(
+            return InkWell(
               onTap: () => onTravelLimitChanged(km),
+              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 80),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isSel ? BrandColors.red : Colors.white,
-                  borderRadius: BorderRadius.circular(14),
+                  color: isSel ? BrandColors.primaryDark : BrandColors.surface,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                   border: Border.all(
-                    color: isSel ? BrandColors.redShadow : BrandColors.border,
-                    width: 2.0,
+                    color: isSel ? BrandColors.primaryDark : BrandColors.borderSubtle,
+                    width: 1.0,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isSel ? BrandColors.redShadow : BrandColors.border,
-                      offset: const Offset(0, 3),
-                      blurRadius: 0,
-                    ),
-                  ],
+                  boxShadow: isSel ? BrandColors.shadowSubtle : null,
                 ),
                 child: Text(
                   '$km KM',
                   style: TextStyle(
                     fontFamily: BrandTypography.fontFamily,
                     color: isSel ? Colors.white : BrandColors.textPrimary,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
                     fontSize: 13,
                   ),
                 ),
@@ -125,4 +134,3 @@ class OnboardingLocationStep extends StatelessWidget {
     );
   }
 }
-

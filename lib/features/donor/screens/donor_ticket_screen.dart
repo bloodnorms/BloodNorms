@@ -10,8 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../shared/constants/blood_groups.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
-import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import '../widgets/donor_cancelled_banner.dart';
 import '../widgets/donor_pass_card.dart';
 import '../widgets/donor_ticket_actions.dart';
@@ -142,14 +142,14 @@ class _DonorTicketScreenState extends State<DonorTicketScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: const ScreenHeader(
         title: 'Donation Pass',
         showBackButton: true,
       ),
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: BrandColors.red))
+            ? const Center(child: CircularProgressIndicator(color: BrandColors.primaryAction))
             : ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 children: [
@@ -158,7 +158,7 @@ class _DonorTicketScreenState extends State<DonorTicketScreen> {
                   else ...[
                     const SpeechBubble(
                       emoji: '🎫',
-                      text: 'Show this 6-digit code at the hospital blood bank counter. The staff will verify and accept your donation!',
+                      text: 'Show this 6-digit code at the hospital blood bank counter. The staff will verify and accept your donation.',
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -172,7 +172,7 @@ class _DonorTicketScreenState extends State<DonorTicketScreen> {
                     bloodGroup: _bloodGroup,
                     isCancelled: _isCancelled,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   DonorTicketActions(
                     isCancelled: _isCancelled,
                     hospitalName: _hospitalName,
@@ -181,7 +181,7 @@ class _DonorTicketScreenState extends State<DonorTicketScreen> {
                     donationCode: _donationCode,
                     bloodGroup: _bloodGroup,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
               ),
       ),

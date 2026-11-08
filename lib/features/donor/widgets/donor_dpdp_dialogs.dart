@@ -9,27 +9,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 void showDonorExportDialog(BuildContext context, String donorName) {
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: BrandColors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: BrandColors.border, width: 2.0),
+        borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+        side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
       ),
       title: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: BrandColors.redTint,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: BrandColors.redShadow, width: 1.5),
+              color: BrandColors.surfaceSoft,
+              borderRadius: BorderRadius.circular(BrandColors.radiusSmall),
             ),
-            child: const Icon(Icons.description_rounded, color: BrandColors.red, size: 22),
+            child: const Icon(Icons.description_rounded, color: BrandColors.textPrimary, size: 22),
           ),
           const SizedBox(width: 12),
           Text('Export Complete', style: BrandTypography.title3(color: BrandColors.textPrimary)),
@@ -40,10 +39,10 @@ void showDonorExportDialog(BuildContext context, String donorName) {
         style: BrandTypography.body(color: BrandColors.textSecondary),
       ),
       actions: [
-        ActionButton(
-          label: 'DONE',
+        AppPillButton(
+          text: 'Done',
           height: 44,
-          variant: ActionButtonVariant.success,
+          variant: AppPillButtonVariant.primary,
           onPressed: () => Navigator.pop(ctx),
         ),
       ],
@@ -55,10 +54,10 @@ void showDonorConfirmDeleteDialog(BuildContext context, String? donorId) {
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: BrandColors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: BrandColors.border, width: 2.0),
+        borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+        side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
       ),
       title: Row(
         children: [
@@ -66,8 +65,7 @@ void showDonorConfirmDeleteDialog(BuildContext context, String? donorId) {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: BrandColors.redTint,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: BrandColors.redShadow, width: 1.5),
+              borderRadius: BorderRadius.circular(BrandColors.radiusSmall),
             ),
             child: const Icon(Icons.delete_forever_rounded, color: BrandColors.red, size: 24),
           ),
@@ -83,19 +81,19 @@ void showDonorConfirmDeleteDialog(BuildContext context, String? donorId) {
         Row(
           children: [
             Expanded(
-              child: ActionButton(
-                label: 'CANCEL',
+              child: AppPillButton(
+                text: 'Cancel',
                 height: 44,
-                variant: ActionButtonVariant.secondary,
+                variant: AppPillButtonVariant.secondary,
                 onPressed: () => Navigator.pop(ctx),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: ActionButton(
-                label: 'DELETE',
+              child: AppPillButton(
+                text: 'Delete',
                 height: 44,
-                variant: ActionButtonVariant.destructive,
+                variant: AppPillButtonVariant.destructive,
                 onPressed: () async {
                   Navigator.pop(ctx);
                   if (donorId != null) {
@@ -125,4 +123,3 @@ void showDonorConfirmDeleteDialog(BuildContext context, String? donorId) {
     ),
   );
 }
-

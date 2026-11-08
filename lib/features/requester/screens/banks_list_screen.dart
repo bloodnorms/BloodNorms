@@ -12,8 +12,9 @@ import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import '../providers/request_flow_provider.dart';
 import '../widgets/bank_inventory_card.dart';
 import '../widgets/banks_map_widget.dart';
@@ -70,7 +71,7 @@ class _BanksListScreenState extends State<BanksListScreen> {
     final userPoint = LatLng(userLat, userLng);
 
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: ScreenHeader(
         title: loc.t('banks.title'),
         showBackButton: true,
@@ -80,13 +81,13 @@ class _BanksListScreenState extends State<BanksListScreen> {
           children: [
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: BrandColors.red))
+                  ? const Center(child: CircularProgressIndicator(color: BrandColors.primaryAction))
                   : ListView(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       children: [
                         const SpeechBubble(
                           emoji: '🏥',
-                          text: 'Check nearest blood banks first! If stock is available, call before you travel.',
+                          text: 'Check nearest blood banks first. If stock is available, call before you travel.',
                         ),
                         const SizedBox(height: 16),
                         BanksMapWidget(
@@ -101,7 +102,7 @@ class _BanksListScreenState extends State<BanksListScreen> {
                         const SizedBox(height: 20),
                         Text(
                           loc.t('banks.title'),
-                          style: BrandTypography.title1(color: BrandColors.textPrimary),
+                          style: BrandTypography.title2(color: BrandColors.textPrimary),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -118,38 +119,39 @@ class _BanksListScreenState extends State<BanksListScreen> {
                             onCall: () => _callBank(bank.phone),
                           );
                         }),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.info_outline_rounded, size: 16, color: BrandColors.red),
+                            const Icon(Icons.info_outline_rounded, size: 16, color: BrandColors.textSecondary),
                             const SizedBox(width: 6),
                             Text(
                               loc.t('banks.call_before'),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontFamily: BrandTypography.fontFamily,
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w500,
                                 color: BrandColors.textSecondary,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
                       ],
                     ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
+                color: BrandColors.background,
+                border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ActionButton(
-                  label: 'SEARCH VERIFIED DONORS',
-                  variant: ActionButtonVariant.primary,
+              child: SafeArea(
+                top: false,
+                child: AppPillButton(
+                  label: 'Search Verified Donors',
+                  variant: AppPillButtonVariant.primary,
+                  isFullWidth: true,
                   onPressed: () => context.push('/units'),
                 ),
               ),

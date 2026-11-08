@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class OnboardingHealthStep extends StatelessWidget {
   final int healthIndex;
@@ -46,23 +46,17 @@ class OnboardingHealthStep extends StatelessWidget {
             fontFamily: BrandTypography.fontFamily,
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: BrandColors.red,
+            color: BrandColors.textSecondary,
           ),
         ),
         const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 4),
-                blurRadius: 0,
-              ),
-            ],
+            color: BrandColors.surface,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+            boxShadow: BrandColors.shadowSubtle,
           ),
           child: Column(
             children: [
@@ -75,17 +69,17 @@ class OnboardingHealthStep extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: ActionButton(
-                      label: 'NO',
-                      variant: ActionButtonVariant.secondary,
+                    child: AppPillButton(
+                      text: 'No',
+                      variant: AppPillButtonVariant.secondary,
                       onPressed: onAnswer,
                     ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
-                    child: ActionButton(
-                      label: 'YES',
-                      variant: ActionButtonVariant.primary,
+                    child: AppPillButton(
+                      text: 'Yes',
+                      variant: AppPillButtonVariant.primary,
                       onPressed: onAnswer,
                     ),
                   ),

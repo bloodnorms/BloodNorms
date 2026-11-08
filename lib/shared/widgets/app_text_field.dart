@@ -1,7 +1,6 @@
-﻿// ============================================================================
-// BloodNorms | duo_text_field.dart
-// Duolingo Feather 3D Tactile Input Component
-// Crisp white, 2px border, red focus state, 3D bottom bevel, Material prefix
+// ============================================================================
+// BloodNorms | app_text_field.dart
+// Clean, minimal text input component with subtle focus state
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -69,21 +68,15 @@ class _AppTextFieldState extends State<AppTextField> {
           const SizedBox(height: 8),
         ],
         AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
+          duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: BrandColors.surface,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
             border: Border.all(
-              color: _isFocused ? BrandColors.red : BrandColors.border,
-              width: 2.0,
+              color: _isFocused ? BrandColors.primaryDark : BrandColors.borderSubtle,
+              width: _isFocused ? 1.5 : 1.0,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: _isFocused ? BrandColors.redShadow : BrandColors.border,
-                offset: const Offset(0, 3),
-                blurRadius: 0,
-              ),
-            ],
+            boxShadow: _isFocused ? BrandColors.shadowSubtle : null,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
@@ -93,7 +86,7 @@ class _AppTextFieldState extends State<AppTextField> {
                   Icon(
                     widget.prefixIcon,
                     size: 22,
-                    color: _isFocused ? BrandColors.red : BrandColors.textSecondary,
+                    color: _isFocused ? BrandColors.primaryDark : BrandColors.textSecondary,
                   ),
                   const SizedBox(width: 10),
                 ],
@@ -137,8 +130,6 @@ class _AppTextFieldState extends State<AppTextField> {
     );
   }
 }
-
-
 
 /// Backward compatibility alias for existing code.
 typedef DuoTextField = AppTextField;

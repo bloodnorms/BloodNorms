@@ -8,8 +8,9 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import '../providers/request_flow_provider.dart';
 import '../widgets/request_details_form.dart';
 
@@ -54,12 +55,12 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
           message,
           style: const TextStyle(
             fontFamily: BrandTypography.fontFamily,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
             color: Colors.white,
           ),
         ),
         duration: const Duration(seconds: 2),
-        backgroundColor: BrandColors.red,
+        backgroundColor: BrandColors.statusError,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -97,7 +98,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: const ScreenHeader(
         title: 'Request Details',
         showBackButton: true,
@@ -113,14 +114,14 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
                   children: [
                     const SpeechBubble(
                       emoji: '🔒',
-                      text: 'Your contact details stay safe! They are only revealed to donors who accept your request.',
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Patient & Hospital',
-                      style: BrandTypography.title1(color: BrandColors.textPrimary),
+                      text: 'Your contact details stay safe. They are only revealed to donors who accept your request.',
                     ),
                     const SizedBox(height: 20),
+                    Text(
+                      'Patient & Hospital',
+                      style: BrandTypography.title2(color: BrandColors.textPrimary),
+                    ),
+                    const SizedBox(height: 16),
                     RequestDetailsForm(
                       hospitalController: _hospitalController,
                       patientController: _patientController,
@@ -136,16 +137,17 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
+                color: BrandColors.background,
+                border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ActionButton(
-                  label: 'CONTINUE TO REVIEW',
-                  variant: ActionButtonVariant.primary,
+              child: SafeArea(
+                top: false,
+                child: AppPillButton(
+                  label: 'Continue to Review',
+                  variant: AppPillButtonVariant.primary,
+                  isFullWidth: true,
                   onPressed: _onContinue,
                 ),
               ),

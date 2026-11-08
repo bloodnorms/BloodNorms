@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | action_button.dart
-// 3D tactile pushable button component with physical 4px mechanical bottom bevel
+// Modern, clean, minimal pill action button component
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -12,12 +12,12 @@ export 'hero_emergency_button.dart';
 export 'speech_bubble.dart';
 
 enum ActionButtonVariant {
-  primary,     // Cardinal Red (Emergency & Action)
-  success,     // Done / Accepted Green
-  secondary,   // Crisp White 3D with border
-  tinted,      // Red Tint with solid base
-  destructive, // Caution Red
-  plain,       // Text only
+  primary,     // Confident primary action
+  success,     // Done / Accepted
+  secondary,   // Clean outlined / tonal secondary
+  tinted,      // Subtle soft tint
+  destructive, // Caution / Reject
+  plain,       // Minimal text only
 }
 
 class ActionButton extends StatefulWidget {
@@ -36,7 +36,7 @@ class ActionButton extends StatefulWidget {
     this.variant = ActionButtonVariant.primary,
     this.icon,
     this.isLoading = false,
-    this.height = 54.0,
+    this.height = 48.0,
     this.customTint,
   });
 
@@ -51,55 +51,47 @@ class _ActionButtonState extends State<ActionButton> {
   Widget build(BuildContext context) {
     final isEnabled = widget.onPressed != null && !widget.isLoading;
 
-    Color faceColor;
-    Color shadowColor;
+    Color backgroundColor;
     Color textColor;
     Border? border;
 
     switch (widget.variant) {
       case ActionButtonVariant.primary:
-        faceColor = isEnabled ? BrandColors.red : const Color(0xFFE5E5E5);
-        shadowColor = isEnabled ? BrandColors.redShadow : const Color(0xFFCECECE);
-        textColor = isEnabled ? Colors.white : const Color(0xFFAFAFAF);
+        backgroundColor = isEnabled ? BrandColors.primaryAction : BrandColors.surfaceDisabled;
+        textColor = isEnabled ? Colors.white : BrandColors.textDisabled;
+        border = null;
         break;
 
       case ActionButtonVariant.success:
-        faceColor = isEnabled ? BrandColors.green : const Color(0xFFE5E5E5);
-        shadowColor = isEnabled ? BrandColors.greenShadow : const Color(0xFFCECECE);
-        textColor = isEnabled ? Colors.white : const Color(0xFFAFAFAF);
+        backgroundColor = isEnabled ? BrandColors.statusSuccess : BrandColors.surfaceDisabled;
+        textColor = isEnabled ? Colors.white : BrandColors.textDisabled;
+        border = null;
         break;
 
       case ActionButtonVariant.secondary:
-        faceColor = Colors.white;
-        shadowColor = const Color(0xFFE0E0E0);
+        backgroundColor = Colors.white;
         textColor = widget.customTint ?? BrandColors.textPrimary;
-        border = Border.all(color: const Color(0xFFE0E0E0), width: 2.0);
+        border = Border.all(color: BrandColors.borderSubtle, width: 1.0);
         break;
 
       case ActionButtonVariant.tinted:
-        faceColor = BrandColors.redTint;
-        shadowColor = BrandColors.red.withValues(alpha: 0.35);
-        textColor = BrandColors.red;
-        border = Border.all(color: BrandColors.red.withValues(alpha: 0.35), width: 2.0);
+        backgroundColor = BrandColors.surfaceSoft;
+        textColor = widget.customTint ?? BrandColors.textPrimary;
+        border = Border.all(color: BrandColors.borderSubtle, width: 1.0);
         break;
 
       case ActionButtonVariant.destructive:
-        faceColor = const Color(0xFFFFECEC);
-        shadowColor = const Color(0xFFFFCDCD);
-        textColor = BrandColors.red;
-        border = Border.all(color: const Color(0xFFFFCDCD), width: 2.0);
+        backgroundColor = BrandColors.statusErrorTint;
+        textColor = BrandColors.statusError;
+        border = Border.all(color: BrandColors.statusError.withValues(alpha: 0.2), width: 1.0);
         break;
 
       case ActionButtonVariant.plain:
-        faceColor = Colors.transparent;
-        shadowColor = Colors.transparent;
-        textColor = BrandColors.red;
+        backgroundColor = Colors.transparent;
+        textColor = widget.customTint ?? BrandColors.textPrimary;
+        border = null;
         break;
     }
-
-    const bevel = BrandColors.bevelHeight;
-    final topOffset = (isEnabled && _isPressed) ? bevel : 0.0;
-    final currentShadow = (isEnabled && _isPressed) ? 0.0 : bevel;
 
     return GestureDetector(
       onTapDown: isEnabled
@@ -115,48 +107,42 @@ class _ActionButtonState extends State<ActionButton> {
             }
           : null,
       onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 60),
-        margin: EdgeInsets.only(top: topOffset, bottom: bevel - currentShadow),
-        height: widget.height,
-        decoration: BoxDecoration(
-          color: faceColor,
-          borderRadius: BorderRadius.circular(16),
-          border: border,
-          boxShadow: currentShadow > 0
-              ? [
-                  BoxShadow(
-                    color: shadowColor,
-                    offset: Offset(0, currentShadow),
-                    blurRadius: 0,
-                  ),
-                ]
-              : null,
-        ),
-        child: Center(
-          child: widget.isLoading
-              ? SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: textColor,
-                  ),
-                )
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.icon != null) ...[
-                      Icon(widget.icon, size: 20, color: textColor),
-                      const SizedBox(width: 8),
-                    ],
-                    Text(
-                      widget.label,
-                      style: BrandTypography.button(color: textColor),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 100),
+        opacity: _isPressed ? 0.85 : 1.0,
+        child: Container(
+          height: widget.height,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+            border: border,
+          ),
+          child: Center(
+            child: widget.isLoading
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      color: textColor,
                     ),
-                  ],
-                ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (widget.icon != null) ...[
+                        Icon(widget.icon, size: 18, color: textColor),
+                        const SizedBox(width: 8),
+                      ],
+                      Text(
+                        widget.label,
+                        style: BrandTypography.button(color: textColor),
+                      ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );

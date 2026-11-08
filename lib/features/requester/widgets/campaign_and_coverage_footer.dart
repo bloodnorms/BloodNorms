@@ -4,6 +4,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 
 class CampaignAndCoverageFooter extends StatelessWidget {
@@ -16,31 +17,23 @@ class CampaignAndCoverageFooter extends StatelessWidget {
         // 1. National Blood Donation Campaign Banner
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xFFFFFBEB),
-                Color(0xFFFEF3C7),
-                Color(0xFFFDE68A),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFFCD34D), width: 1.0),
+            color: BrandColors.statusWarningTint,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.statusWarning.withValues(alpha: 0.25), width: 1.0),
           ),
           child: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 40,
+                height: 40,
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: BrandColors.background,
                   shape: BoxShape.circle,
                 ),
                 child: const Center(
-                  child: Text('🇮🇳', style: TextStyle(fontSize: 22)),
+                  child: Text('🇮🇳', style: TextStyle(fontSize: 20)),
                 ),
               ),
               const SizedBox(width: 14),
@@ -52,19 +45,18 @@ class CampaignAndCoverageFooter extends StatelessWidget {
                       'National Voluntary Blood Donation',
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF92400E),
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: BrandColors.textPrimary,
                       ),
                     ),
-                    SizedBox(height: 3),
+                    SizedBox(height: 2),
                     Text(
                       'One Drop of Humanity. Give Blood. Save Lives.',
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
                         fontSize: 11.5,
-                        fontWeight: FontWeight.normal,
-                        color: Color(0xFFB45309),
+                        color: BrandColors.textSecondary,
                       ),
                     ),
                   ],
@@ -81,33 +73,33 @@ class CampaignAndCoverageFooter extends StatelessWidget {
           children: [
             Container(
               width: 16,
-              height: 5,
+              height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE52E2E),
-                borderRadius: BorderRadius.circular(999),
+                color: BrandColors.primaryAction,
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
               ),
             ),
             const SizedBox(width: 4),
             Container(
-              width: 5,
-              height: 5,
+              width: 4,
+              height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFD1D5DB),
-                borderRadius: BorderRadius.circular(999),
+                color: BrandColors.borderStrong,
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
               ),
             ),
             const SizedBox(width: 4),
             Container(
-              width: 5,
-              height: 5,
+              width: 4,
+              height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFD1D5DB),
-                borderRadius: BorderRadius.circular(999),
+                color: BrandColors.borderStrong,
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
 
         // 2. Live Pilot Status & Coverage Footer
         Center(
@@ -119,20 +111,20 @@ class CampaignAndCoverageFooter extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(999),
+                  color: BrandColors.background,
+                  borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                   border: Border.all(
-                    color: const Color(0xFFE5E7EB),
+                    color: BrandColors.borderSubtle,
                     width: 1.0,
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
+                  children: const [
                     Icon(
-                      Icons.location_on_rounded,
+                      Icons.location_on_outlined,
                       size: 14,
-                      color: Color(0xFFE52E2E),
+                      color: BrandColors.statusError,
                     ),
                     SizedBox(width: 6),
                     Text(
@@ -140,8 +132,8 @@ class CampaignAndCoverageFooter extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: BrandTypography.fontFamily,
                         fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF6B7280),
+                        fontWeight: FontWeight.w500,
+                        color: BrandColors.textSecondary,
                       ),
                     ),
                   ],
@@ -153,8 +145,7 @@ class CampaignAndCoverageFooter extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: BrandTypography.fontFamily,
                   fontSize: 11,
-                  fontWeight: FontWeight.normal,
-                  color: Color(0xFF9CA3AF),
+                  color: BrandColors.textMuted,
                 ),
               ),
             ],

@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | code_display_dots.dart
-// Tactile 6-digit Code Display Boxes Component
+// Clean 6-digit Code Display Boxes Component
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -27,32 +27,25 @@ class DuoCodeDisplayDots extends StatelessWidget {
         final digit = hasDigit ? code[index] : '';
 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 5),
-          width: 46,
-          height: 56,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: 44,
+          height: 52,
           decoration: BoxDecoration(
-            color: hasDigit ? BrandColors.redTint : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: hasDigit ? BrandColors.surfaceSoft : BrandColors.background,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
             border: Border.all(
-              color: hasDigit ? BrandColors.red : BrandColors.border,
-              width: 2.0,
+              color: hasDigit ? BrandColors.primaryAction : BrandColors.borderSubtle,
+              width: 1.0,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: hasDigit ? BrandColors.redShadow : BrandColors.border,
-                offset: const Offset(0, 3),
-                blurRadius: 0,
-              ),
-            ],
           ),
           child: Center(
             child: Text(
               digit,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: BrandTypography.fontFamily,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: hasDigit ? BrandColors.red : BrandColors.textPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: BrandColors.textPrimary,
               ),
             ),
           ),

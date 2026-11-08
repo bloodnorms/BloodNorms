@@ -6,22 +6,22 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 void showDonorPrivacyNotice(BuildContext context, String name) {
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: BrandColors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: BrandColors.border, width: 2.0),
+        borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+        side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
       ),
       title: Row(
         children: [
           const Icon(
             Icons.privacy_tip_rounded,
-            color: BrandColors.red,
+            color: BrandColors.primaryDark,
             size: 24,
           ),
           const SizedBox(width: 8),
@@ -36,9 +36,9 @@ void showDonorPrivacyNotice(BuildContext context, String name) {
         style: BrandTypography.body(color: BrandColors.textSecondary),
       ),
       actions: [
-        ActionButton(
-          label: 'OK',
-          variant: ActionButtonVariant.primary,
+        AppPillButton(
+          text: 'OK',
+          variant: AppPillButtonVariant.primary,
           height: 44,
           onPressed: () => Navigator.pop(ctx),
         ),
@@ -55,10 +55,10 @@ void showLiveTrackingPhoneFallback(
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: BrandColors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: BrandColors.border, width: 2.0),
+        borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+        side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
       ),
       title: Text(
         'Call $name',
@@ -69,9 +69,9 @@ void showLiveTrackingPhoneFallback(
         style: BrandTypography.body(color: BrandColors.textSecondary),
       ),
       actions: [
-        ActionButton(
-          label: 'CLOSE',
-          variant: ActionButtonVariant.primary,
+        AppPillButton(
+          text: 'Close',
+          variant: AppPillButtonVariant.primary,
           height: 44,
           onPressed: () => Navigator.pop(ctx),
         ),

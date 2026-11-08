@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | speech_bubble.dart
-// Conversational speech bubble component with 3D tactile borders
+// Clean, modern contextual prompt and helper card
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -19,54 +19,40 @@ class SpeechBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: BrandColors.redTint,
-            shape: BoxShape.circle,
-            border: Border.all(color: BrandColors.red, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 3),
-                blurRadius: 0,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              emoji ?? '🩸',
-              style: const TextStyle(fontSize: 24),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: BrandColors.surfaceSoft,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: BrandColors.border, width: 2.0),
-              boxShadow: const [
-                BoxShadow(
-                  color: BrandColors.border,
-                  offset: Offset(0, 3),
-                  blurRadius: 0,
-                ),
-              ],
+              shape: BoxShape.circle,
+              border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
             ),
+            child: Center(
+              child: Text(
+                emoji ?? '🩸',
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
             child: Text(
               text,
               style: BrandTypography.body(color: BrandColors.textPrimary),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

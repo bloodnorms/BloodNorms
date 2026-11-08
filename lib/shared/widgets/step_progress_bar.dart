@@ -1,6 +1,6 @@
 // ============================================================================
 // BloodNorms | step_progress_bar.dart
-// Candy 3D horizontal progress bar with glossy reflection highlight
+// Clean, modern horizontal progress bar with smooth transition
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -14,8 +14,8 @@ class StepProgressBar extends StatelessWidget {
   const StepProgressBar({
     super.key,
     required this.progress,
-    this.fillColor = BrandColors.green,
-    this.height = 16.0,
+    this.fillColor = BrandColors.primaryAction,
+    this.height = 8.0,
   });
 
   @override
@@ -25,8 +25,8 @@ class StepProgressBar extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFE5E5E5),
-        borderRadius: BorderRadius.circular(999),
+        color: BrandColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -35,23 +35,14 @@ class StepProgressBar extends StatelessWidget {
 
           return Align(
             alignment: Alignment.centerLeft,
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
               width: barWidth,
               height: height,
               decoration: BoxDecoration(
                 color: fillColor,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 2, left: 6, right: 6),
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
               ),
             ),
           );

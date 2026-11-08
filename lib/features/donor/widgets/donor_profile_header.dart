@@ -4,7 +4,6 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import 'donor_profile_action_tiles.dart';
@@ -41,18 +40,11 @@ class DonorProfileHeader extends StatelessWidget {
     required String label,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 3),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         children: [
@@ -63,7 +55,7 @@ class DonorProfileHeader extends StatelessWidget {
             style: const TextStyle(
               fontFamily: BrandTypography.fontFamily,
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
               color: BrandColors.textPrimary,
             ),
           ),
@@ -73,7 +65,7 @@ class DonorProfileHeader extends StatelessWidget {
             style: const TextStyle(
               fontFamily: BrandTypography.fontFamily,
               fontSize: 10,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: BrandColors.textSecondary,
               letterSpacing: 0.5,
             ),
@@ -92,38 +84,28 @@ class DonorProfileHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 4),
-                blurRadius: 0,
-              ),
-            ],
+            color: BrandColors.background,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
           ),
           child: Row(
             children: [
               Container(
-                width: 60,
-                height: 60,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
-                  color: BrandColors.redTint,
+                  color: BrandColors.statusErrorTint,
                   shape: BoxShape.circle,
-                  border: Border.all(color: BrandColors.redShadow, width: 2.0),
-                  boxShadow: const [
-                    BoxShadow(color: BrandColors.border, offset: Offset(0, 3), blurRadius: 0),
-                  ],
+                  border: Border.all(color: BrandColors.statusError.withValues(alpha: 0.3), width: 1.0),
                 ),
                 child: Center(
                   child: Text(
                     name.isNotEmpty ? name[0].toUpperCase() : 'D',
                     style: const TextStyle(
                       fontFamily: BrandTypography.fontFamily,
-                      color: BrandColors.red,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
+                      color: BrandColors.statusError,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -134,7 +116,7 @@ class DonorProfileHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name, style: BrandTypography.title2(color: BrandColors.textPrimary)),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(phone, style: BrandTypography.subhead(color: BrandColors.textSecondary)),
                     const SizedBox(height: 6),
                     Row(
@@ -142,19 +124,16 @@ class DonorProfileHeader extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: BrandColors.red,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: const [
-                              BoxShadow(color: BrandColors.redShadow, offset: Offset(0, 2), blurRadius: 0),
-                            ],
+                            color: BrandColors.statusError,
+                            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                           ),
                           child: Text(
                             bloodGroup,
                             style: const TextStyle(
                               fontFamily: BrandTypography.fontFamily,
                               color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 11,
                             ),
                           ),
                         ),
@@ -168,7 +147,7 @@ class DonorProfileHeader extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
 
         // Hero Gamification Stats Row
         Row(
@@ -180,7 +159,7 @@ class DonorProfileHeader extends StatelessWidget {
             Expanded(child: _buildStatCard(icon: '❤️', value: '${donationsCount * 3}', label: 'LIVES')),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         DonorProfileActionTiles(
           city: city,
           area: area,
@@ -192,4 +171,3 @@ class DonorProfileHeader extends StatelessWidget {
     );
   }
 }
-

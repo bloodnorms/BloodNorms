@@ -8,6 +8,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../shared/services/supabase_service.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../providers/request_flow_provider.dart';
 import '../widgets/index.dart';
 
@@ -90,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: HomeTopBar(
         onOpenMenu: () => HomeNavigationDrawer.show(context),
         onOpenLanguageModal: () => HomeNavigationDrawer.showLanguageModal(

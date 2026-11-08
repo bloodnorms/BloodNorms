@@ -32,16 +32,10 @@ class DonorHistoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 3),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.surface,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+        boxShadow: BrandColors.shadowSubtle,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -60,8 +54,7 @@ class DonorHistoryCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: statusBg,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: statusBorder, width: 1.5),
+              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
             ),
             child: Text(
               status,
@@ -87,9 +80,10 @@ class DonorEmptyHistoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
+        color: BrandColors.surface,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+        boxShadow: BrandColors.shadowSubtle,
       ),
       child: Center(
         child: Column(

@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 
 class DonorCampsEmptyCard extends StatelessWidget {
   final String selectedCity;
@@ -24,9 +25,10 @@ class DonorCampsEmptyCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
+        color: BrandColors.surface,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+        boxShadow: BrandColors.shadowSubtle,
       ),
       child: Column(
         children: [
@@ -37,15 +39,16 @@ class DonorCampsEmptyCard extends StatelessWidget {
             style: BrandTypography.body(color: BrandColors.textSecondary),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 14),
-          OutlinedButton.icon(
+          const SizedBox(height: 16),
+          AppPillButton(
             onPressed: onViewAll,
-            icon: const Icon(Icons.public_rounded, size: 16),
-            label: const Text('View All Regional Drives', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontWeight: FontWeight.bold)),
+            icon: Icons.public_rounded,
+            text: 'View All Regional Drives',
+            variant: AppPillButtonVariant.secondary,
+            height: 44,
           ),
         ],
       ),
     );
   }
 }
-

@@ -1,7 +1,6 @@
 // ============================================================================
-// BloodNorms | duo_bottom_nav_bar.dart
-// Duolingo Feather Custom Bottom Navigation Bar
-// Physical 3D active tab highlights, Material Icons, Arial bold labels
+// BloodNorms | app_nav_bar.dart
+// Clean, minimal modern bottom navigation bar
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -38,15 +37,15 @@ class AppNavBar extends StatelessWidget {
         color: Colors.white,
         border: Border(
           top: BorderSide(
-            color: BrandColors.border,
-            width: 2.0,
+            color: BrandColors.borderSubtle,
+            width: 1.0,
           ),
         ),
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 68,
+          height: 64,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(items.length, (index) {
@@ -63,19 +62,11 @@ class AppNavBar extends StatelessWidget {
                   child: Center(
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       decoration: isSelected
                           ? BoxDecoration(
-                              color: BrandColors.redTint,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: BrandColors.red, width: 2.0),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: BrandColors.redShadow,
-                                  offset: Offset(0, 2),
-                                  blurRadius: 0,
-                                ),
-                              ],
+                              color: BrandColors.surfaceSoft,
+                              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                             )
                           : null,
                       child: Column(
@@ -83,8 +74,8 @@ class AppNavBar extends StatelessWidget {
                         children: [
                           Icon(
                             item.icon,
-                            size: 24,
-                            color: isSelected ? BrandColors.red : BrandColors.textSecondary,
+                            size: 22,
+                            color: isSelected ? BrandColors.primaryAction : BrandColors.textSecondary,
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -92,8 +83,8 @@ class AppNavBar extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: BrandTypography.fontFamily,
                               fontSize: 11,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected ? BrandColors.red : BrandColors.textSecondary,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              color: isSelected ? BrandColors.primaryAction : BrandColors.textSecondary,
                             ),
                           ),
                         ],
@@ -110,8 +101,7 @@ class AppNavBar extends StatelessWidget {
   }
 }
 
-
-
-/// Backward compatibility alias for existing code.
+/// Backward compatibility aliases
 typedef DuoBottomNavBar = AppNavBar;
 typedef NavItem = DuoNavItem;
+typedef AppNavItem = DuoNavItem;

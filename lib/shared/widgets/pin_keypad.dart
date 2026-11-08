@@ -1,7 +1,6 @@
 // ============================================================================
-// BloodNorms | duo_keypad.dart
-// Duolingo Feather 3D Tactile Keypad & Code Display Component
-// 3x4 grid of physical 3D round keys + 6-digit code boxes with Material icons
+// BloodNorms | pin_keypad.dart
+// Clean, accessible numerical keypad for PIN verification
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -27,19 +26,19 @@ class PinKeypad extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildRow(['1', '2', '3']),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         _buildRow(['4', '5', '6']),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         _buildRow(['7', '8', '9']),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(width: 72, height: 72), // Empty balance box
+            const SizedBox(width: 64, height: 64),
             const SizedBox(width: 20),
-            _DuoKeyButton(digit: '0', onTap: () => onDigitPressed('0')),
+            _PinKeyButton(digit: '0', onTap: () => onDigitPressed('0')),
             const SizedBox(width: 20),
-            _DuoDeleteButton(onTap: onDeletePressed),
+            _PinDeleteButton(onTap: onDeletePressed),
           ],
         ),
       ],
@@ -52,7 +51,7 @@ class PinKeypad extends StatelessWidget {
       children: digits.map((digit) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: _DuoKeyButton(
+          child: _PinKeyButton(
             digit: digit,
             onTap: () => onDigitPressed(digit),
           ),
@@ -62,65 +61,54 @@ class PinKeypad extends StatelessWidget {
   }
 }
 
-class _DuoKeyButton extends StatefulWidget {
+class _PinKeyButton extends StatefulWidget {
   final String digit;
   final VoidCallback onTap;
 
-  const _DuoKeyButton({
+  const _PinKeyButton({
     required this.digit,
     required this.onTap,
   });
 
   @override
-  State<_DuoKeyButton> createState() => _DuoKeyButtonState();
+  State<_PinKeyButton> createState() => _PinKeyButtonState();
 }
 
-class _DuoKeyButtonState extends State<_DuoKeyButton> {
+class _PinKeyButtonState extends State<_PinKeyButton> {
   bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    const bevel = BrandColors.bevelHeight;
-    final topOffset = _pressed ? bevel : 0.0;
-    final currentShadow = _pressed ? 0.0 : bevel;
-
     return GestureDetector(
       onTapDown: (_) {
         setState(() => _pressed = true);
-        HapticFeedback.lightImpact();
+        HapticFeedback.selectionClick();
       },
       onTapUp: (_) {
         setState(() => _pressed = false);
         widget.onTap();
       },
       onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 60),
-        margin: EdgeInsets.only(top: topOffset, bottom: bevel - currentShadow),
-        width: 72,
-        height: 72,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: BrandColors.border, width: 2.0),
-          boxShadow: currentShadow > 0
-              ? const [
-                  BoxShadow(
-                    color: BrandColors.border,
-                    offset: Offset(0, bevel),
-                    blurRadius: 0,
-                  ),
-                ]
-              : null,
-        ),
-        child: Center(
-          child: Text(
-            widget.digit,
-            style: TextStyle(
-              fontFamily: BrandTypography.fontFamily,
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              color: BrandColors.textPrimary,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 100),
+        opacity: _pressed ? 0.6 : 1.0,
+        child: Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: BrandColors.surfaceSoft,
+            shape: BoxShape.circle,
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+          ),
+          child: Center(
+            child: Text(
+              widget.digit,
+              style: const TextStyle(
+                fontFamily: BrandTypography.fontFamily,
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: BrandColors.textPrimary,
+              ),
             ),
           ),
         ),
@@ -129,58 +117,47 @@ class _DuoKeyButtonState extends State<_DuoKeyButton> {
   }
 }
 
-class _DuoDeleteButton extends StatefulWidget {
+class _PinDeleteButton extends StatefulWidget {
   final VoidCallback onTap;
 
-  const _DuoDeleteButton({required this.onTap});
+  const _PinDeleteButton({required this.onTap});
 
   @override
-  State<_DuoDeleteButton> createState() => _DuoDeleteButtonState();
+  State<_PinDeleteButton> createState() => _PinDeleteButtonState();
 }
 
-class _DuoDeleteButtonState extends State<_DuoDeleteButton> {
+class _PinDeleteButtonState extends State<_PinDeleteButton> {
   bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    const bevel = BrandColors.bevelHeight;
-    final topOffset = _pressed ? bevel : 0.0;
-    final currentShadow = _pressed ? 0.0 : bevel;
-
     return GestureDetector(
       onTapDown: (_) {
         setState(() => _pressed = true);
-        HapticFeedback.lightImpact();
+        HapticFeedback.selectionClick();
       },
       onTapUp: (_) {
         setState(() => _pressed = false);
         widget.onTap();
       },
       onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 60),
-        margin: EdgeInsets.only(top: topOffset, bottom: bevel - currentShadow),
-        width: 72,
-        height: 72,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F7F7),
-          shape: BoxShape.circle,
-          border: Border.all(color: BrandColors.border, width: 2.0),
-          boxShadow: currentShadow > 0
-              ? const [
-                  BoxShadow(
-                    color: BrandColors.border,
-                    offset: Offset(0, bevel),
-                    blurRadius: 0,
-                  ),
-                ]
-              : null,
-        ),
-        child: const Center(
-          child: Icon(
-            Icons.backspace_rounded,
-            size: 24,
-            color: BrandColors.textSecondary,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 100),
+        opacity: _pressed ? 0.6 : 1.0,
+        child: Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            color: BrandColors.surfaceSoft,
+            shape: BoxShape.circle,
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.backspace_outlined,
+              size: 22,
+              color: BrandColors.textPrimary,
+            ),
           ),
         ),
       ),
@@ -192,4 +169,3 @@ typedef PasscodeKeypad = DuoKeypad;
 
 /// Backward compatibility alias for existing code.
 typedef DuoKeypad = PinKeypad;
-

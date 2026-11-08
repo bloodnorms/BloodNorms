@@ -25,14 +25,18 @@ class ReviewSummaryCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: BrandTypography.caption(color: BrandColors.textSecondary),
+          style: const TextStyle(
+            fontFamily: BrandTypography.fontFamily,
+            fontSize: 13,
+            color: BrandColors.textSecondary,
+          ),
         ),
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: BrandTypography.fontFamily,
             fontSize: 14,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
             color: BrandColors.textPrimary,
           ),
         ),
@@ -47,16 +51,9 @@ class ReviewSummaryCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 4),
-                blurRadius: 0,
-              ),
-            ],
+            color: BrandColors.background,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
           ),
           child: Column(
             children: [
@@ -81,11 +78,11 @@ class ReviewSummaryCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'Urgency: ${state.urgency.label.toUpperCase()}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: BrandTypography.fontFamily,
                             fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: BrandColors.red,
+                            fontWeight: FontWeight.w600,
+                            color: BrandColors.statusError,
                           ),
                         ),
                       ],
@@ -93,7 +90,7 @@ class ReviewSummaryCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const Divider(height: 32, color: BrandColors.border),
+              const Divider(height: 28, color: BrandColors.borderSubtle),
               _buildDetailRow('Hospital', state.hospitalName.isNotEmpty ? state.hospitalName : state.placeLabel),
               const SizedBox(height: 12),
               _buildDetailRow('Patient', state.patientFirstName.isNotEmpty ? state.patientFirstName : 'Not specified'),
@@ -108,26 +105,26 @@ class ReviewSummaryCard extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: BrandColors.redTint,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: BrandColors.redShadow, width: 1.5),
+            color: BrandColors.statusErrorTint,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.statusError.withValues(alpha: 0.2), width: 1.0),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.shield_rounded, size: 20, color: BrandColors.red),
+              const Icon(Icons.shield_outlined, size: 20, color: BrandColors.statusError),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   safetyNoticeText,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: BrandTypography.fontFamily,
                     fontSize: 13,
-                    fontWeight: FontWeight.normal,
+                    height: 1.4,
                     color: BrandColors.textPrimary,
                   ),
                 ),
@@ -139,4 +136,3 @@ class ReviewSummaryCard extends StatelessWidget {
     );
   }
 }
-

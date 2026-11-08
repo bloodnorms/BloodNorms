@@ -1,7 +1,6 @@
-﻿// ============================================================================
-// BloodNorms | duo_header_bar.dart
-// Duolingo Feather App Bar Component
-// Crisp White background, solid 2px bottom border, bold Arial title, Material icons
+// ============================================================================
+// BloodNorms | screen_header.dart
+// Clean, minimal app header bar component
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -30,7 +29,7 @@ class ScreenHeader extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(60);
+  Size get preferredSize => const Size.fromHeight(56);
 
   @override
   Widget build(BuildContext context) {
@@ -44,24 +43,17 @@ class ScreenHeader extends StatelessWidget implements PreferredSizeWidget {
                 child: GestureDetector(
                   onTap: onBackOverride ?? () => context.pop(),
                   child: Container(
-                    width: 40,
-                    height: 40,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
-                      color: BrandColors.bgGrouped,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: BrandColors.border, width: 2.0),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: BrandColors.border,
-                          offset: Offset(0, 2),
-                          blurRadius: 0,
-                        ),
-                      ],
+                      color: BrandColors.surfaceSoft,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                     ),
                     child: const Center(
                       child: Icon(
                         Icons.arrow_back_rounded,
-                        size: 20,
+                        size: 18,
                         color: BrandColors.textPrimary,
                       ),
                     ),
@@ -75,15 +67,15 @@ class ScreenHeader extends StatelessWidget implements PreferredSizeWidget {
         color: Colors.white,
         border: Border(
           bottom: BorderSide(
-            color: BrandColors.border,
-            width: 2.0,
+            color: BrandColors.borderSubtle,
+            width: 1.0,
           ),
         ),
       ),
       child: SafeArea(
         bottom: false,
         child: SizedBox(
-          height: 60,
+          height: 56,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -107,7 +99,6 @@ class ScreenHeader extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-
 
 /// Backward compatibility alias for existing code.
 typedef DuoHeaderBar = ScreenHeader;

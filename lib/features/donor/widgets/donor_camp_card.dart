@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import 'camp_date_box.dart';
 import 'camp_distance_zone_row.dart';
 
@@ -43,19 +43,12 @@ class DonorCampCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
         border: Border.all(
-          color: isJoined ? BrandColors.greenShadow : BrandColors.border,
-          width: 2.0,
+          color: isJoined ? BrandColors.statusSuccess.withValues(alpha: 0.4) : BrandColors.borderSubtle,
+          width: 1.0,
         ),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,10 +71,10 @@ class DonorCampCard extends StatelessWidget {
                       camp.title,
                       style: BrandTypography.title2(color: BrandColors.textPrimary),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.location_on_rounded, size: 14, color: BrandColors.red),
+                        const Icon(Icons.location_on_outlined, size: 14, color: BrandColors.statusError),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -92,10 +85,10 @@ class DonorCampCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Row(
                       children: [
-                        const Icon(Icons.access_time_filled_rounded, size: 14, color: BrandColors.textSecondary),
+                        const Icon(Icons.schedule_outlined, size: 14, color: BrandColors.textSecondary),
                         const SizedBox(width: 4),
                         Text(
                           time,
@@ -127,7 +120,7 @@ class DonorCampCard extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: BrandTypography.fontFamily,
                   color: BrandColors.textPrimary,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   fontSize: 12,
                 ),
               ),
@@ -137,26 +130,26 @@ class DonorCampCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           ClipRRect(
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(BrandColors.radiusPill),
             child: LinearProgressIndicator(
               value: (count / camp.capacity).clamp(0.0, 1.0),
-              backgroundColor: BrandColors.border,
+              backgroundColor: BrandColors.surfaceMuted,
               valueColor: AlwaysStoppedAnimation<Color>(
-                isJoined ? BrandColors.green : BrandColors.red,
+                isJoined ? BrandColors.statusSuccess : BrandColors.primaryAction,
               ),
-              minHeight: 8,
+              minHeight: 6,
             ),
           ),
           const SizedBox(height: 16),
 
           // Action Button
-          ActionButton(
-            label: isJoined ? 'REGISTERED ✓' : 'JOIN CAMP',
-            icon: isJoined ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded,
-            variant: isJoined ? ActionButtonVariant.success : ActionButtonVariant.primary,
-            height: 44,
+          AppPillButton(
+            label: isJoined ? 'Registered ✓' : 'Join Camp',
+            icon: isJoined ? Icons.check_circle_outline_rounded : Icons.add_circle_outline_rounded,
+            variant: isJoined ? AppPillButtonVariant.tonal : AppPillButtonVariant.primary,
+            isFullWidth: true,
             onPressed: onToggleJoin,
           ),
         ],
@@ -164,4 +157,3 @@ class DonorCampCard extends StatelessWidget {
     );
   }
 }
-

@@ -1,7 +1,6 @@
 // ============================================================================
 // BloodNorms | blood_group_screen.dart
-// Blood Group selector screen — Duolingo Feather Red Style
-// 4x2 Tactile 3D Tiles, Mascot speech bubble, Material Icons, Arial
+// Clean, minimal blood group selector screen
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -10,8 +9,8 @@ import '../../../../../shared/constants/blood_groups.dart';
 import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/blood_group_tile.dart';
-import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../providers/request_flow_provider.dart';
 import '../widgets/blood_group_help_sheet.dart';
@@ -37,8 +36,8 @@ class _BloodGroupScreenState extends State<BloodGroupScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: DuoColors.bgGrouped,
-      appBar: DuoHeaderBar(
+      backgroundColor: BrandColors.background,
+      appBar: ScreenHeader(
         title: loc.t('group.title'),
         showBackButton: true,
       ),
@@ -47,35 +46,29 @@ class _BloodGroupScreenState extends State<BloodGroupScreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Duolingo Speech Bubble
-                    const DuoSpeechBubble(
-                      emoji: '🩸',
-                      text: 'Which blood group does the patient need? Select the exact group below!',
-                    ),
-                    const SizedBox(height: 24),
                     Text(
                       loc.t('group.title'),
-                      style: DuoTypography.title1(color: DuoColors.textPrimary),
+                      style: BrandTypography.title1(color: BrandColors.textPrimary),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
-                      'Choose the exact blood group required',
-                      style: DuoTypography.subhead(color: DuoColors.textSecondary),
+                      'Choose the exact blood group required for the patient',
+                      style: BrandTypography.body(color: BrandColors.textSecondary),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
 
-                    // 4x2 Grid of 3D Blood Tiles
+                    // Grid of Blood Group Tiles
                     Center(
                       child: Wrap(
                         spacing: 16,
                         runSpacing: 16,
                         alignment: WrapAlignment.center,
                         children: BloodGroup.values.map((bg) {
-                          return DuoBloodTile(
+                          return BloodGroupTile(
                             bloodGroup: bg,
                             isSelected: _selected == bg,
                             size: 80,
@@ -89,37 +82,34 @@ class _BloodGroupScreenState extends State<BloodGroupScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // "Don't know" 3D card
+                    // Help Card if Blood Group is Unknown
                     GestureDetector(
                       onTap: () => showBloodGroupHelpSheet(context),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: DuoColors.border, width: 2.0),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: DuoColors.border,
-                              offset: Offset(0, 3),
-                              blurRadius: 0,
-                            ),
-                          ],
+                          color: BrandColors.surfaceSoft,
+                          borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                          border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
                         ),
                         child: Row(
                           children: [
-                            const Text('🤔', style: TextStyle(fontSize: 22)),
+                            const Icon(
+                              Icons.help_outline_rounded,
+                              size: 20,
+                              color: BrandColors.accent,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 loc.t('group.unknown'),
-                                style: DuoTypography.headline(color: DuoColors.textPrimary),
+                                style: BrandTypography.label(color: BrandColors.textPrimary),
                               ),
                             ),
                             const Icon(
                               Icons.chevron_right_rounded,
                               size: 20,
-                              color: DuoColors.textSecondary,
+                              color: BrandColors.textMuted,
                             ),
                           ],
                         ),
@@ -129,18 +119,20 @@ class _BloodGroupScreenState extends State<BloodGroupScreen> {
                 ),
               ),
             ),
-            // Sticky 3D Continue CTA in Pure White Box
+            // Sticky Clean Continue Pill CTA
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
                 color: Colors.white,
-                border: Border(top: BorderSide(color: DuoColors.border, width: 2.0)),
+                border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
               ),
               child: SizedBox(
                 width: double.infinity,
-                child: DuoButton(
+                child: AppPillButton(
                   label: loc.t('cta.continue'),
-                  variant: _selected != null ? DuoButtonVariant.primary : DuoButtonVariant.secondary,
+                  variant: _selected != null
+                      ? AppPillButtonVariant.primary
+                      : AppPillButtonVariant.secondary,
                   onPressed: _selected != null
                       ? () => context.push('/units')
                       : null,

@@ -1,7 +1,6 @@
 // ============================================================================
 // BloodNorms | live_tracking_screen.dart
 // Live tracking screen with Map & Radar — Thin Screen Composing Sub-views
-// Realtime PostGIS PostgREST Supabase communication, Arial, zero dummy data
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -12,16 +11,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
-import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/donor_radar_card.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../controllers/live_tracking_controller.dart';
 import '../providers/request_flow_provider.dart';
 import '../widgets/live_tracking_bottom_bar.dart';
-import '../widgets/live_tracking_code_sheet.dart';
-import '../widgets/live_tracking_donor_card.dart';
-import '../widgets/live_tracking_empty_card.dart';
+import '../widgets/live_tracking_contact_dialogs.dart';
+import '../widgets/live_tracking_donors_section.dart';
 import '../widgets/live_tracking_fulfillment_dialogs.dart';
 import '../widgets/live_tracking_map_view.dart';
 import '../widgets/live_tracking_metrics_row.dart';
@@ -47,13 +43,18 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     super.initState();
     final f = globalRequestFlow.state;
     _data = LiveTrackingData(
-      need: f.units, bloodGroup: f.bloodGroup?.label ?? 'Blood',
-      hospitalLat: f.lat, hospitalLng: f.lng,
+      need: f.units,
+      bloodGroup: f.bloodGroup?.label ?? 'Blood',
+      hospitalLat: f.lat,
+      hospitalLng: f.lng,
       hospitalName: f.hospitalName.isNotEmpty ? f.hospitalName : 'Hospital',
     );
     _controller = LiveTrackingController(
-      requestId: widget.requestId, data: _data,
-      onDataChanged: (newData) { if (mounted) setState(() => _data = newData); },
+      requestId: widget.requestId,
+      data: _data,
+      onDataChanged: (newData) {
+        if (mounted) setState(() => _data = newData);
+      },
     )..start();
   }
 
@@ -101,7 +102,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
     final centerPoint = LatLng(_data.hospitalLat, _data.hospitalLng);
 
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: ScreenHeader(
         title: 'Live Search',
         showBackButton: false,
@@ -145,26 +146,21 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       needUnits: _data.need,
                     ),
                   const SizedBox(height: 20),
-                  LiveTrackingMetricsRow(contactedCount: _data.contacted, acceptedCount: _data.accepted, needUnits: _data.need),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Agreed Donors', style: BrandTypography.title2(color: BrandColors.textPrimary)),
-                      TextButton.icon(
-                        onPressed: () => showLiveTrackingCodeSheet(context: context, onCodeSubmitted: _confirmDonation),
-                        icon: const Icon(Icons.dialpad_rounded, size: 18, color: BrandColors.red),
-                        label: const Text('ENTER CODE', style: TextStyle(fontFamily: BrandTypography.fontFamily, color: BrandColors.red, fontWeight: FontWeight.bold, fontSize: 13)),
-                      ),
-                    ],
+                  LiveTrackingMetricsRow(
+                    contactedCount: _data.contacted,
+                    acceptedCount: _data.accepted,
+                    needUnits: _data.need,
                   ),
-                  const SizedBox(height: 12),
-                  if (_data.isLoading)
-                    const Padding(padding: EdgeInsets.symmetric(vertical: 32), child: Center(child: CircularProgressIndicator(color: BrandColors.red)))
-                  else if (_data.donors.isEmpty)
-                    LiveTrackingEmptyCard(bloodGroup: _data.bloodGroup, currentRingKm: _data.currentRingKm, hospitalName: _data.hospitalName)
-                  else
-                    ..._data.donors.map((d) => LiveTrackingDonorCard(donor: d, onCallDonor: () => _callDonor(d))),
+                  const SizedBox(height: 24),
+                  LiveTrackingDonorsSection(
+                    isLoading: _data.isLoading,
+                    bloodGroup: _data.bloodGroup,
+                    currentRingKm: _data.currentRingKm,
+                    hospitalName: _data.hospitalName,
+                    donors: _data.donors,
+                    onCallDonor: _callDonor,
+                    onConfirmDonation: _confirmDonation,
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),

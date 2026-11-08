@@ -6,8 +6,8 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 
 class ExpectedDonorsTabView extends StatelessWidget {
   final List<Map<String, dynamic>> expectedDonors;
@@ -24,20 +24,20 @@ class ExpectedDonorsTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: ScreenHeader(
         title: 'Expected Donors',
         showBackButton: false,
         trailing: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: BrandColors.red),
+            icon: const Icon(Icons.refresh_rounded, color: BrandColors.primaryDark),
             onPressed: onRefresh,
           ),
         ],
       ),
       body: SafeArea(
         child: isLoadingExpected
-            ? const Center(child: CircularProgressIndicator(color: BrandColors.red))
+            ? const Center(child: CircularProgressIndicator(color: BrandColors.primaryDark))
             : ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 children: [
@@ -45,24 +45,18 @@ class ExpectedDonorsTabView extends StatelessWidget {
                     emoji: '👥',
                     text: 'Donors heading to requests in Rajahmundry. Keep beds prepared and welcome them with warmth!',
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: BrandColors.border, width: 2.0),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: BrandColors.border,
-                          offset: Offset(0, 4),
-                          blurRadius: 0,
-                        ),
-                      ],
+                      color: BrandColors.surface,
+                      borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+                      border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                      boxShadow: BrandColors.shadowSubtle,
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.shield_rounded, size: 20, color: BrandColors.red),
+                        Icon(Icons.shield_rounded, size: 20, color: BrandColors.primaryDark),
                         SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -97,14 +91,14 @@ class ExpectedDonorsTabView extends StatelessWidget {
                           status,
                           status == 'ACCEPTED' ? BrandColors.red : BrandColors.green,
                           status == 'ACCEPTED' ? BrandColors.redTint : BrandColors.greenTint,
-                          status == 'ACCEPTED' ? BrandColors.redShadow : BrandColors.greenShadow,
+                          status == 'ACCEPTED' ? BrandColors.red : BrandColors.green,
                         ),
                       );
                     })
                   else ...[
-                    _buildExpectedDonorItem('Anil', 'B+', '~12 min ETA', 'ON THE WAY', BrandColors.green, BrandColors.greenTint, BrandColors.greenShadow),
+                    _buildExpectedDonorItem('Anil', 'B+', '~12 min ETA', 'ON THE WAY', BrandColors.green, BrandColors.greenTint, BrandColors.green),
                     const SizedBox(height: 12),
-                    _buildExpectedDonorItem('Suresh', 'B+', '~25 min ETA', 'ACCEPTED', BrandColors.red, BrandColors.redTint, BrandColors.redShadow),
+                    _buildExpectedDonorItem('Suresh', 'B+', '~25 min ETA', 'ACCEPTED', BrandColors.red, BrandColors.redTint, BrandColors.red),
                   ],
                 ],
               ),
@@ -124,16 +118,10 @@ class ExpectedDonorsTabView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.surface,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+        boxShadow: BrandColors.shadowSubtle,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,8 +133,7 @@ class ExpectedDonorsTabView extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   color: BrandColors.redTint,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: BrandColors.redShadow, width: 1.5),
+                  borderRadius: BorderRadius.circular(BrandColors.radiusSmall),
                 ),
                 child: Center(
                   child: Text(
@@ -172,11 +159,10 @@ class ExpectedDonorsTabView extends StatelessWidget {
             ],
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: statusBg,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: statusBorder, width: 1.5),
+              borderRadius: BorderRadius.circular(BrandColors.radiusPill),
             ),
             child: Text(
               status,

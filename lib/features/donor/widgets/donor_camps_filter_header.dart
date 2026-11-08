@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 
 class DonorCampsFilterHeader extends StatelessWidget {
   final bool isAway;
@@ -35,7 +35,7 @@ class DonorCampsFilterHeader extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 14),
             decoration: BoxDecoration(
               color: const Color(0xFFFEF3C7),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(BrandColors.radiusCard),
               border: Border.all(color: const Color(0xFFFCD34D)),
             ),
             child: const Row(
@@ -62,43 +62,71 @@ class DonorCampsFilterHeader extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [BoxShadow(color: BrandColors.border, offset: Offset(0, 3), blurRadius: 0)],
+            color: BrandColors.surface,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+            boxShadow: BrandColors.shadowSubtle,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.location_on_rounded, color: BrandColors.red, size: 18),
-                  const SizedBox(width: 8),
+                  const Icon(Icons.location_on_rounded, color: BrandColors.primaryDark, size: 20),
+                  const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'CURRENT REGION',
-                        style: TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 9, fontWeight: FontWeight.bold, color: BrandColors.textSecondary),
+                        style: TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: BrandColors.textSecondary,
+                        ),
                       ),
                       Text(
                         selectedCity == 'All' ? 'All Districts' : selectedCity,
-                        style: const TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 13, fontWeight: FontWeight.bold, color: BrandColors.textPrimary),
+                        style: const TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: BrandColors.textPrimary,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
-              TextButton.icon(
-                onPressed: onOpenCityPicker,
-                icon: const Icon(Icons.swap_horiz_rounded, size: 16, color: BrandColors.red),
-                label: const Text('Change City', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 12, fontWeight: FontWeight.bold, color: BrandColors.red)),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  backgroundColor: BrandColors.redTint,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              InkWell(
+                onTap: onOpenCityPicker,
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: BrandColors.surfaceSoft,
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                    border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.swap_horiz_rounded, size: 16, color: BrandColors.textPrimary),
+                      SizedBox(width: 4),
+                      Text(
+                        'Change City',
+                        style: TextStyle(
+                          fontFamily: BrandTypography.fontFamily,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: BrandColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -107,7 +135,15 @@ class DonorCampsFilterHeader extends StatelessWidget {
         const SizedBox(height: 14),
         Row(
           children: [
-            const Text('Search Radius: ', style: TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 11, fontWeight: FontWeight.bold, color: BrandColors.textSecondary)),
+            const Text(
+              'Search Radius: ',
+              style: TextStyle(
+                fontFamily: BrandTypography.fontFamily,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: BrandColors.textSecondary,
+              ),
+            ),
             const SizedBox(width: 6),
             Expanded(
               child: SingleChildScrollView(
@@ -120,10 +156,23 @@ class DonorCampsFilterHeader extends StatelessWidget {
                       child: ChoiceChip(
                         label: Text(
                           '${r.toInt()} km',
-                          style: TextStyle(fontFamily: BrandTypography.fontFamily, fontSize: 10, fontWeight: isSel ? FontWeight.bold : FontWeight.normal),
+                          style: TextStyle(
+                            fontFamily: BrandTypography.fontFamily,
+                            fontSize: 10,
+                            fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                            color: isSel ? BrandColors.primaryDark : BrandColors.textSecondary,
+                          ),
                         ),
                         selected: isSel,
-                        selectedColor: BrandColors.redTint,
+                        selectedColor: BrandColors.surfaceSoft,
+                        backgroundColor: BrandColors.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                          side: BorderSide(
+                            color: isSel ? BrandColors.primaryDark : BrandColors.borderSubtle,
+                            width: 1.0,
+                          ),
+                        ),
                         onSelected: (_) => onRadiusChanged(r),
                       ),
                     );
@@ -137,4 +186,3 @@ class DonorCampsFilterHeader extends StatelessWidget {
     );
   }
 }
-

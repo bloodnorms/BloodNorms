@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import '../../../shared/constants/app_constants.dart';
 import '../../../shared/i18n/app_localizations.dart';
+import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 
 class HomeTopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -29,9 +30,9 @@ class HomeTopBar extends StatelessWidget implements PreferredSizeWidget {
       preferredSize: preferredSize,
       child: Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: BrandColors.background,
           border: Border(
-            bottom: BorderSide(color: Color(0xFFEEEEEE), width: 1.0),
+            bottom: BorderSide(color: BrandColors.borderSubtle, width: 1.0),
           ),
         ),
         child: SafeArea(
@@ -41,27 +42,31 @@ class HomeTopBar extends StatelessWidget implements PreferredSizeWidget {
             child: Row(
               children: [
                 // Left 3-lines menu icon button
-                InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: onOpenMenu,
-                  child: Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF4F5F7),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.menu_rounded,
-                        size: 22,
-                        color: Color(0xFF1F2937),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                    onTap: onOpenMenu,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: BrandColors.surfaceSoft,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.menu_rounded,
+                          size: 20,
+                          color: BrandColors.textPrimary,
+                        ),
                       ),
                     ),
                   ),
                 ),
 
-                // Center Title: BloodNorms in bold
+                // Center Title: BloodNorms in clean typography
                 Expanded(
                   child: Center(
                     child: Row(
@@ -72,7 +77,7 @@ class HomeTopBar extends StatelessWidget implements PreferredSizeWidget {
                           height: 8,
                           margin: const EdgeInsets.only(right: 6),
                           decoration: const BoxDecoration(
-                            color: Color(0xFFE52E2E),
+                            color: BrandColors.statusError,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -80,9 +85,9 @@ class HomeTopBar extends StatelessWidget implements PreferredSizeWidget {
                           AppConstants.appName,
                           style: const TextStyle(
                             fontFamily: BrandTypography.fontFamily,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF111827),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: BrandColors.textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -92,37 +97,41 @@ class HomeTopBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
 
                 // Right Language Selection Pill
-                InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: onOpenLanguageModal,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 7,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF4F5F7),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.language_rounded,
-                          size: 15,
-                          color: Color(0xFFE52E2E),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          loc.locale.languageCode.toUpperCase(),
-                          style: const TextStyle(
-                            fontFamily: BrandTypography.fontFamily,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1F2937),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                    onTap: onOpenLanguageModal,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: BrandColors.surfaceSoft,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.language_rounded,
+                            size: 15,
+                            color: BrandColors.textSecondary,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 5),
+                          Text(
+                            loc.locale.languageCode.toUpperCase(),
+                            style: const TextStyle(
+                              fontFamily: BrandTypography.fontFamily,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: BrandColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

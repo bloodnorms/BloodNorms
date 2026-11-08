@@ -24,14 +24,14 @@ class LiveTrackingEmptyCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       child: Column(
         children: [
-          const Icon(Icons.emergency_share_rounded, color: BrandColors.red, size: 36),
-          const SizedBox(height: 10),
+          const Icon(Icons.emergency_share_outlined, color: BrandColors.statusError, size: 36),
+          const SizedBox(height: 12),
           Text(
             'Broadcasting Alerts to Donors',
             style: BrandTypography.title3(color: BrandColors.textPrimary),
@@ -39,7 +39,7 @@ class LiveTrackingEmptyCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Emergency alerts sent to verified $bloodGroup donors within ${currentRingKm.toStringAsFixed(1)} km radius of $hospitalName. Cards appear here live.',
+            'Emergency alerts sent to verified $bloodGroup donors within ${currentRingKm.toStringAsFixed(1)} km radius of $hospitalName. Responses will appear here in real time.',
             style: BrandTypography.caption(color: BrandColors.textSecondary),
             textAlign: TextAlign.center,
           ),
@@ -48,4 +48,3 @@ class LiveTrackingEmptyCard extends StatelessWidget {
     );
   }
 }
-

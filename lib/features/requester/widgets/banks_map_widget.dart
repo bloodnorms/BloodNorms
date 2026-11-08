@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../shared/models/blood_bank_model.dart';
+import '../../../shared/services/location_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 
@@ -31,16 +32,9 @@ class BanksMapWidget extends StatelessWidget {
     return Container(
       height: 200,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: BrandColors.border, width: 2.0),
-        boxShadow: const [
-          BoxShadow(
-            color: BrandColors.border,
-            offset: Offset(0, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: BrandColors.background,
+        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -53,7 +47,7 @@ class BanksMapWidget extends StatelessWidget {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: LocationService.osmTileUrl,
                 userAgentPackageName: 'com.arkiolabs.bloodnorms',
               ),
               MarkerLayer(
@@ -61,18 +55,18 @@ class BanksMapWidget extends StatelessWidget {
                   // User location marker
                   Marker(
                     point: userPoint,
-                    width: 40,
-                    height: 40,
+                    width: 36,
+                    height: 36,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: BrandColors.redTint,
+                        color: BrandColors.statusErrorTint,
                         shape: BoxShape.circle,
-                        border: Border.all(color: BrandColors.red, width: 2.5),
+                        border: Border.all(color: BrandColors.statusError, width: 2.0),
                       ),
                       child: const Icon(
                         Icons.my_location_rounded,
-                        size: 20,
-                        color: BrandColors.red,
+                        size: 18,
+                        color: BrandColors.statusError,
                       ),
                     ),
                   ),
@@ -84,8 +78,8 @@ class BanksMapWidget extends StatelessWidget {
 
                     return Marker(
                       point: LatLng(b.lat, b.lng),
-                      width: 48,
-                      height: 48,
+                      width: 44,
+                      height: 44,
                       child: GestureDetector(
                         onTap: () {
                           onBankSelected(index);
@@ -93,25 +87,19 @@ class BanksMapWidget extends StatelessWidget {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: isSel ? BrandColors.red : Colors.white,
+                            color: isSel ? BrandColors.primaryAction : BrandColors.background,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isSel ? BrandColors.redShadow : BrandColors.red,
-                              width: 2.5,
+                              color: isSel ? BrandColors.primaryAction : BrandColors.borderSubtle,
+                              width: 1.5,
                             ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: BrandColors.border,
-                                offset: Offset(0, 3),
-                                blurRadius: 0,
-                              ),
-                            ],
+                            boxShadow: BrandColors.shadowCardHover,
                           ),
                           child: Center(
                             child: Icon(
                               Icons.local_hospital_rounded,
-                              size: 24,
-                              color: isSel ? Colors.white : BrandColors.red,
+                              size: 20,
+                              color: isSel ? Colors.white : BrandColors.statusError,
                             ),
                           ),
                         ),
@@ -126,23 +114,24 @@ class BanksMapWidget extends StatelessWidget {
             top: 10,
             right: 10,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: BrandColors.border, width: 1.5),
+                color: BrandColors.background,
+                borderRadius: BorderRadius.circular(BrandColors.radiusPill),
+                border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
+                boxShadow: BrandColors.shadowCardHover,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.touch_app_rounded, size: 14, color: BrandColors.textSecondary),
-                  const SizedBox(width: 4),
+                children: const [
+                  Icon(Icons.touch_app_outlined, size: 13, color: BrandColors.textSecondary),
+                  SizedBox(width: 4),
                   Text(
                     'Interactive map',
                     style: TextStyle(
                       fontFamily: BrandTypography.fontFamily,
                       fontSize: 11,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: BrandColors.textSecondary,
                     ),
                   ),
@@ -155,4 +144,3 @@ class BanksMapWidget extends StatelessWidget {
     );
   }
 }
-

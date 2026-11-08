@@ -17,21 +17,21 @@ class OnboardingSuccessStep extends StatelessWidget {
         children: [
           const SizedBox(height: 30),
           Container(
-            width: 110,
-            height: 110,
-            decoration: const BoxDecoration(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
               color: BrandColors.green,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: BrandColors.greenShadow,
-                  offset: Offset(0, 6),
-                  blurRadius: 0,
+                  color: BrandColors.green.withOpacity(0.2),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
             child: const Center(
-              child: Icon(Icons.check_rounded, size: 64, color: Colors.white),
+              child: Icon(Icons.check_rounded, size: 54, color: Colors.white),
             ),
           ),
           const SizedBox(height: 28),
@@ -39,7 +39,7 @@ class OnboardingSuccessStep extends StatelessWidget {
             'YOU ARE ACTIVE! 🎉',
             style: TextStyle(
               fontFamily: BrandTypography.fontFamily,
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
               color: BrandColors.green,
             ),
@@ -55,4 +55,3 @@ class OnboardingSuccessStep extends StatelessWidget {
     );
   }
 }
-

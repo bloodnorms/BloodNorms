@@ -5,13 +5,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/services/location_service.dart';
 import '../../../shared/theme/brand_colors.dart';
-import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/screen_header.dart';
 import '../providers/request_flow_provider.dart';
 import '../widgets/location_confirm_bottom_bar.dart';
@@ -117,7 +114,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: ScreenHeader(
         title: loc.t('loc.use'),
         showBackButton: true,

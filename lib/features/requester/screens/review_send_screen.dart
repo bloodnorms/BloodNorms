@@ -10,8 +10,9 @@ import '../../../shared/i18n/app_localizations.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import '../providers/request_flow_provider.dart';
 import '../widgets/review_summary_card.dart';
 
@@ -32,7 +33,7 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please enter all required patient and hospital details first.'),
-          backgroundColor: BrandColors.red,
+          backgroundColor: BrandColors.statusError,
         ),
       );
       context.pop();
@@ -67,16 +68,16 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: Colors.white,
+            backgroundColor: BrandColors.background,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: const BorderSide(color: BrandColors.red, width: 2.0),
+              borderRadius: BorderRadius.circular(BrandColors.radiusDialog),
+              side: const BorderSide(color: BrandColors.borderSubtle, width: 1.0),
             ),
             title: Row(
               children: [
-                const Icon(Icons.error_outline_rounded, color: BrandColors.red, size: 24),
+                const Icon(Icons.error_outline_rounded, color: BrandColors.statusError, size: 24),
                 const SizedBox(width: 8),
-                Text('Broadcast Error', style: BrandTypography.title3(color: BrandColors.red)),
+                Text('Broadcast Error', style: BrandTypography.title3(color: BrandColors.statusError)),
               ],
             ),
             content: Text(
@@ -84,10 +85,10 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
               style: BrandTypography.body(color: BrandColors.textSecondary),
             ),
             actions: [
-              ActionButton(
-                label: 'RETRY',
-                variant: ActionButtonVariant.primary,
-                height: 44,
+              AppPillButton(
+                label: 'Retry',
+                variant: AppPillButtonVariant.primary,
+                height: 40,
                 onPressed: () {
                   Navigator.pop(ctx);
                   _sendAlert();
@@ -108,7 +109,7 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
     final state = globalRequestFlow.state;
 
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: const ScreenHeader(
         title: 'Review Alert',
         showBackButton: true,
@@ -124,14 +125,14 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
                   children: [
                     const SpeechBubble(
                       emoji: '🚀',
-                      text: "Almost ready! Verify the details below and tap SEND to alert nearby donors instantly.",
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Review Summary',
-                      style: BrandTypography.title1(color: BrandColors.textPrimary),
+                      text: "Almost ready! Verify the details below and tap Send Alert to notify nearby donors instantly.",
                     ),
                     const SizedBox(height: 20),
+                    Text(
+                      'Review Summary',
+                      style: BrandTypography.title2(color: BrandColors.textPrimary),
+                    ),
+                    const SizedBox(height: 16),
                     ReviewSummaryCard(
                       state: state,
                       safetyNoticeText: loc.t('safety.notice'),
@@ -141,18 +142,19 @@ class _ReviewSendScreenState extends State<ReviewSendScreen> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: BrandColors.border, width: 2.0)),
+                color: BrandColors.background,
+                border: Border(top: BorderSide(color: BrandColors.borderSubtle, width: 1.0)),
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ActionButton(
+              child: SafeArea(
+                top: false,
+                child: AppPillButton(
                   label: loc.t('cta.send'),
                   icon: Icons.bolt_rounded,
                   isLoading: _isSending,
-                  variant: ActionButtonVariant.primary,
+                  variant: AppPillButtonVariant.primary,
+                  isFullWidth: true,
                   onPressed: _sendAlert,
                 ),
               ),

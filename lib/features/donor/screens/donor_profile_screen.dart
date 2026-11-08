@@ -9,8 +9,9 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
-import '../../../shared/widgets/action_button.dart';
+import '../../../shared/widgets/app_pill_button.dart';
 import '../../../shared/widgets/screen_header.dart';
+import '../../../shared/widgets/speech_bubble.dart';
 import '../widgets/donor_dpdp_dialogs.dart';
 import '../widgets/donor_privacy_card.dart';
 import '../widgets/donor_profile_badges_section.dart';
@@ -133,17 +134,17 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: BrandColors.bgGrouped,
+      backgroundColor: BrandColors.surfaceSoft,
       appBar: const ScreenHeader(title: 'Profile', showBackButton: false),
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: BrandColors.red))
+            ? const Center(child: CircularProgressIndicator(color: BrandColors.primaryAction))
             : ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 children: [
                   const SpeechBubble(
                     emoji: '🩸',
-                    text: 'Every donation can save up to three lives. Check your badges and keep your health questions fresh!',
+                    text: 'Every donation can save up to three lives. Check your badges and keep your health questions fresh.',
                   ),
                   const SizedBox(height: 20),
                   DonorProfileHeader(
@@ -158,7 +159,7 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                     isAway: _isAway,
                     onOpenLocationSettings: _openLocationSettings,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   DonorProfileBadgesSection(
                     badges: _badges,
                     donationsCount: _donationsCount,
@@ -166,24 +167,26 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                     bloodGroup: _bloodGroup,
                     donorId: _donorId,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   DonorPrivacyCard(
                     onExportData: () => showDonorExportDialog(context, _name),
                   ),
-                  const SizedBox(height: 24),
-                  ActionButton(
-                    label: 'DELETE MY ACCOUNT',
-                    icon: Icons.delete_forever_rounded,
-                    variant: ActionButtonVariant.destructive,
+                  const SizedBox(height: 20),
+                  AppPillButton(
+                    label: 'Delete My Account',
+                    icon: Icons.delete_outline_rounded,
+                    variant: AppPillButtonVariant.destructive,
+                    isFullWidth: true,
                     onPressed: () => showDonorConfirmDeleteDialog(context, _donorId),
                   ),
-                  const SizedBox(height: 16),
-                  ActionButton(
-                    label: 'SIGN OUT',
-                    variant: ActionButtonVariant.secondary,
+                  const SizedBox(height: 12),
+                  AppPillButton(
+                    label: 'Sign Out',
+                    variant: AppPillButtonVariant.secondary,
+                    isFullWidth: true,
                     onPressed: () => context.go('/'),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                 ],
               ),
       ),

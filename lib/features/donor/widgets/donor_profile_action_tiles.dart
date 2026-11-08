@@ -4,7 +4,6 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import 'donor_registration_nav_tile.dart';
@@ -30,26 +29,18 @@ class DonorProfileActionTiles extends StatelessWidget {
     return Column(
       children: [
         // Onboarding Wizard Tile
-        // Onboarding Wizard Tile
         const DonorRegistrationNavTile(),
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: BrandColors.border, width: 2.0),
-            boxShadow: const [
-              BoxShadow(
-                color: BrandColors.border,
-                offset: Offset(0, 4),
-                blurRadius: 0,
-              ),
-            ],
+            color: BrandColors.background,
+            borderRadius: BorderRadius.circular(BrandColors.radiusCard),
+            border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(BrandColors.radiusCard),
               onTap: onOpenLocationSettings,
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -60,24 +51,24 @@ class DonorProfileActionTiles extends StatelessWidget {
                       height: 44,
                       decoration: BoxDecoration(
                         color: isAway
-                            ? const Color(0xFFFEF3C7)
-                            : BrandColors.greenTint,
-                        borderRadius: BorderRadius.circular(12),
+                            ? BrandColors.statusWarningTint
+                            : BrandColors.statusSuccessTint,
+                        borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                         border: Border.all(
                           color: isAway
-                              ? const Color(0xFFFCD34D)
-                              : BrandColors.greenShadow,
-                          width: 1.5,
+                              ? BrandColors.statusWarning.withValues(alpha: 0.3)
+                              : BrandColors.statusSuccess.withValues(alpha: 0.3),
+                          width: 1.0,
                         ),
                       ),
                       child: Icon(
                         isAway
                             ? Icons.flight_takeoff_rounded
-                            : Icons.location_on_rounded,
+                            : Icons.location_on_outlined,
                         color: isAway
-                            ? const Color(0xFFB45309)
-                            : BrandColors.green,
-                        size: 24,
+                            ? BrandColors.statusWarning
+                            : BrandColors.statusSuccess,
+                        size: 22,
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -101,16 +92,16 @@ class DonorProfileActionTiles extends StatelessWidget {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFEF3C7),
-                                    borderRadius: BorderRadius.circular(6),
+                                    color: BrandColors.statusWarningTint,
+                                    borderRadius: BorderRadius.circular(BrandColors.radiusPill),
                                   ),
                                   child: const Text(
                                     'AWAY',
                                     style: TextStyle(
                                       fontFamily: BrandTypography.fontFamily,
-                                      fontSize: 9,
+                                      fontSize: 9.5,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFFB45309),
+                                      color: BrandColors.statusWarning,
                                     ),
                                   ),
                                 ),
@@ -119,7 +110,9 @@ class DonorProfileActionTiles extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '$city ($area) · ${travelRadiusKm.toInt()} km travel limit',
+                            isAway
+                                ? 'Alerts muted · Tap to reactivate'
+                                : '$area, $city · ${travelRadiusKm.toInt()} km radius',
                             style: BrandTypography.caption(
                               color: BrandColors.textSecondary,
                             ),
@@ -130,7 +123,7 @@ class DonorProfileActionTiles extends StatelessWidget {
                     const Icon(
                       Icons.chevron_right_rounded,
                       size: 20,
-                      color: BrandColors.textSecondary,
+                      color: BrandColors.textMuted,
                     ),
                   ],
                 ),

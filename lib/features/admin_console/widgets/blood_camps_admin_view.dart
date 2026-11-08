@@ -4,12 +4,14 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import '../../../shared/services/supabase_service.dart';
+import '../../../shared/models/blood_bank_model.dart';
+import '../../../shared/models/camp_model.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 import '../../../shared/widgets/app_pill_button.dart';
+import 'blood_camps_create_card.dart';
 
-class BloodCampsAdminView extends StatefulWidget {
+class BloodCampsAdminView extends StatelessWidget {
   final String subPage; // 'camps_list' | 'camps_create'
   final List<CampModel> campsList;
   final List<BloodBankModel> banksList;
@@ -30,30 +32,13 @@ class BloodCampsAdminView extends StatefulWidget {
   });
 
   @override
-  State<BloodCampsAdminView> createState() => _BloodCampsAdminViewState();
-}
-
-class _BloodCampsAdminViewState extends State<BloodCampsAdminView> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _venueController = TextEditingController();
-  final TextEditingController _areaController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController(text: 'Rajahmundry');
-  final TextEditingController _capacityController = TextEditingController(text: '100');
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _venueController.dispose();
-    _areaController.dispose();
-    _cityController.dispose();
-    _capacityController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.subPage == 'camps_create') {
-      return _buildCampsCreatePage();
+    if (subPage == 'camps_create') {
+      return BloodCampsCreateCard(
+        banksList: banksList,
+        onCampCreated: onCampCreated,
+        onShowToast: onShowToast,
+      );
     }
     return _buildCampsListPage();
   }
@@ -99,12 +84,12 @@ class _BloodCampsAdminViewState extends State<BloodCampsAdminView> {
                 label: 'Schedule new drive',
                 icon: Icons.add_rounded,
                 variant: AppPillButtonVariant.primary,
-                onPressed: widget.onNavigateToCreate,
+                onPressed: onNavigateToCreate,
               ),
             ],
           ),
           const SizedBox(height: 16),
-          ...widget.campsList.map((c) => Container(
+          ...campsList.map((c) => Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -142,84 +127,11 @@ class _BloodCampsAdminViewState extends State<BloodCampsAdminView> {
                       label: 'Broadcast',
                       icon: Icons.campaign_outlined,
                       variant: AppPillButtonVariant.secondary,
-                      onPressed: () => widget.onCampSelectedForBroadcast(c),
+                      onPressed: () => onCampSelectedForBroadcast(c),
                     ),
                   ],
                 ),
               )),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCampsCreatePage() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: BrandColors.background,
-        borderRadius: BorderRadius.circular(BrandColors.radiusCard),
-        border: Border.all(color: BrandColors.borderSubtle, width: 1.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Schedule voluntary blood drive camp',
-            style: TextStyle(
-              fontFamily: BrandTypography.fontFamily,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-              color: BrandColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'Camp title')),
-          const SizedBox(height: 12),
-          TextField(controller: _venueController, decoration: const InputDecoration(labelText: 'Venue / Hall name')),
-          const SizedBox(height: 12),
-          TextField(controller: _areaController, decoration: const InputDecoration(labelText: 'Area / Neighborhood')),
-          const SizedBox(height: 12),
-          TextField(controller: _cityController, decoration: const InputDecoration(labelText: 'City')),
-          const SizedBox(height: 12),
-          TextField(controller: _capacityController, decoration: const InputDecoration(labelText: 'Target donor capacity'), keyboardType: TextInputType.number),
-          const SizedBox(height: 20),
-          AppPillButton(
-            label: 'Publish drive now',
-            icon: Icons.check_circle_outline_rounded,
-            variant: AppPillButtonVariant.primary,
-            onPressed: () async {
-              if (_titleController.text.isNotEmpty && _venueController.text.isNotEmpty) {
-                final newCamp = CampModel(
-                  id: 'camp-${DateTime.now().millisecondsSinceEpoch}',
-                  bankId: widget.banksList.isNotEmpty ? widget.banksList.first.id : 'bank-01',
-                  title: _titleController.text.trim(),
-                  venue: _venueController.text.trim(),
-                  area: _areaController.text.trim().isEmpty ? 'Central' : _areaController.text.trim(),
-                  city: _cityController.text.trim(),
-                  startsAt: DateTime.now().add(const Duration(days: 3)),
-                  endsAt: DateTime.now().add(const Duration(days: 3, hours: 6)),
-                  capacity: int.tryParse(_capacityController.text.trim()) ?? 100,
-                  status: 'published',
-                  lat: 17.0005,
-                  lng: 81.7820,
-                  targetRadiusKm: 10.0,
-                );
-
-                await SupabaseService().createCamp(
-                  title: newCamp.title,
-                  venue: newCamp.venue,
-                  area: newCamp.area,
-                  city: newCamp.city,
-                  startsAt: newCamp.startsAt,
-                  endsAt: newCamp.endsAt,
-                  capacity: newCamp.capacity,
-                );
-
-                widget.onCampCreated(newCamp);
-                widget.onShowToast('Blood camp drive successfully scheduled and published!');
-              }
-            },
-          ),
         ],
       ),
     );
