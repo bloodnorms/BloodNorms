@@ -32,7 +32,11 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   void initState() {
     super.initState();
     final state = globalRequestFlow.state;
-    _hospitalController.text = state.hospitalName;
+    _hospitalController.text = state.hospitalName.isNotEmpty
+        ? state.hospitalName
+        : (state.placeLabel.isNotEmpty && state.placeLabel != 'Rajahmundry, Andhra Pradesh'
+            ? state.placeLabel.split(',').first.trim()
+            : '');
     _patientController.text = state.patientFirstName;
     _phoneController.text = state.requesterPhone;
     _noteController.text = state.note;

@@ -152,7 +152,18 @@ class _BanksListScreenState extends State<BanksListScreen> {
                   label: 'Search Verified Donors',
                   variant: AppPillButtonVariant.primary,
                   isFullWidth: true,
-                  onPressed: () => context.push('/units'),
+                  onPressed: () {
+                    if (_selectedBankIndex != null && _selectedBankIndex! < _banks.length) {
+                      final bank = _banks[_selectedBankIndex!];
+                      if (globalRequestFlow.state.hospitalName.isEmpty) {
+                        globalRequestFlow.setHospitalDetails(
+                          name: bank.name,
+                          area: bank.city,
+                        );
+                      }
+                    }
+                    context.push('/details');
+                  },
                 ),
               ),
             ),
