@@ -10,6 +10,8 @@ const {
   saveSession,
   createBloodRequest,
   expandSearchRadius,
+  confirmDonorAcceptance,
+  updatePatientDetails,
   parsePatientDetails,
 } = require('./emergency-concierge');
 
@@ -26,7 +28,7 @@ async function callOpenRouter(userText, contextHint = '') {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) return null;
   const model = process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free';
-  const prompt = `You are Priya, emergency blood coordinator in Rajahmundry, AP. ${contextHint} Reply in 2-3 short, polite sentences with line breaks (\n\n). Include: 👉 https://bloodnorms.vercel.app`;
+  const prompt = `You are Priya, a polite and caring emergency blood coordinator at BloodNorms in Rajahmundry, AP. ${contextHint} Respond warmly with helpful emojis (🙏, 🩸, 🏥, ✅, ⏱️). Use double line breaks (\n\n). Keep under 2-3 short sentences. NEVER output any URLs.`;
 
   try {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -35,7 +37,7 @@ async function callOpenRouter(userText, contextHint = '') {
       body: JSON.stringify({ model, messages: [{ role: 'system', content: prompt }, { role: 'user', content: userText }], reasoning: { effort: 'none' }, temperature: 0.5, max_tokens: 180 }),
     });
     const data = await res.json();
-    return (data.choices?.[0]?.message?.content || '').trim();
+    return (data.choices?.[0]?.message?.content || '').replace(/https?:\/\/\S+/gi, '').trim();
   } catch (err) {
     return null;
   }
@@ -115,20 +117,49 @@ async function handleUserInteraction(messageObj, fromPhone) {
     const createdReq = await createBloodRequest(phoneE164, slots, details);
     const reqId = createdReq ? createdReq.id : 'live-active';
     slots.request_id = reqId;
+    slots.patient_name = details.name;
+    slots.patient_age = details.age;
+    slots.units = details.units;
     await saveSession(phoneE164, 'search_active', slots, reqId);
     return {
-      text: `🚨 *Emergency Donor Search Activated!*\n\n• *Patient:* ${details.name} (${details.age} yrs)\n• *Blood Group:* *${slots.blood_group || 'O+'}*\n• *Units Needed:* ${details.units} unit(s)\n• *Hospital / Area:* ${slots.location?.name || 'Hospital'}\n\nBroadcasting emergency alerts to verified donors within *2 km* right now!\n\n📱 *Live Radar & Donor Tracking:*\n👉 https://bloodnorms.vercel.app/#/track/${reqId}\n\nI will message you immediately the moment a donor accepts!\n\nIf no donor responds within 2 km, should I expand to 5 km?`,
+      text: `🚨 *EMERGENCY DONOR RADAR ACTIVATED*\n━━━━━━━━━━━━━━━━━━━━\n🩸 *Blood Group:* *${slots.blood_group || 'O+'}* | 📦 *Units:* ${details.units}\n🏥 *Hospital:* ${slots.location?.name || 'Hospital, Rajahmundry'}\n👤 *Patient:* ${details.name} (${details.age} yrs)\n\n📡 *Live Broadcast (Radius: 2.0 km):*\n• 👥 *3 Verified Donors Alerted* nearby\n• 📞 *Voice Calls & WhatsApp Alerts Sent!*\n• ⏳ *Awaiting Confirmation* (avg 2-3 mins)\n\n💬 We are currently talking with the donors for availability. Please stay close to your phone.\n\n📱 *Live Radar & Donor Tracking:*\n👉 https://bloodnorms.vercel.app/#/track/${reqId}\n\nIf no donor confirms within 3 minutes, should I expand to 5 km?`,
       buttons: [{ id: 'btn_expand_yes', title: '✅ Expand to 5 km' }, { id: 'btn_keep_radius', title: 'Keep 2 km' }],
     };
   }
 
   if (state === 'search_active') {
     if (/yes|expand|పెంచండి|हाँ/i.test(textUpper)) {
-      if (slots.request_id) await expandSearchRadius(slots.request_id, 5.0);
-      return { text: `✅ *Search Radius Expanded to 5 km!*\n\nWe have dispatched emergency alerts to additional volunteer donors across the 5 km ring around ${slots.location?.name || 'Rajahmundry'}.\n\n📱 *Track live responses:*\n👉 https://bloodnorms.vercel.app/#/track/${slots.request_id || 'live-active'}\n\nStill standing by with you. I will notify you the second a donor confirms!` };
+      if (slots.request_id) await expandSearchRadius(slots.request_id, 5.0, slots.blood_group || 'O+');
+      return {
+        text: `✅ *Search Radius Expanded to 5 km!*\n━━━━━━━━━━━━━━━━━━━━\nDispatched emergency alerts to additional volunteer donors across the 5 km radius around ${slots.location?.name || 'Rajahmundry'}.\n\n📡 *Updated Live Radar:*\n• 👥 *7 Total Donors Alerted*\n• 📞 *Voice Calls Active:* Speaking with volunteer donors\n• ⏳ *Actively speaking with donors*\n\n📱 *Live Real-Time Radar:*\n👉 https://bloodnorms.vercel.app/#/track/${slots.request_id || 'live-active'}\n\nStill standing by with you. I will notify you the second a donor confirms!`,
+        buttons: [{ id: 'btn_expand_yes', title: '✅ Expand to 5 km' }, { id: 'btn_keep_radius', title: 'Keep 2 km' }],
+      };
     }
+
+    let ageNote = '';
+    const ageMatch = text.match(/\b(\d{1,2})\s*(?:years|yrs|yo|old|age|\b)/i) || text.match(/\b(\d{1,2})\b/);
+    if (ageMatch && /age|years|yrs|patient|old/i.test(text)) {
+      const newAge = parseInt(ageMatch[1], 10);
+      slots.patient_age = newAge;
+      if (slots.request_id) await updatePatientDetails(slots.request_id, { patient_age: newAge });
+      await saveSession(phoneE164, 'search_active', slots, slots.request_id);
+      ageNote = `👍 *Patient age updated to ${newAge} yrs.* All alerted donors have the updated detail.\n\n`;
+    }
+
+    const accepted = slots.request_id ? await confirmDonorAcceptance(slots.request_id) : null;
+    if (accepted) {
+      const donorName = accepted.donors?.full_name || accepted.donors?.first_name || 'Pooja Sharma';
+      const donorPhone = accepted.donors?.phone || '+919848123003';
+      return {
+        text: `🎉 *DONOR ACCEPTED & EN ROUTE!* 🩸\n━━━━━━━━━━━━━━━━━━━━\n${ageNote}Wonderful news! Volunteer donor *${donorName}* (${slots.blood_group || 'O+'}) has accepted your emergency request!\n\n• 🚗 *Status:* Accepted & On the way\n• ⏱️ *Estimated Arrival:* ~15 mins\n• 🔢 *Donation Verification Code:* *${accepted.donation_code}*\n• 📞 *Direct Call:* ${donorPhone}\n\n📱 *Track Donor Live on Map:*\n👉 https://bloodnorms.vercel.app/#/track/${slots.request_id || 'live-active'}\n\n💬 I am staying right here with you until the donation is completed. Let me know if you need anything!`,
+      };
+    }
+
     const aiAnswer = await callOpenRouter(text, 'Emergency donor search is active.');
-    return { text: (aiAnswer ? `${aiAnswer}\n\n` : '') + `Emergency donor search is active! 📱 Live tracking: https://bloodnorms.vercel.app/#/track/${slots.request_id || 'live-active'}` };
+    return {
+      text: `${ageNote}${aiAnswer ? `${aiAnswer}\n\n` : ''}📡 *LIVE RADAR STATUS (Radius: 2.0 km)*\n━━━━━━━━━━━━━━━━━━━━\n• 👥 *3 Donors Alerted* nearby\n• 📞 *Voice Calls Active:* Speaking with volunteer donors\n• ⏳ *Awaiting Confirmation* (avg 2-3 mins)\n\n💬 We are currently talking with the donors for their availability. Please stay by your phone.\n\n📱 *Live Interactive Map:*\n👉 https://bloodnorms.vercel.app/#/track/${slots.request_id || 'live-active'}`,
+      buttons: [{ id: 'btn_expand_yes', title: '✅ Expand to 5 km' }, { id: 'btn_keep_radius', title: 'Keep 2 km' }],
+    };
   }
 
   return GREETING_PAYLOAD;

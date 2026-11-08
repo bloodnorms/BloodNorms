@@ -3,6 +3,13 @@
 // Stateful WhatsApp Emergency Intake & Donor Search Concierge
 // ============================================================================
 
+const {
+  alertNearbyDonors,
+  confirmDonorAcceptance,
+  updatePatientDetails,
+  expandSearchRadius,
+} = require('./donor-dispatch');
+
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ixrborkhofxlxbedpang.supabase.co';
 const SERVICE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -131,21 +138,14 @@ async function createBloodRequest(phoneE164, slots, details) {
       body: JSON.stringify(body),
     });
     const rows = await res.json();
-    return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+    const created = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+    if (created) {
+      await alertNearbyDonors(created.id, slots.blood_group || 'O+', 2.0);
+    }
+    return created;
   } catch (err) {
     return null;
   }
-}
-
-async function expandSearchRadius(requestId, km) {
-  const key = getSupabaseKey();
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/requests?id=eq.${requestId}`, {
-      method: 'PATCH',
-      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ current_ring_km: km, updated_at: new Date().toISOString() }),
-    });
-  } catch (err) {}
 }
 
 /**
@@ -172,5 +172,7 @@ module.exports = {
   saveSession,
   createBloodRequest,
   expandSearchRadius,
+  confirmDonorAcceptance,
+  updatePatientDetails,
   parsePatientDetails,
 };
