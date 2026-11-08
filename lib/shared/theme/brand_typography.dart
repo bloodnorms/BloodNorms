@@ -25,7 +25,7 @@ class BrandTypography {
   static TextStyle display({Color color = BrandColors.textPrimary}) => TextStyle(
         fontFamily: fontFamily,
         fontFamilyFallback: fontFallbacks,
-        fontSize: 40,
+        fontSize: 28,
         fontWeight: FontWeight.w600,
         height: 1.2,
         color: color,
@@ -34,7 +34,7 @@ class BrandTypography {
   static TextStyle headline({Color color = BrandColors.textPrimary}) => TextStyle(
         fontFamily: fontFamily,
         fontFamilyFallback: fontFallbacks,
-        fontSize: 28,
+        fontSize: 22,
         fontWeight: FontWeight.w600,
         height: 1.28,
         color: color,
@@ -43,18 +43,18 @@ class BrandTypography {
   static TextStyle title({Color color = BrandColors.textPrimary}) => TextStyle(
         fontFamily: fontFamily,
         fontFamilyFallback: fontFallbacks,
-        fontSize: 20,
-        fontWeight: FontWeight.w500,
-        height: 1.4,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        height: 1.35,
         color: color,
       );
 
   static TextStyle bodyLarge({Color color = BrandColors.textPrimary}) => TextStyle(
         fontFamily: fontFamily,
         fontFamilyFallback: fontFallbacks,
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: FontWeight.w400,
-        height: 1.5,
+        height: 1.45,
         color: color,
       );
 
@@ -64,6 +64,16 @@ class BrandTypography {
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.43,
+        color: color,
+      );
+
+  static TextStyle fieldLabel({Color color = BrandColors.textPrimary}) => TextStyle(
+        fontFamily: fontFamily,
+        fontFamilyFallback: fontFallbacks,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        letterSpacing: 0.1,
         color: color,
       );
 

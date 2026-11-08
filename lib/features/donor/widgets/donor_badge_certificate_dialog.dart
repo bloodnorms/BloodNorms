@@ -77,7 +77,7 @@ void showDonorBadgeCertificateDialog({
             Text(
               donorName,
               textAlign: TextAlign.center,
-              style: BrandTypography.title1(color: BrandColors.textPrimary),
+              style: BrandTypography.title(color: BrandColors.textPrimary),
             ),
             const SizedBox(height: 6),
             Text(

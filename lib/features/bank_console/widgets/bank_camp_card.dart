@@ -51,7 +51,7 @@ class BankCampCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   camp.title,
-                  style: BrandTypography.headline(color: BrandColors.textPrimary),
+                  style: BrandTypography.title3(color: BrandColors.textPrimary),
                 ),
               ),
               Container(

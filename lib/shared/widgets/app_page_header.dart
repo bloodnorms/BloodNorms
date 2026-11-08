@@ -58,7 +58,7 @@ class AppPageHeader extends StatelessWidget {
             actionBlock = trailing;
           } else if (primaryActionLabel != null && onPrimaryAction != null) {
             actionBlock = AppPillButton(
-              label: primaryActionLabel!,
+              label: primaryActionLabel,
               icon: primaryActionIcon,
               onPressed: onPrimaryAction,
             );

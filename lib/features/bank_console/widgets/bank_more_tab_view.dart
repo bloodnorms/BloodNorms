@@ -25,7 +25,7 @@ class BankMoreTabView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           children: [
-            Text('Rotary Central Bank', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+            Text('Rotary Central Bank', style: BrandTypography.title(color: BrandColors.textPrimary)),
             const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
@@ -54,7 +54,7 @@ class BankMoreTabView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Operating Hours', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+                              Text('Operating Hours', style: BrandTypography.title3(color: BrandColors.textPrimary)),
                               const SizedBox(height: 2),
                               Text('Open 24 Hours · 7 Days', style: BrandTypography.caption(color: BrandColors.textSecondary)),
                             ],
@@ -82,7 +82,7 @@ class BankMoreTabView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Team Staff Accounts', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+                              Text('Team Staff Accounts', style: BrandTypography.title3(color: BrandColors.textPrimary)),
                               const SizedBox(height: 2),
                               Text('3 active members · Invite by phone', style: BrandTypography.caption(color: BrandColors.textSecondary)),
                             ],
@@ -111,7 +111,7 @@ class BankMoreTabView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Bank Trust Score', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+                              Text('Bank Trust Score', style: BrandTypography.title3(color: BrandColors.textPrimary)),
                               const SizedBox(height: 2),
                               Text('Score: 85 (Reliable)', style: BrandTypography.caption(color: BrandColors.textSecondary)),
                             ],

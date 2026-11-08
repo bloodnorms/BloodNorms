@@ -52,7 +52,7 @@ class _BloodGroupScreenState extends State<BloodGroupScreen> {
                   children: [
                     Text(
                       loc.t('group.title'),
-                      style: BrandTypography.title1(color: BrandColors.textPrimary),
+                      style: BrandTypography.title(color: BrandColors.textPrimary),
                     ),
                     const SizedBox(height: 6),
                     Text(

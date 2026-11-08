@@ -80,7 +80,7 @@ class DonorProfileActionTiles extends StatelessWidget {
                             children: [
                               Text(
                                 'Location & Alert Preferences',
-                                style: BrandTypography.headline(
+                                style: BrandTypography.title3(
                                   color: BrandColors.textPrimary,
                                 ),
                               ),

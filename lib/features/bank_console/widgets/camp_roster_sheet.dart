@@ -98,7 +98,7 @@ void showCampRosterSheet({
                               Icon(Icons.check_rounded, color: BrandColors.green),
                         ),
                         title: Text(name,
-                            style: BrandTypography.headline(
+                            style: BrandTypography.title3(
                                 color: BrandColors.textPrimary)),
                         subtitle: Text('$group · $units unit donated',
                             style: BrandTypography.caption(

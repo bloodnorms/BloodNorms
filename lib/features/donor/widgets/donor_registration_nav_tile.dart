@@ -49,7 +49,7 @@ class DonorRegistrationNavTile extends StatelessWidget {
                     children: [
                       Text(
                         'Update Registration Details',
-                        style: BrandTypography.headline(
+                        style: BrandTypography.title3(
                           color: BrandColors.textPrimary,
                         ),
                       ),

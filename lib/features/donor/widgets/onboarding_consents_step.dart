@@ -37,7 +37,7 @@ class OnboardingConsentsStep extends StatelessWidget {
           text: 'Please review and confirm these simple donor rules to protect everyone!',
         ),
         const SizedBox(height: 20),
-        Text('Your Consents', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+        Text('Your Consents', style: BrandTypography.title(color: BrandColors.textPrimary)),
         const SizedBox(height: 16),
         ...List.generate(consentLabels.length, (i) {
           return Container(

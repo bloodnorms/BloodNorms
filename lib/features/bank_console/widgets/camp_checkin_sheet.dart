@@ -76,7 +76,7 @@ void showCampCheckInSheet({
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Units Collected:',
-                    style: BrandTypography.headline(color: BrandColors.textPrimary)),
+                    style: BrandTypography.title3(color: BrandColors.textPrimary)),
                 Row(
                   children: [
                     IconButton(

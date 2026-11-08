@@ -116,7 +116,7 @@ void showNotificationsSheet(
                             const SizedBox(height: 12),
                             Text(
                               'No announcements right now',
-                              style: BrandTypography.headline(
+                              style: BrandTypography.title3(
                                 color: BrandColors.textPrimary,
                               ),
                             ),

@@ -66,7 +66,7 @@ class AppEmptyState extends StatelessWidget {
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 20),
               AppPillButton(
-                label: actionLabel!,
+                label: actionLabel,
                 onPressed: onAction,
               ),
             ],

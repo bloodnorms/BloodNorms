@@ -38,7 +38,7 @@ class OnboardingHealthStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Health Quick-Check', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+        Text('Health Quick-Check', style: BrandTypography.title(color: BrandColors.textPrimary)),
         const SizedBox(height: 6),
         Text(
           'Question ${healthIndex + 1} of 10 (BR-15)',

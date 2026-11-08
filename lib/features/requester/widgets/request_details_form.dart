@@ -42,7 +42,7 @@ class RequestDetailsForm extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppTextField(
-          label: 'HOSPITAL NAME',
+          label: 'Hospital Name',
           controller: hospitalController,
           hintText: 'e.g., GGH Rajahmundry',
           prefixIcon: Icons.local_hospital_outlined,
@@ -81,14 +81,14 @@ class RequestDetailsForm extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         AppTextField(
-          label: 'PATIENT FIRST NAME',
+          label: 'Patient First Name',
           controller: patientController,
           hintText: 'e.g., Suresh',
           prefixIcon: Icons.person_outline_rounded,
         ),
         const SizedBox(height: 20),
         AppTextField(
-          label: 'YOUR MOBILE NUMBER',
+          label: 'Your Mobile Number',
           controller: phoneController,
           keyboardType: TextInputType.phone,
           hintText: '+91 98480 12345',
@@ -139,7 +139,7 @@ class RequestDetailsForm extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         AppTextField(
-          label: 'OPTIONAL NOTE FOR DONORS',
+          label: 'Optional Note for Donors',
           controller: noteController,
           hintText: 'e.g., Surgery scheduled for tomorrow 9 AM',
           maxLines: 2,

@@ -63,9 +63,9 @@ class _AppTextFieldState extends State<AppTextField> {
         if (widget.label != null) ...[
           Text(
             widget.label!,
-            style: BrandTypography.headline(color: BrandColors.textPrimary),
+            style: BrandTypography.fieldLabel(color: BrandColors.textPrimary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
         ],
         AnimatedContainer(
           duration: const Duration(milliseconds: 150),
@@ -99,7 +99,7 @@ class _AppTextFieldState extends State<AppTextField> {
                     maxLines: widget.maxLines,
                     readOnly: widget.readOnly,
                     onTap: widget.onTap,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: BrandTypography.fontFamily,
                       fontSize: 15,
                       fontWeight: FontWeight.normal,
@@ -107,7 +107,7 @@ class _AppTextFieldState extends State<AppTextField> {
                     ),
                     decoration: InputDecoration(
                       hintText: widget.hintText,
-                      hintStyle: TextStyle(
+                      hintStyle: const TextStyle(
                         fontFamily: BrandTypography.fontFamily,
                         fontSize: 15,
                         fontWeight: FontWeight.normal,

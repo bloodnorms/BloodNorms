@@ -68,7 +68,7 @@ class DonorBadgeTile extends StatelessWidget {
                   children: [
                     Text(
                       badge.badgeName,
-                      style: BrandTypography.headline(
+                      style: BrandTypography.title3(
                         color: isUnlocked
                             ? BrandColors.textPrimary
                             : BrandColors.textSecondary,

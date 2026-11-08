@@ -24,7 +24,7 @@ class OnboardingPhoneStep extends StatelessWidget {
           text: 'Welcome! First, enter your mobile number. We verify via WhatsApp OTP—zero spam ever!',
         ),
         const SizedBox(height: 24),
-        Text('Mobile Number', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+        Text('Mobile Number', style: BrandTypography.title(color: BrandColors.textPrimary)),
         const SizedBox(height: 16),
         AppTextField(
           controller: controller,
@@ -52,7 +52,7 @@ class OnboardingEmailStep extends StatelessWidget {
           text: 'Great! What is your email address? Used for annual eligibility checkups.',
         ),
         const SizedBox(height: 24),
-        Text('Email Address', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+        Text('Email Address', style: BrandTypography.title(color: BrandColors.textPrimary)),
         const SizedBox(height: 16),
         AppTextField(
           controller: controller,

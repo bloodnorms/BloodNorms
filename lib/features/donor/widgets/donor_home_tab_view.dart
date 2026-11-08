@@ -82,7 +82,7 @@ class DonorHomeTabView extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               'Hi, $donorName',
-              style: BrandTypography.title1(color: BrandColors.textPrimary),
+              style: BrandTypography.title(color: BrandColors.textPrimary),
             ),
             const SizedBox(height: 4),
             Text(
@@ -146,7 +146,7 @@ class DonorHomeTabView extends StatelessWidget {
                   children: [
                     Text(
                       'Active Donation Pass',
-                      style: BrandTypography.headline(color: BrandColors.textPrimary),
+                      style: BrandTypography.title3(color: BrandColors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(

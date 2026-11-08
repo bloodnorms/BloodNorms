@@ -53,7 +53,7 @@ class DonorPrivacyCard extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Export My Data (JSON)', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+                              Text('Export My Data (JSON)', style: BrandTypography.title3(color: BrandColors.textPrimary)),
                               const SizedBox(height: 2),
                               Text('Download copy of personal records (DPDP Act)', style: BrandTypography.caption(color: BrandColors.textSecondary)),
                             ],
@@ -84,7 +84,7 @@ class DonorPrivacyCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Health Quick-Check', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+                          Text('Health Quick-Check', style: BrandTypography.title3(color: BrandColors.textPrimary)),
                           const SizedBox(height: 2),
                           Text('Verified · Due in 5 months', style: BrandTypography.caption(color: BrandColors.textSecondary)),
                         ],

@@ -85,7 +85,7 @@ void showDonorProfileLocationSheet({
               const SizedBox(height: 16),
 
               // City Selector
-              Text('Registered City / District', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+              Text('Registered City / District', style: BrandTypography.fieldLabel(color: BrandColors.textPrimary)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -111,7 +111,7 @@ void showDonorProfileLocationSheet({
               const SizedBox(height: 16),
 
               // Area / Locality
-              Text('Area / Neighborhood', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+              Text('Area / Neighborhood', style: BrandTypography.fieldLabel(color: BrandColors.textPrimary)),
               const SizedBox(height: 6),
               TextField(
                 controller: areaController,
@@ -125,7 +125,7 @@ void showDonorProfileLocationSheet({
               const SizedBox(height: 16),
 
               // Max Willing Travel Radius
-              Text('Maximum Travel Radius', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+              Text('Maximum Travel Radius', style: BrandTypography.fieldLabel(color: BrandColors.textPrimary)),
               const SizedBox(height: 4),
               const Text(
                 'You will NOT receive alerts for drives beyond this distance.',

@@ -90,7 +90,7 @@ class DonorEmptyHistoryCard extends StatelessWidget {
           children: [
             const Icon(Icons.history_rounded, size: 36, color: BrandColors.textSecondary),
             const SizedBox(height: 8),
-            Text('No Past Donations Yet', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+            Text('No Past Donations Yet', style: BrandTypography.title3(color: BrandColors.textPrimary)),
             const SizedBox(height: 4),
             Text(
               'When you complete a donation at a hospital or blood bank, your verified record will appear here.',

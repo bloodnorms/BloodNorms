@@ -43,7 +43,7 @@ class HeroCard extends StatelessWidget {
                     Text(
                       'Need blood\nright now?',
                       style: BrandTypography.headline(color: BrandColors.textPrimary)
-                          .copyWith(fontSize: 26, height: 1.2),
+                          .copyWith(fontSize: 22, height: 1.25),
                     ),
                     const SizedBox(height: 8),
                     Text(

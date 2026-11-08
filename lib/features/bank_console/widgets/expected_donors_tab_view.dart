@@ -151,7 +151,7 @@ class ExpectedDonorsTabView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: BrandTypography.headline(color: BrandColors.textPrimary)),
+                  Text(name, style: BrandTypography.title3(color: BrandColors.textPrimary)),
                   const SizedBox(height: 2),
                   Text(eta, style: BrandTypography.caption(color: BrandColors.textSecondary)),
                 ],

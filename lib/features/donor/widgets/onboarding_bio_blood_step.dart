@@ -31,17 +31,17 @@ class OnboardingBioStep extends StatelessWidget {
           text: 'Rule BR-01: Donors must be aged 18–65 and weigh at least 45 kg.',
         ),
         const SizedBox(height: 20),
-        Text('Basic Details', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+        Text('Basic Details', style: BrandTypography.title(color: BrandColors.textPrimary)),
         const SizedBox(height: 16),
         AppTextField(
-          label: 'FULL NAME',
+          label: 'Full Name',
           controller: nameController,
           hintText: 'e.g., Ramesh Varma',
           prefixIcon: Icons.person_rounded,
         ),
         const SizedBox(height: 16),
         AppTextField(
-          label: 'WEIGHT (KG)',
+          label: 'Weight (kg)',
           controller: weightController,
           keyboardType: TextInputType.number,
           hintText: 'e.g., 68',
@@ -76,7 +76,7 @@ class OnboardingBloodStep extends StatelessWidget {
           text: 'Select your blood group! You can also opt-in for platelet donations.',
         ),
         const SizedBox(height: 20),
-        Text('Your Blood Group', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+        Text('Your Blood Group', style: BrandTypography.title(color: BrandColors.textPrimary)),
         const SizedBox(height: 16),
         Wrap(
           spacing: 12,
@@ -105,7 +105,15 @@ class OnboardingBloodStep extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Willing for Platelets?', style: BrandTypography.headline(color: BrandColors.textPrimary)),
+                  Text(
+                    'Willing for Platelets?',
+                    style: const TextStyle(
+                      fontFamily: BrandTypography.fontFamily,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: BrandColors.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   Text('Apheresis donation at major centres', style: BrandTypography.caption(color: BrandColors.textSecondary)),
                 ],

@@ -90,7 +90,7 @@ class _ConfirmDonationTabViewState extends State<ConfirmDonationTabView> {
                 text: 'Ask the donor for the 6-digit confirmation code shown on their BloodNorms ticket.',
               ),
               const SizedBox(height: 20),
-              Text('Enter 6-Digit Code', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+              Text('Enter 6-Digit Code', style: BrandTypography.title(color: BrandColors.textPrimary)),
               const SizedBox(height: 4),
               Text(
                 'Told by donor upon arrival at blood bank',

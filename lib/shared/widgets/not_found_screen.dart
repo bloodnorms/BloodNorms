@@ -71,7 +71,7 @@ class NotFoundScreen extends StatelessWidget {
                       const SizedBox(height: 18),
                       Text(
                         'Page Not Found',
-                        style: BrandTypography.title1(color: BrandColors.textPrimary),
+                        style: BrandTypography.title(color: BrandColors.textPrimary),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 10),

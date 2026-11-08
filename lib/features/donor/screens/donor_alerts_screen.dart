@@ -100,7 +100,7 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
                 text: 'Emergency requests incoming. Check hospital distance and tap Accept if you can donate.',
               ),
               const SizedBox(height: 20),
-              Text('Live Alerts', style: BrandTypography.title1(color: BrandColors.textPrimary)),
+              Text('Live Alerts', style: BrandTypography.title(color: BrandColors.textPrimary)),
               const SizedBox(height: 16),
               if (_isLoading)
                 const Center(
