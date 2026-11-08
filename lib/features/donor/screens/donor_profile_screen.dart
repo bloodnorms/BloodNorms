@@ -52,47 +52,37 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
       final dId = prefs.getString('current_donor_id');
       _donorId = dId;
 
-      if (dId != null && dId.isNotEmpty) {
-        final loc = await SupabaseService().getDonorLocationPreferences(dId);
-        _city = loc['city']?.toString() ?? 'Rajahmundry';
-        _area = loc['area']?.toString() ?? 'Danavaipeta';
-        _travelRadiusKm = (loc['travel_radius_km'] as num?)?.toDouble() ?? 15.0;
-        _isAway = loc['is_away'] == true;
-
-        final donor = await SupabaseService().getDonor(dId);
-        if (donor != null && mounted) {
-          final count = (donor['donations_count'] as num?)?.toInt() ?? 0;
-          final badges = await SupabaseService().getDonorBadges(dId, donationsCount: count);
-          setState(() {
-            _name = donor['full_name'] ?? donor['first_name'] ?? 'Donor';
-            _phone = donor['phone'] ?? _phone;
-            _bloodGroup = donor['blood_group'] ?? 'O+';
-            _weightKg = (donor['weight_kg'] as num?)?.toDouble() ?? 65.0;
-            _donationsCount = count;
-            _badges = badges;
-            _isLoading = false;
-          });
-          return;
+      if (dId == null || dId.isEmpty) {
+        if (mounted) {
+          context.go('/donor/onboarding');
         }
+        return;
       }
 
-      final allDonors = await SupabaseService().getAllDonors();
-      if (allDonors.isNotEmpty && mounted) {
-        final d = allDonors.first;
-        _donorId = d['id']?.toString();
-        final loc = await SupabaseService().getDonorLocationPreferences(_donorId ?? 'current-donor');
-        _city = loc['city']?.toString() ?? 'Rajahmundry';
-        _area = loc['area']?.toString() ?? 'Danavaipeta';
-        _travelRadiusKm = (loc['travel_radius_km'] as num?)?.toDouble() ?? 15.0;
-        _isAway = loc['is_away'] == true;
+      final savedName = prefs.getString('current_donor_name') ?? 'Donor';
+      final savedPhone = prefs.getString('current_donor_phone') ?? _phone;
+      final savedGroup = prefs.getString('current_donor_blood_group') ?? 'O+';
+      setState(() {
+        _name = savedName;
+        _phone = savedPhone;
+        _bloodGroup = savedGroup;
+      });
 
-        final count = (d['donations_count'] as num?)?.toInt() ?? 0;
-        final badges = await SupabaseService().getDonorBadges(_donorId ?? 'current-donor', donationsCount: count);
+      final loc = await SupabaseService().getDonorLocationPreferences(dId);
+      _city = loc['city']?.toString() ?? 'Rajahmundry';
+      _area = loc['area']?.toString() ?? 'Danavaipeta';
+      _travelRadiusKm = (loc['travel_radius_km'] as num?)?.toDouble() ?? 15.0;
+      _isAway = loc['is_away'] == true;
+
+      final donor = await SupabaseService().getDonor(dId);
+      final count = (donor?['donations_count'] as num?)?.toInt() ?? 0;
+      final badges = await SupabaseService().getDonorBadges(dId, donationsCount: count);
+      if (mounted) {
         setState(() {
-          _name = d['full_name'] ?? d['first_name'] ?? 'Donor';
-          _phone = d['phone'] ?? _phone;
-          _bloodGroup = d['blood_group'] ?? 'O+';
-          _weightKg = (d['weight_kg'] as num?)?.toDouble() ?? 65.0;
+          _name = donor?['full_name'] ?? donor?['first_name'] ?? savedName;
+          _phone = donor?['phone'] ?? savedPhone;
+          _bloodGroup = donor?['blood_group'] ?? savedGroup;
+          _weightKg = (donor?['weight_kg'] as num?)?.toDouble() ?? 65.0;
           _donationsCount = count;
           _badges = badges;
           _isLoading = false;
@@ -103,19 +93,22 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
       debugPrint('Error loading profile: $e');
     }
 
-    if (mounted) {
-      final badges = await SupabaseService().getDonorBadges('default-donor', donationsCount: _donationsCount);
-      setState(() {
-        _badges = badges;
-        _isLoading = false;
-      });
-    }
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _signOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('current_donor_id');
+    await prefs.remove('current_donor_name');
+    await prefs.remove('current_donor_phone');
+    await prefs.remove('current_donor_blood_group');
+    if (mounted) context.go('/');
   }
 
   void _openLocationSettings() {
     showDonorProfileLocationSheet(
       context: context,
-      donorId: _donorId ?? 'd1000000-0000-0000-0000-000000000001',
+      donorId: _donorId ?? '',
       currentCity: _city,
       currentArea: _area,
       currentRadiusKm: _travelRadiusKm,
@@ -184,7 +177,7 @@ class _DonorProfileScreenState extends State<DonorProfileScreen> {
                     label: 'Sign Out',
                     variant: AppPillButtonVariant.secondary,
                     isFullWidth: true,
-                    onPressed: () => context.go('/'),
+                    onPressed: _signOut,
                   ),
                   const SizedBox(height: 20),
                 ],

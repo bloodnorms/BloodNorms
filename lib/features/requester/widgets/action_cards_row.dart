@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/theme/brand_colors.dart';
 import '../../../shared/theme/brand_typography.dart';
 
@@ -21,7 +22,17 @@ class ActionCardsRow extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(BrandColors.radiusCard),
-              onTap: () => context.push('/donor'),
+              onTap: () async {
+                final prefs = await SharedPreferences.getInstance();
+                final dId = prefs.getString('current_donor_id');
+                if (context.mounted) {
+                  if (dId != null && dId.isNotEmpty) {
+                    context.push('/donor');
+                  } else {
+                    context.push('/donor/onboarding');
+                  }
+                }
+              },
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(

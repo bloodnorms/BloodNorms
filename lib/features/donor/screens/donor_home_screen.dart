@@ -4,6 +4,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/services/supabase_service.dart';
 import '../../../shared/theme/brand_colors.dart';
@@ -53,30 +54,32 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
       final dId = prefs.getString('current_donor_id');
       _donorId = dId;
 
-      if (dId != null && dId.isNotEmpty) {
-        final donorData = await SupabaseService().getDonor(dId);
-        if (donorData != null && mounted) {
-          setState(() {
-            _donorName =
-                donorData['full_name'] ?? donorData['first_name'] ?? 'Donor';
-            _donorGroup = donorData['blood_group'] ?? 'O+';
-            _isAvailable = (donorData['state'] != 'paused');
-            _donationsCount =
-                (donorData['donations_count'] as num?)?.toInt() ?? 0;
-          });
+      if (dId == null || dId.isEmpty) {
+        if (mounted) {
+          context.go('/donor/onboarding');
         }
-      } else {
-        final allDonors = await SupabaseService().getAllDonors();
-        if (allDonors.isNotEmpty && mounted) {
-          final d = allDonors.first;
-          _donorId = d['id']?.toString();
-          setState(() {
-            _donorName = d['full_name'] ?? d['first_name'] ?? 'Donor';
-            _donorGroup = d['blood_group'] ?? 'O+';
-            _isAvailable = (d['state'] != 'paused');
-            _donationsCount = (d['donations_count'] as num?)?.toInt() ?? 0;
-          });
-        }
+        return;
+      }
+
+      final savedName = prefs.getString('current_donor_name') ?? 'Donor';
+      final savedGroup = prefs.getString('current_donor_blood_group') ?? 'O+';
+      if (mounted) {
+        setState(() {
+          _donorName = savedName;
+          _donorGroup = savedGroup;
+        });
+      }
+
+      final donorData = await SupabaseService().getDonor(dId);
+      if (donorData != null && mounted) {
+        setState(() {
+          _donorName =
+              donorData['full_name'] ?? donorData['first_name'] ?? savedName;
+          _donorGroup = donorData['blood_group'] ?? savedGroup;
+          _isAvailable = (donorData['state'] != 'paused');
+          _donationsCount =
+              (donorData['donations_count'] as num?)?.toInt() ?? 0;
+        });
       }
 
       final alerts =

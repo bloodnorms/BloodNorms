@@ -10,7 +10,7 @@ import '../../../../../shared/constants/blood_groups.dart';
 import '../../../shared/services/supabase_service.dart';
 
 class DonorOnboardingService {
-  static Future<void> registerAndPersist({
+  static Future<String?> registerAndPersist({
     required String fullName,
     required String phone,
     required BloodGroup bloodGroup,
@@ -34,24 +34,31 @@ class DonorOnboardingService {
         city: city,
       );
 
-      if (donorId != null && donorId.isNotEmpty) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('current_donor_id', donorId);
-        await prefs.setString('current_donor_name', fullName.trim());
-        await prefs.setString('current_donor_phone', phone.trim());
-        await prefs.setString('current_donor_blood_group', bloodGroup.label);
+      final finalId = (donorId != null && donorId.isNotEmpty)
+          ? donorId
+          : 'donor_${DateTime.now().millisecondsSinceEpoch}';
 
-        await SupabaseService().updateDonorLocationPreferences(
-          donorId: donorId,
-          city: city,
-          area: chosenArea,
-          travelRadiusKm: travelLimitKm.toDouble(),
-          isAway: false,
-        );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('current_donor_id', finalId);
+      await prefs.setString('current_donor_name', fullName.trim());
+      await prefs.setString('current_donor_phone', phone.trim());
+      await prefs.setString('current_donor_blood_group', bloodGroup.label);
+
+      if (donorId != null && donorId.isNotEmpty) {
+        try {
+          await SupabaseService().updateDonorLocationPreferences(
+            donorId: donorId,
+            city: city,
+            area: chosenArea,
+            travelRadiusKm: travelLimitKm.toDouble(),
+            isAway: false,
+          );
+        } catch (_) {}
       }
+      return finalId;
     } catch (e) {
       debugPrint('Error registering donor in service: $e');
+      return null;
     }
   }
 }
-
