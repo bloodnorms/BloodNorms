@@ -18,8 +18,8 @@ class DonorHomeTabView extends StatelessWidget {
   final bool isAvailable;
   final int donationsCount;
   final String? latestRequestId;
-  final String latestRequestHospital;
-  final String latestRequestGroup;
+  final String? latestRequestHospital;
+  final String? latestRequestGroup;
   final ValueChanged<bool> onToggleAvailability;
   final ValueChanged<int> onOpenTab;
 
@@ -145,12 +145,16 @@ class DonorHomeTabView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Active Donation Pass',
+                      latestRequestId != null
+                          ? 'Active Donation Pass'
+                          : 'Emergency Alerts',
                       style: BrandTypography.title3(color: BrandColors.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$latestRequestHospital · $latestRequestGroup Whole blood',
+                      latestRequestId != null
+                          ? '${latestRequestHospital ?? "Hospital"} · ${latestRequestGroup ?? "Blood"}'
+                          : 'No active passes · Check live alerts',
                       style: BrandTypography.caption(color: BrandColors.textSecondary),
                     ),
                   ],

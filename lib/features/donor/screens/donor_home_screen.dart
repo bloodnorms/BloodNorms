@@ -30,8 +30,8 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
   String _donorName = 'Donor';
   String _donorGroup = 'O+';
   String? _latestRequestId;
-  String _latestRequestHospital = 'GGH Rajahmundry';
-  String _latestRequestGroup = 'O+';
+  String? _latestRequestHospital;
+  String? _latestRequestGroup;
 
   @override
   void initState() {

@@ -95,12 +95,11 @@ class CampService {
   /// Sign up / RSVP donor for a camp
   Future<bool> joinCamp({required String campId, String? donorId}) async {
     final client = _client;
-    if (client != null) {
+    if (client != null && donorId != null && donorId.isNotEmpty) {
       try {
-        final dId = donorId ?? 'd1000000-0000-0000-0000-000000000001';
         await client.from('camp_signups').upsert({
           'camp_id': campId,
-          'donor_id': dId,
+          'donor_id': donorId,
         });
         return true;
       } catch (e) {

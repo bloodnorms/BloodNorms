@@ -37,10 +37,12 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
   Future<void> _loadAll() async {
     setState(() => _isLoading = true);
     final prefs = await SharedPreferences.getInstance();
-    final donorId = prefs.getString('current_donor_id') ?? 'd1000000-0000-0000-0000-000000000001';
+    final donorId = prefs.getString('current_donor_id');
 
     final results = await SupabaseService().getDonorAlerts();
-    final history = await SupabaseService().getDonorPastHistory(donorId);
+    final history = (donorId != null && donorId.isNotEmpty)
+        ? await SupabaseService().getDonorPastHistory(donorId)
+        : <Map<String, dynamic>>[];
 
     if (mounted) {
       setState(() {
@@ -52,9 +54,15 @@ class _DonorAlertsScreenState extends State<DonorAlertsScreen> {
   }
 
   Future<void> _handleAccept(RequestAlertModel alert) async {
-    setState(() => _acceptingId = alert.id);
     final prefs = await SharedPreferences.getInstance();
-    final donorId = prefs.getString('current_donor_id') ?? 'd1000000-0000-0000-0000-000000000001';
+    final donorId = prefs.getString('current_donor_id');
+
+    if (donorId == null || donorId.isEmpty) {
+      if (mounted) context.push('/donor/onboarding');
+      return;
+    }
+
+    setState(() => _acceptingId = alert.id);
 
     await SupabaseService().acceptDonorAlert(
       requestId: alert.id,

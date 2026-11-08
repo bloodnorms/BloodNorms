@@ -25,12 +25,9 @@ class DonorCampsScreen extends StatefulWidget {
 
 class _DonorCampsScreenState extends State<DonorCampsScreen> {
   static const _cityCoords = {
-    'kakinada': (16.9891, 82.2475),
-    'visakhapatnam': (17.7042, 83.3032),
-    'vijayawada': (16.5062, 80.6480),
-    'guntur': (16.3067, 80.4365),
-    'eluru': (16.7107, 81.0952),
-    'rajahmundry': (17.0005, 81.7820),
+    'kakinada': (16.9891, 82.2475), 'visakhapatnam': (17.7042, 83.3032),
+    'vijayawada': (16.5062, 80.6480), 'guntur': (16.3067, 80.4365),
+    'eluru': (16.7107, 81.0952), 'rajahmundry': (17.0005, 81.7820),
   };
 
   static const _supportedCities = [
@@ -58,14 +55,15 @@ class _DonorCampsScreenState extends State<DonorCampsScreen> {
   Future<void> _loadDonorLocationAndCamps() async {
     setState(() => _isLoading = true);
     final prefs = await SharedPreferences.getInstance();
-    _donorId = prefs.getString('current_donor_id') ?? 'd1000000-0000-0000-0000-000000000001';
-
-    final locPrefs = await SupabaseService().getDonorLocationPreferences(_donorId!);
+    _donorId = prefs.getString('current_donor_id');
+    final locPrefs = (_donorId != null && _donorId!.isNotEmpty)
+        ? await SupabaseService().getDonorLocationPreferences(_donorId!)
+        : <String, dynamic>{};
     final cityPref = locPrefs['city']?.toString() ?? 'Rajahmundry';
     _resolveCityCoordinates(cityPref);
 
     final results = await SupabaseService().getCamps();
-    final joined = _donorId != null && _donorId!.isNotEmpty
+    final joined = (_donorId != null && _donorId!.isNotEmpty)
         ? await SupabaseService().getDonorJoinedCampIds(_donorId!)
         : <String>{};
 
