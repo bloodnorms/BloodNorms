@@ -7,7 +7,7 @@
  * Sends outbound WhatsApp message via Meta Graph API
  */
 async function sendWhatsAppMessage(to, text) {
-  const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID || '1445196962007099';
+  const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID || '1427256480473692';
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
 
   if (!phoneId || !token) {
