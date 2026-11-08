@@ -1,68 +1,39 @@
 // ============================================================================
 // BloodNorms | api/ai-responder.js
-// OpenRouter AI & Fast Intent Triage Engine for WhatsApp
+// Human-Like Warm AI Emergency Coordinator powered by OpenRouter
 // ============================================================================
 
-const SYSTEM_PROMPT = `You are BloodNorms Emergency AI, an empathetic, rapid triage assistant for emergency blood requests and donor coordination in Andhra Pradesh, India.
-Rules:
-1. Reply in 2-3 concise, helpful sentences with WhatsApp markdown (*bold*, emoji). Keep under 50 words.
-2. If the user needs blood or asks for blood stock/donors, extract their blood group if mentioned and include: 👉 https://bloodnorms.vercel.app
-3. If the user wants to donate or register as a donor, direct them to: 👉 https://bloodnorms.vercel.app
-4. Match the user's language naturally (English, Telugu/తెలుగు, or Hindi/हिंदी).
-5. Never provide prescription medical advice or clinical diagnoses.`;
+const SYSTEM_PROMPT = `You are Priya, a warm, caring, and polite emergency blood coordinator at BloodNorms in Andhra Pradesh, India.
+Talk like a genuine, compassionate human coordinator — never sound like a robotic menu, scripted bot, or automated system.
+
+Guidelines:
+1. Warm & Human Tone: Address the person with genuine warmth, empathy, and respect. Be friendly and conversational.
+2. Natural, Varied Greetings: When someone says "hi", "hello", "hey", "namaste", or "నమస్కారం", greet them warmly and uniquely like a real person, asking how you can help them or their loved ones today. Never repeat robotic canned templates.
+3. Health & Blood Donation Inquiries: Politely answer questions about blood donation eligibility and donor health (e.g. weight, hemoglobin levels, tattoos, fever/illness recovery, intervals between donations, hydration). Keep health guidance strictly focused on safe blood donation and general wellness.
+4. Blood Requests & Emergencies: If someone needs blood, mentions a blood group (e.g. O+, B+, A-, AB+), or is looking for blood banks, reassure them with empathy and provide our live search portal: 👉 https://bloodnorms.vercel.app
+5. Becoming a Donor: If someone wants to donate blood or volunteer, appreciate their kindness warmly and guide them to: 👉 https://bloodnorms.vercel.app
+6. Multi-lingual: Naturally match the user's language (English, Telugu/తెలుగు, or Hindi/हिंदी).
+7. Format: Keep replies concise (2 to 4 sentences), easy to read on WhatsApp with gentle formatting (*bold* for emphasis, friendly emojis).`;
 
 /**
- * Normalizes common blood group variations (e.g. "o positive", "O+", "b neg")
- */
-function extractBloodGroup(text) {
-  const normalized = text.toLowerCase().replace(/[\s_-]+/g, ' ').trim();
-  const map = {
-    'o pos': 'O+', 'o positive': 'O+', 'o+': 'O+',
-    'o neg': 'O-', 'o negative': 'O-', 'o-': 'O-',
-    'a pos': 'A+', 'a positive': 'A+', 'a+': 'A+',
-    'a neg': 'A-', 'a negative': 'A-', 'a-': 'A-',
-    'b pos': 'B+', 'b positive': 'B+', 'b+': 'B+',
-    'b neg': 'B-', 'b negative': 'B-', 'b-': 'B-',
-    'ab pos': 'AB+', 'ab positive': 'AB+', 'ab+': 'AB+',
-    'ab neg': 'AB-', 'ab negative': 'AB-', 'ab-': 'AB-',
-  };
-
-  for (const [key, val] of Object.entries(map)) {
-    if (normalized === key || normalized.includes(` ${key} `) || normalized.startsWith(`${key} `) || normalized.endsWith(` ${key}`)) {
-      return val;
-    }
-  }
-  return null;
-}
-
-/**
- * Fast local heuristic fallback when AI key is pending or network is slow
+ * Polite, caring local fallback only used if OpenRouter is unreachable
  */
 function localFallbackReply(text) {
   const upper = text.toUpperCase().trim();
-  const bloodGroup = extractBloodGroup(text);
 
   if (upper === 'STOP' || upper === 'ఆపండి' || upper === 'रोकें') {
-    return 'BloodNorms: You have been opted out. Reply START anytime to resume life-saving alerts.';
+    return 'BloodNorms: You have been opted out. Reply START anytime if you wish to receive alerts again. Take care!';
   }
 
   if (upper === 'YES' || upper === 'CONFIRM' || upper === 'అవును' || upper === 'हाँ') {
-    return '🩸 *Thank you for confirming!* Your volunteer blood donation attendance is recorded in BloodNorms. You are saving lives today!';
+    return '❤️ *Thank you so much!* Your confirmation as a volunteer donor has been recorded. You are truly helping save lives today!';
   }
 
-  if (bloodGroup) {
-    return `🩸 Blood Group *${bloodGroup}* noted!\n\nWe are searching verified blood banks and volunteer donors in your area.\n\nTrack live stock & emergency requests:\n👉 https://bloodnorms.vercel.app\n\nNeed immediate coordinator support? Call our 24/7 emergency pilot helpline.`;
-  }
-
-  if (/donate|donor|register|దానం|రక్తదానం/i.test(text)) {
-    return '🩸 *Become a Hero with BloodNorms!*\n\nRegister as a verified volunteer donor to receive emergency alerts near you:\n👉 https://bloodnorms.vercel.app\n\nEvery donation can save up to 3 lives!';
-  }
-
-  return '🩸 *Welcome to BloodNorms Emergency Network!*\n\nTell us what you need in plain words (e.g. *"Need O+ in Rajahmundry"*, *"O positive"*, or *"Want to donate"*).\n\n• *Live Blood Portal:* https://bloodnorms.vercel.app\n• *Opt-out anytime:* Reply STOP\n\nHow can we help save a life right now?';
+  return 'Hello! 😊 I am Priya from BloodNorms. I am here to help you find blood donors, check blood bank stock, or answer any questions about donating blood. How can I assist you right now?\n\n👉 https://bloodnorms.vercel.app';
 }
 
 /**
- * Generates an intelligent, fast AI response via OpenRouter (with local fallback)
+ * Generates a warm, human-like AI response via OpenRouter
  */
 async function generateAiReply(userText) {
   const trimmed = userText?.trim() || '';
@@ -70,22 +41,21 @@ async function generateAiReply(userText) {
     return localFallbackReply('');
   }
 
-  // 1. Direct blood group shorthand fast-path (0ms latency)
-  const directBloodGroup = extractBloodGroup(trimmed);
-  if (directBloodGroup && trimmed.length <= 15) {
+  // Legal DPDP Opt-out check
+  const upper = trimmed.toUpperCase();
+  if (upper === 'STOP' || upper === 'ఆపండి' || upper === 'रोकें') {
     return localFallbackReply(trimmed);
   }
 
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    console.log('[AI Responder] OPENROUTER_API_KEY not configured yet. Using instant local triage.');
+    console.warn('[AI Responder] OPENROUTER_API_KEY not found in environment.');
     return localFallbackReply(trimmed);
   }
 
-  // 2. OpenRouter Free & Fast Model Execution
   const model = process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free';
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 4500); // 4.5s guard
+  const timeoutId = setTimeout(() => controller.abort(), 4800); // 4.8s guard
 
   try {
     const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -103,8 +73,8 @@ async function generateAiReply(userText) {
           { role: 'user', content: trimmed },
         ],
         reasoning: { effort: 'none' },
-        temperature: 0.2,
-        max_tokens: 180,
+        temperature: 0.7,
+        max_tokens: 200,
       }),
       signal: controller.signal,
     });
@@ -112,7 +82,7 @@ async function generateAiReply(userText) {
     clearTimeout(timeoutId);
 
     if (!res.ok) {
-      console.warn(`[AI Responder] OpenRouter returned ${res.status}: ${await res.text()}`);
+      console.warn(`[AI Responder] OpenRouter status ${res.status}: ${await res.text()}`);
       return localFallbackReply(trimmed);
     }
 
@@ -124,15 +94,13 @@ async function generateAiReply(userText) {
     }
   } catch (err) {
     clearTimeout(timeoutId);
-    console.error('[AI Responder] OpenRouter call error/timeout:', err.message);
+    console.error('[AI Responder] OpenRouter error:', err.message);
   }
 
   return localFallbackReply(trimmed);
 }
 
 module.exports = {
-  extractBloodGroup,
   generateAiReply,
   localFallbackReply,
 };
-
