@@ -79,16 +79,13 @@ module.exports = async (req, res) => {
 
       console.log(`[WhatsApp Webhook] Received ${messageType} from ${from}: "${text}"`);
 
-      // Respond immediately with 200 OK so Meta doesn't retry
-      res.status(200).json({ status: 'received', from });
-
       // Handle DPDP Opt-Out (STOP)
       if (textUpper === 'STOP' || textUpper === 'ఆపండి' || textUpper === 'रोकें') {
         await sendWhatsAppMessage(
           from,
           'BloodNorms: You have been opted out. You will not receive any further alerts. Reply START to resume.'
         );
-        return;
+        return res.status(200).json({ status: 'opt_out_success', from });
       }
 
       // Handle Volunteer Confirmation (YES)
@@ -97,7 +94,7 @@ module.exports = async (req, res) => {
           from,
           '🩸 Thank you for confirming! Your volunteer blood donation attendance has been recorded in BloodNorms. You are saving lives today!'
         );
-        return;
+        return res.status(200).json({ status: 'confirm_success', from });
       }
 
       // Handle Blood Group Inquiry (e.g. O+, A+, B+, etc.)
@@ -107,7 +104,7 @@ module.exports = async (req, res) => {
           from,
           `🩸 Blood Group *${textUpper}* noted!\n\nWe are searching verified blood banks and volunteer donors near your area.\n\nTrack stock & emergency requests live:\n👉 https://bloodnorms.vercel.app\n\nNeed immediate helpline? Call our 24/7 toll-free emergency coordinator.`
         );
-        return;
+        return res.status(200).json({ status: 'blood_group_noted', from });
       }
 
       // Default Interactive Greeting (e.g. for "hi", "hello", or any question)
@@ -115,6 +112,8 @@ module.exports = async (req, res) => {
         from,
         '🩸 *Welcome to BloodNorms Emergency Network!*\n\nWe help you find verified blood donors and live blood bank stock in minutes.\n\n• *Reply with a Blood Group* (e.g. O+, B+, A+, AB-)\n• *Live Blood Portal:* https://bloodnorms.vercel.app\n• *Opt-out anytime:* Reply STOP\n\nHow can we help you save a life today?'
       );
+
+      return res.status(200).json({ status: 'greeting_sent', from });
     } catch (err) {
       console.error('[WhatsApp Webhook] Error processing event:', err);
       if (!res.headersSent) {
