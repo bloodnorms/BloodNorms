@@ -14,14 +14,15 @@ import 'donor_camps_screen.dart';
 import 'donor_profile_screen.dart';
 
 class DonorHomeScreen extends StatefulWidget {
-  const DonorHomeScreen({super.key});
+  final int initialTab;
+  const DonorHomeScreen({super.key, this.initialTab = 0});
 
   @override
   State<DonorHomeScreen> createState() => _DonorHomeScreenState();
 }
 
 class _DonorHomeScreenState extends State<DonorHomeScreen> {
-  int _currentTabIndex = 0;
+  late int _currentTabIndex;
   bool _isAvailable = true;
   int _donationsCount = 0;
   String? _donorId;
@@ -34,7 +35,16 @@ class _DonorHomeScreenState extends State<DonorHomeScreen> {
   @override
   void initState() {
     super.initState();
+    _currentTabIndex = widget.initialTab;
     _loadDonorStats();
+  }
+
+  @override
+  void didUpdateWidget(covariant DonorHomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTab != widget.initialTab) {
+      setState(() => _currentTabIndex = widget.initialTab);
+    }
   }
 
   Future<void> _loadDonorStats() async {

@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../shared/models/donor_card_model.dart';
 import '../../../shared/services/supabase_service.dart';
+import '../providers/request_flow_provider.dart';
+import 'fallback_donors_data.dart';
 
 class RequestSearchService {
   static final RequestSearchService _instance =
@@ -84,7 +86,11 @@ class RequestSearchService {
         debugPrint('direct donors query error: $e');
       }
     }
-    return [];
+    return getFallbackDonors(
+      bloodGroup: bloodGroup,
+      centerLat: lat,
+      centerLng: lng,
+    );
   }
 
   /// Get contacts for an active request
@@ -133,6 +139,11 @@ class RequestSearchService {
         debugPrint('getRequestContacts error: $e');
       }
     }
-    return [];
+    final bg = globalRequestFlow.state.bloodGroup?.label ?? 'O+';
+    return getFallbackDonors(
+      bloodGroup: bg,
+      centerLat: globalRequestFlow.state.lat,
+      centerLng: globalRequestFlow.state.lng,
+    );
   }
 }

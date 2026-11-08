@@ -34,7 +34,7 @@ void main() async {
 
   runApp(
     DevicePreview(
-      enabled: !kReleaseMode,
+      enabled: const bool.fromEnvironment('DEVICE_PREVIEW', defaultValue: false),
       defaultDevice: Devices.ios.iPhone13,
       builder: (context) => const ProviderScope(
         child: BloodNormsApp(),

@@ -79,7 +79,19 @@ GoRouter createRouter({
       // 3. Donor App
       GoRoute(
         path: '/donor',
-        builder: (context, state) => const DonorHomeScreen(),
+        builder: (context, state) => const DonorHomeScreen(initialTab: 0),
+      ),
+      GoRoute(
+        path: '/donor/alerts',
+        builder: (context, state) => const DonorHomeScreen(initialTab: 1),
+      ),
+      GoRoute(
+        path: '/donor/camps',
+        builder: (context, state) => const DonorHomeScreen(initialTab: 2),
+      ),
+      GoRoute(
+        path: '/donor/profile',
+        builder: (context, state) => const DonorHomeScreen(initialTab: 3),
       ),
       GoRoute(
         path: '/donor/onboarding',

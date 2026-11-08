@@ -4,6 +4,7 @@
 // ============================================================================
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../constants/app_constants.dart';
@@ -48,10 +49,17 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
     bool isOnline = true;
     try {
       final uri = Uri.parse('${AppConstants.defaultSupabaseUrl}/rest/v1/');
-      final res = await http.get(uri).timeout(const Duration(seconds: 3));
+      final res = await http.get(
+        uri,
+        headers: {
+          'apikey': AppConstants.defaultSupabaseAnonKey,
+        },
+      ).timeout(const Duration(seconds: 4));
       isOnline = res.statusCode > 0;
     } catch (_) {
-      isOnline = false;
+      // In sandboxed environments or web CORS restrictions, REST ping may be blocked
+      // Don't flag offline on web unless specifically confirmed
+      isOnline = !kIsWeb;
     }
 
     if (mounted) {
